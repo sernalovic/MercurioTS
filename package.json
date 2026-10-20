@@ -1,0 +1,20 @@
+{
+  "name": "mercurio-ts",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @mercurio/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dist:win": "pnpm --filter @mercurio/desktop dist:win"
+  },
+  "packageManager": "pnpm@10.12.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "electron-winstaller",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

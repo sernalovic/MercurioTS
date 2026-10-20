@@ -1,0 +1,19 @@
+appId: com.mercurio.desktop
+productName: Mercurio
+directories:
+  output: release
+files:
+  - "src/**/*"
+  - "package.json"
+win:
+  # Instalador NSIS estándar (siguiente-siguiente), 64 bits
+  target:
+    - target: nsis
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: Mercurio
+  artifactName: ${productName}-Setup-${version}.${ext}

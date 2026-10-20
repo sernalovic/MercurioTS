@@ -1,11 +1,12 @@
 # MercurioTS
 
-Reconstrucción de Mercurio con un nuevo stack: Next.js + TypeScript.
+Reconstrucción de Mercurio con un nuevo stack: Next.js + TypeScript + Electron.
 
-- **Portal web y API:** Next.js (portal de trabajadores, zonas de administración y API `api/v1`).
-- **Escritorio:** Tauri con UI React, instalable en Windows.
-- **Dominio:** paquete TypeScript puro con las reglas de cálculo (horas, dietas, pluses, nóminas, reclamaciones), compartido por web y escritorio.
-- **Base de datos:** PostgreSQL, vía Drizzle.
+- **Portal web y API:** Next.js 16 (`apps/web`; portal de trabajadores, zonas de administración y API `api/v1`).
+- **Escritorio:** Electron (`apps/desktop`), con instalador NSIS de Windows vía `electron-builder` (`pnpm dist:win`).
+- **Dominio:** paquete TypeScript puro (`packages/domain`) con las reglas de cálculo (horas, dietas, pluses, nóminas, reclamaciones), compartido por web y escritorio.
+- **Pruebas:** Vitest, derivadas de la especificación, igual que los tests xUnit del original.
+- **Base de datos:** PostgreSQL, con ORM por decidir en el paso de la API (Drizzle u otros).
 
 ## Documentación
 
@@ -25,4 +26,16 @@ Los datos personales exportados del sistema original **no** se copian a este rep
 
 ## Estado
 
-Estructura inicial del monorepo. Por decidir: Tauri vs Electron, y Prisma vs Drizzle.
+Monorepo pnpm montado y funcional:
+
+```
+apps/web        Next.js 16 (App Router, src/, CSS plano sin Tailwind, sin ESLint adicional)
+apps/desktop    Electron 44 + electron-builder (instalador Windows NSIS; sin UI real todavía)
+packages/domain Reglas de cálculo en TS puro; primero Horas.Duracion, con tests Vitest
+```
+
+- `pnpm test` ejecuta los tests de todos los paquetes.
+- `pnpm dev` arranca la web.
+- `pnpm dist:win` genera el instalador Windows (aún no probado con una UI real).
+
+Por decidir: ORM de la base de datos, y librerías de PDF/Excel para el port.

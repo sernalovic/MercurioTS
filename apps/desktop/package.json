@@ -1,0 +1,18 @@
+{
+  "name": "@mercurio/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Aplicación de escritorio de Mercurio (Electron) para los administradores.",
+  "main": "src/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "lint": "",
+    "test": "echo \"(sin tests todavía)\" && exit 0",
+    "build": "echo \"(el escritorio se empaqueta con dist:win)\"",
+    "dist:win": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^44.9.1",
+    "electron-builder": "^26.15.3"
+  }
+}
