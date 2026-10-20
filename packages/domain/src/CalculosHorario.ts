@@ -13,7 +13,7 @@
  */
 import { Convenio, DiaCalendario, Grafico, Horario, Servicio, clonarServicio, nuevoServicio } from "./Entidades";
 import * as Horas from "./Horas";
-import { EsTrabajo } from "./Incidencias";
+import { esTrabajo } from "./Incidencias";
 import { CentroTrabajo, Incidencia, TipoDia, Turno } from "./enums";
 import { RangoNumeros } from "./Rango";
 
@@ -287,7 +287,7 @@ export class CalculosHorario {
 
   regenerarDia(dia: DiaCalendario, anterior: DiaCalendario | null, siguiente: DiaCalendario | null, grafico: Grafico | null): void {
     const trabajado = dia.servicioTrabajado;
-    if (EsTrabajo(trabajado.incidencia, trabajado.numero)) {
+    if (esTrabajo(trabajado.incidencia, trabajado.numero)) {
       dia.servicioTrabajado = this.aplicarNumero(trabajado, grafico);
     }
 
@@ -314,13 +314,13 @@ export class CalculosHorario {
         this.recalcularServicio(servicio);
         return servicio;
       case "incidencia":
-        if (!EsTrabajo(servicio.incidencia, servicio.numero) || servicio.incidencia === Incidencia.FOR) {
+        if (!esTrabajo(servicio.incidencia, servicio.numero) || servicio.incidencia === Incidencia.FOR) {
           return this.vaciar(servicio);
         }
         return servicio;
       case "numero":
         if (servicio.numero <= 0) return this.vaciar(servicio);
-        if (!EsTrabajo(servicio.incidencia, servicio.numero)) servicio.incidencia = Incidencia.Trabajo;
+        if (!esTrabajo(servicio.incidencia, servicio.numero)) servicio.incidencia = Incidencia.Trabajo;
         return this.aplicarNumero(servicio, grafico);
       default:
         return servicio;

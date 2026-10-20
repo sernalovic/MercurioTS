@@ -26,7 +26,14 @@ Port empezado:
 - `CalculosHorario` completo: duraciones, dietas, recálculo de servicio y gráfico
   (incluido el error de tiempo partido, recalculado en cada pasada), tipo de día
   por rangos, festivos, plus por menor descanso, regenerar día y cambio de propiedad.
+- `Incidencias` completo: trabajo/descansos (incl. variantes JD/FN), formación,
+  asignar sobre descanso, parseo y texto de celdas de calendario.
+- `Fechas`: fechas `YYYY-MM-DD` sin zona horaria; día de la semana vía UTC.
+- Entidades de calendario: `Calendario`, `ResumenCalendario` (+ totalizadores),
+  `DiaCalendario`, `Conductor`, `TablaSalarial`.
+- `CalculosCalendario`: crear días, ajustar JDs (variantes fin de semana y
+  descansos sueltos), diferencias en contra, importes mensuales, y el resumen
+  mensual completo (12.1 contadores, 12.2 validaciones y errores, 12.3 importes).
 
-Pendiente del port: `CalculosCalendario`, `CalculosNomina`, `CalculosReclamacion`,
-resto de `Incidencias` (descansos, variantes JD/FN, parseo y texto de celdas) y
+Pendiente del port: `CalculosNomina`, `CalculosReclamacion` y
 `ExtraccionGraficos`/`ComparacionGraficos`.

@@ -10,7 +10,8 @@
  * - Fechas: cadenas `YYYY-MM-DD`, sin zona horaria.
  */
 import {
-  CategoriaGrafico, CentroTrabajo, CodigoIncidencia, Incidencia, TipoDia, Turno,
+  CategoriaGrafico, CategoriaTrabajador, CentroTrabajo, CodigoIncidencia, Incidencia, SituacionTrabajador,
+  TipoDia, Turno,
 } from "./enums";
 
 export type Centimos = number;
@@ -61,16 +62,198 @@ export interface Grafico extends Horario {
 /** Uno de los tres servicios de un día: anual (planificado), trabajado (real) o virtual (computado). */
 export interface DiaCalendario {
   id?: number;
+  calendarioId?: number;
   fecha: string;
   esFestivo: boolean;
   servicioAnual: Servicio;
   servicioTrabajado: Servicio;
   servicioVirtual: Servicio;
+  notas: string | null;
+  vehiculos: string | null;
+  refuerzos: number;
+  dndCobrado: boolean;
+  dndsCobradosPorDescanso: number;
+  /** Marcado cuando el trabajador lo modificó desde el portal web. */
+  isRemoteUpdated: boolean;
 }
 
 export interface Festivo {
   id?: number;
   fecha: string;
+}
+
+export interface TablaSalarial {
+  id?: number;
+  categoria: CategoriaTrabajador;
+  sueldoBaseDiario: Centimos;
+  sueldoBaseMensual: Centimos;
+  sueldoBaseAnual: Centimos;
+  complementoSalarial: Centimos;
+  baseAntiguedad: Centimos;
+  precioHoraExtra: Centimos;
+  precioQuebrantoMoneda: Centimos;
+  pagaSeptiembre: Centimos;
+  importeDndCobrado: Centimos;
+  seguroAccidentes: Centimos;
+  porcentajeSeguridadSocial: number;
+  porcentajeDesempleo: number;
+}
+
+/** Campos de `Conductor` que usan los cálculos del calendario y la nómina. */
+export interface Conductor {
+  id?: number;
+  matricula: number;
+  nombre: string;
+  apellidos: string;
+  centro: CentroTrabajo;
+  categoria: CategoriaTrabajador;
+  situacion: SituacionTrabajador;
+  /** Fecha de antigüedad (YYYY-MM-DD). */
+  fechaAntiguedad: string;
+  /** Porcentaje de IRPF (0–100). */
+  porcentajeIrpf: number;
+}
+
+/** Contadores e importes mensuales de un calendario (`ResumenCalendario`); importes en céntimos, horas en minutos. */
+export interface ResumenCalendario {
+  id?: number;
+  calendarioId?: number;
+  diasActivo: number;
+  diasInactivo: number;
+  diasTrabajo: number;
+  diasTrabajoJD: number;
+  diasTrabajoFN: number;
+  diasOV: number;
+  diasJD: number;
+  diasFN: number;
+  diasE: number;
+  diasDS: number;
+  diasDC: number;
+  diasF6: number;
+  diasF6D: number;
+  diasDND: number;
+  diasDF: number;
+  diasPER: number;
+  diasEJD: number;
+  diasEFN: number;
+  diasOVJD: number;
+  diasOVFN: number;
+  diasF6DC: number;
+  diasFOR: number;
+  diasFORJD: number;
+  diasFORFN: number;
+  diasOVA: number;
+  diasOVAJD: number;
+  diasOVAFN: number;
+  diasLAC: number;
+  diasLACJD: number;
+  diasLACFN: number;
+  diasCO: number;
+  diasCE: number;
+  diasRE: number;
+  diasHorasSindicales: number;
+  diasComiteJD: number;
+  diasComiteDC: number;
+  sabadosTrabajados: number;
+  sabadosDescansados: number;
+  domingosTrabajados: number;
+  domingosDescansados: number;
+  festivosTrabajados: number;
+  festivosDescansados: number;
+  diasTurno1: number;
+  diasTurno2: number;
+  diasTurno3: number;
+  diasTurno4: number;
+  diasConRefuerzo: number;
+  findesCompletos: number;
+  diasDeberiaTrabajar: number;
+  diasDeberiaDescansar: number;
+  diasDeberiaVacaciones: number;
+  horasTrabajadas: number;
+  horasTrabajadasConvenio: number;
+  horasAcumuladas: number;
+  horasAcumuladasVirtual: number;
+  horasNocturnas: number;
+  desayunos: number;
+  desayunosVirtual: number;
+  comidas: number;
+  comidasVirtual: number;
+  cenas: number;
+  cenasVirtual: number;
+  totalDietas: number;
+  totalDietasVirtual: number;
+  diasConPlusPaqueteria: number;
+  facturadoPaqueteria: number;
+  plusesPaqueteria: Centimos;
+  plusesMenorDescanso: Centimos;
+  limpiezas: number;
+  totalLimpiezas: number;
+  importeDietas: Centimos;
+  importeDietasVirtual: Centimos;
+  importePlusSabados: Centimos;
+  importePlusFestivos: Centimos;
+  importePlusPaqueteria: Centimos;
+  importePlusLimpieza: Centimos;
+  importePlusMenorDescanso: Centimos;
+  importePlusNocturnidad: Centimos;
+  importePlusNocturnidadParcial: Centimos;
+  importePlusNavidad: Centimos;
+  importePlusViaje: Centimos;
+  importeQuebrantoMoneda: Centimos;
+  importeVariableVacaciones: Centimos;
+  importeRefuerzos: Centimos;
+  errores: string;
+  totalDndsCobrados: number;
+  importeDndsCobrados: Centimos;
+  totalDndsCobradosPorDescanso: number;
+  importeDndsCobradosPorDescanso: Centimos;
+}
+
+/** Totalizadores calculados de `ResumenCalendario` (propiedades computadas del original). */
+export const totalDiasTrabajados = (r: ResumenCalendario): number =>
+  r.diasTrabajo + r.diasTrabajoJD + r.diasTrabajoFN + r.diasDC;
+export const totalDescansos = (r: ResumenCalendario): number =>
+  r.diasJD + r.diasFN + r.diasDS + r.diasDF;
+export const totalDiasVacaciones = (r: ResumenCalendario): number =>
+  r.diasOV + r.diasOVJD + r.diasOVFN;
+export const totalDiasE = (r: ResumenCalendario): number =>
+  r.diasE + r.diasEJD + r.diasEFN;
+export const totalDiasTrabajoEnDescanso = (r: ResumenCalendario): number =>
+  r.diasTrabajoJD + r.diasTrabajoFN;
+export const totalDiasLAC = (r: ResumenCalendario): number =>
+  r.diasLAC + r.diasLACJD + r.diasLACFN;
+export const totalDiasComite = (r: ResumenCalendario): number =>
+  r.diasCO + r.diasCE + r.diasHorasSindicales;
+export const totalImporteDndsCobrados = (r: ResumenCalendario): Centimos =>
+  r.importeDndsCobrados + r.importeDndsCobradosPorDescanso;
+export const hasErrors = (r: ResumenCalendario): boolean =>
+  r.errores.trim() !== "";
+
+/** Calendario mensual de un conductor; importes cobrados (los que figuran en la nómina) en céntimos. */
+export interface Calendario {
+  id?: number;
+  conductorId: number;
+  conductor: Conductor | null;
+  centro: CentroTrabajo;
+  /** Primer día del mes al que corresponde ("YYYY-MM-01"). */
+  fecha: string;
+  resumen: ResumenCalendario | null;
+  dias: DiaCalendario[];
+  totalImportePlusSabados: Centimos;
+  totalImportePlusFestivos: Centimos;
+  totalImportePlusNocturnidad: Centimos;
+  totalImportePlusNocturnidadParcial: Centimos;
+  totalImportePlusPaqueteria: Centimos;
+  totalImportePlusLimpieza: Centimos;
+  totalImportePlusMenorDescanso: Centimos;
+  totalImportePlusNavidad: Centimos;
+  totalImportePlusViaje: Centimos;
+  totalQuebrantoMoneda: Centimos;
+  totalRefuerzos: Centimos;
+  totalImporteDietas: Centimos;
+  totalDcsPendientes: Centimos;
+  totalDndsPendientes: Centimos;
+  totalImporteDndsCobrados: Centimos;
 }
 
 export interface OpcionesCentro {
@@ -119,6 +302,8 @@ export interface Convenio {
   porcentajeDesayuno: number;
   porcentajePlusCena: number;
   maximoLimpiezas: number;
+  /** Importe de una dieta, en céntimos (15.37 € → 1537). */
+  importeDietas: Centimos;
   importePlusFestivos: Centimos;
   importePlusSabados: Centimos;
   importePlusMenorDescanso: Centimos;
@@ -129,6 +314,7 @@ export interface Convenio {
   importePlusNavidad: Centimos;
   importeRefuerzos: Centimos;
   opcionesCentro: OpcionesCentro[];
+  tablasSalariales: TablaSalarial[];
 }
 
 /** Valores por defecto del convenio, idénticos a los del original (Entidades.cs). */
@@ -165,6 +351,7 @@ export function nuevoConvenio(): Convenio {
     porcentajePlusCena: 25,
     maximoLimpiezas: 21,
     // Importes en céntimos: 15.37 € etc.
+    importeDietas: 1537,
     importePlusFestivos: 4305,
     importePlusSabados: 2153,
     importePlusMenorDescanso: 896,
@@ -175,6 +362,101 @@ export function nuevoConvenio(): Convenio {
     importePlusNavidad: 16304,
     importeRefuerzos: 494,
     opcionesCentro: [],
+    tablasSalariales: [],
+  };
+}
+
+/** Valores por defecto de un `Conductor` nuevo (equivale a `new Conductor()`). */
+export function nuevoConductor(parciales: Partial<Conductor> = {}): Conductor {
+  return {
+    matricula: 0,
+    nombre: "",
+    apellidos: "",
+    centro: CentroTrabajo.Todos,
+    categoria: CategoriaTrabajador.Conductor,
+    situacion: SituacionTrabajador.Fijo,
+    fechaAntiguedad: "",
+    porcentajeIrpf: 0,
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de una `TablaSalarial` nueva (equivale a `new TablaSalarial()`). */
+export function nuevaTablaSalarial(parciales: Partial<TablaSalarial> = {}): TablaSalarial {
+  return {
+    categoria: CategoriaTrabajador.Conductor,
+    sueldoBaseDiario: 0, sueldoBaseMensual: 0, sueldoBaseAnual: 0,
+    complementoSalarial: 0, baseAntiguedad: 0,
+    precioHoraExtra: 0, precioQuebrantoMoneda: 0, pagaSeptiembre: 0, importeDndCobrado: 0, seguroAccidentes: 0,
+    porcentajeSeguridadSocial: 0, porcentajeDesempleo: 0,
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `ResumenCalendario` nuevo. */
+export function nuevoResumenCalendario(parciales: Partial<ResumenCalendario> = {}): ResumenCalendario {
+  const ceros = { ...cerosResumen } as ResumenCalendario;
+  return { ...ceros, ...parciales };
+}
+
+const cerosResumen = {
+  diasActivo: 0, diasInactivo: 0, diasTrabajo: 0, diasTrabajoJD: 0, diasTrabajoFN: 0,
+  diasOV: 0, diasJD: 0, diasFN: 0, diasE: 0, diasDS: 0, diasDC: 0, diasF6: 0, diasF6D: 0,
+  diasDND: 0, diasDF: 0, diasPER: 0, diasEJD: 0, diasEFN: 0, diasOVJD: 0, diasOVFN: 0,
+  diasF6DC: 0, diasFOR: 0, diasFORJD: 0, diasFORFN: 0, diasOVA: 0, diasOVAJD: 0, diasOVAFN: 0,
+  diasLAC: 0, diasLACJD: 0, diasLACFN: 0, diasCO: 0, diasCE: 0, diasRE: 0,
+  diasHorasSindicales: 0, diasComiteJD: 0, diasComiteDC: 0,
+  sabadosTrabajados: 0, sabadosDescansados: 0, domingosTrabajados: 0, domingosDescansados: 0,
+  festivosTrabajados: 0, festivosDescansados: 0,
+  diasTurno1: 0, diasTurno2: 0, diasTurno3: 0, diasTurno4: 0, diasConRefuerzo: 0,
+  findesCompletos: 0, diasDeberiaTrabajar: 0, diasDeberiaDescansar: 0, diasDeberiaVacaciones: 0,
+  horasTrabajadas: 0, horasTrabajadasConvenio: 0, horasAcumuladas: 0, horasAcumuladasVirtual: 0,
+  horasNocturnas: 0, desayunos: 0, desayunosVirtual: 0, comidas: 0, comidasVirtual: 0,
+  cenas: 0, cenasVirtual: 0, totalDietas: 0, totalDietasVirtual: 0,
+  diasConPlusPaqueteria: 0, facturadoPaqueteria: 0, plusesPaqueteria: 0, plusesMenorDescanso: 0,
+  limpiezas: 0, totalLimpiezas: 0,
+  importeDietas: 0, importeDietasVirtual: 0, importePlusSabados: 0, importePlusFestivos: 0,
+  importePlusPaqueteria: 0, importePlusLimpieza: 0, importePlusMenorDescanso: 0,
+  importePlusNocturnidad: 0, importePlusNocturnidadParcial: 0, importePlusNavidad: 0,
+  importePlusViaje: 0, importeQuebrantoMoneda: 0, importeVariableVacaciones: 0, importeRefuerzos: 0,
+  errores: "",
+  totalDndsCobrados: 0, importeDndsCobrados: 0, totalDndsCobradosPorDescanso: 0,
+  importeDndsCobradosPorDescanso: 0,
+} as const satisfies Partial<ResumenCalendario>;
+
+/** Valores por defecto de un `Calendario` nuevo. */
+export function nuevoCalendario(parciales: Partial<Calendario> = {}): Calendario {
+  return {
+    conductorId: 0,
+    conductor: null,
+    centro: CentroTrabajo.Todos,
+    fecha: "",
+    resumen: null,
+    dias: [],
+    totalImportePlusSabados: 0, totalImportePlusFestivos: 0, totalImportePlusNocturnidad: 0,
+    totalImportePlusNocturnidadParcial: 0, totalImportePlusPaqueteria: 0, totalImportePlusLimpieza: 0,
+    totalImportePlusMenorDescanso: 0, totalImportePlusNavidad: 0, totalImportePlusViaje: 0,
+    totalQuebrantoMoneda: 0, totalRefuerzos: 0, totalImporteDietas: 0,
+    totalDcsPendientes: 0, totalDndsPendientes: 0, totalImporteDndsCobrados: 0,
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `DiaCalendario` nuevo (tres servicios vacíos). */
+export function nuevoDiaCalendario(parciales: Partial<DiaCalendario> = {}): DiaCalendario {
+  return {
+    fecha: "",
+    esFestivo: false,
+    servicioAnual: nuevoServicio(),
+    servicioTrabajado: nuevoServicio(),
+    servicioVirtual: nuevoServicio(),
+    notas: null,
+    vehiculos: null,
+    refuerzos: 0,
+    dndCobrado: false,
+    dndsCobradosPorDescanso: 0,
+    isRemoteUpdated: false,
+    ...parciales,
   };
 }
 
