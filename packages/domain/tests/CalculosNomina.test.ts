@@ -5,7 +5,7 @@ import {
   nuevoOpcionesCentro, nuevoResumenCalendario,
 } from "../src/Entidades";
 import {
-  generar, incrementarImportes, porcentajeAntiguedad, recalcular,
+  generarNomina, incrementarImportes, porcentajeAntiguedad, recalcularNomina,
 } from "../src/CalculosNomina";
 
 // Espejo de NominaTests.cs.
@@ -46,7 +46,7 @@ describe("CalculosNomina.generar", () => {
       fecha: "2026-10-01", conductor,
       resumen: nuevoResumenCalendario({ diasTrabajo: 20 }),
     });
-    const n = generar(cal, conv);
+    const n = generarNomina(cal, conv);
     expect(n.conductorId).toBe(7);
     expect(n.fechaFinal).toBe("2026-10-31");
     expect(n.totalDevengado).toBe(152_000); // salario base 1500 € + quebranto 20 €
@@ -58,7 +58,7 @@ describe("CalculosNomina.generar", () => {
     const conv = nuevoConvenio();
     conv.opcionesCentro.push(nuevoOpcionesCentro({ centro: CentroTrabajo.Bilbao }));
     const cal = nuevoCalendario({ fecha: "2026-10-01", conductor: null, resumen: nuevoResumenCalendario() });
-    expect(generar(cal, conv).conceptos).toHaveLength(0);
+    expect(generarNomina(cal, conv).conceptos).toHaveLength(0);
 
     const convSinTabla = nuevoConvenio();
     const cal2 = nuevoCalendario({
@@ -66,7 +66,7 @@ describe("CalculosNomina.generar", () => {
       conductor: nuevoConductor({ centro: CentroTrabajo.Bilbao }),
       resumen: nuevoResumenCalendario(),
     });
-    expect(generar(cal2, convSinTabla).conceptos).toHaveLength(0);
+    expect(generarNomina(cal2, convSinTabla).conceptos).toHaveLength(0);
   });
 
   it("recalcular actualiza la antigüedad de la nómina", () => {
@@ -82,7 +82,7 @@ describe("CalculosNomina.generar", () => {
       conductor: nuevoConductor({ centro: CentroTrabajo.Bilbao, fechaAntiguedad: "2005-01-01", porcentajeIrpf: 0 }),
       resumen: nuevoResumenCalendario(),
     });
-    const n = generar(cal, conv);
+    const n = generarNomina(cal, conv);
     // La nómina vacía no lleva fechas; se rellenan a mano antes de recalcular (como haría la app al editar).
     n.fecha = cal.fecha;
     n.fechaAntiguedad = "2005-01-01";
@@ -92,7 +92,7 @@ describe("CalculosNomina.generar", () => {
       tipoConceptoNomina: 1, codigo: 0, computaParaIrpf: true,
       textoConcepto: "Antigüedad", unidades: 30, importeBase: 0, devengado: 0, deduccion: 0,
     });
-    recalcular(n, tabla);
+    recalcularNomina(n, tabla);
     const antiguedad = n.conceptos.find((c) => c.textoConcepto === "Antigüedad")!;
     expect(antiguedad.importeBase).toBeCloseTo((300 / 30) * 0.4, 10); // 10 céntimos/día base × 40 % = 4 céntimos
     expect(n.descuentoIrpf).toBe(0);

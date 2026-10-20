@@ -90,8 +90,13 @@ const Abreviaturas: Readonly<Record<string, Incidencia>> = {
 };
 
 /** Nombre del valor de un enum numérico de TS (equivale a ToString() de C#). */
-function nombreEnum(enumObj: Record<string, number | string>, valor: number): string {
+export function nombreEnum(enumObj: Record<string, number | string>, valor: number): string {
   return (Object.keys(enumObj) as string[]).find((k) => typeof enumObj[k] === "number" && enumObj[k] === valor) ?? valor.toString();
+}
+
+/** Nombre de una incidencia (equivale a Incidencia.ToString() del original). */
+export function nombreIncidencia(inc: Incidencia): string {
+  return nombreEnum(Incidencia as unknown as Record<string, number>, inc);
 }
 
 /** Interpreta el texto de una celda de calendario: un número es un gráfico trabajado. */

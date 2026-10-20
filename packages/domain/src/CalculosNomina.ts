@@ -51,7 +51,7 @@ function fechaFinalDeMes(fecha: string): string {
 }
 
 /** Genera la nómina mensual de un calendario (con conductor y resumen cargados). */
-export function generar(calendario: Calendario, convenio: Convenio): Nomina {
+export function generarNomina(calendario: Calendario, convenio: Convenio): Nomina {
   const nomina = nuevaNomina();
   const conductor = calendario.conductor;
   const r = calendario.resumen;
@@ -116,12 +116,12 @@ export function generar(calendario: Calendario, convenio: Convenio): Nomina {
     concepto(TipoConceptoNomina.SeguroAccidentes, "Seguro accidentes", 1, tabla.seguroAccidentes, undefined, false);
   }
 
-  recalcular(nomina, tabla);
+  recalcularNomina(nomina, tabla);
   return nomina;
 }
 
 /** Actualiza la antigüedad y recalcula bases, descuentos y totales. */
-export function recalcular(nomina: Nomina, tabla: TablaSalarial): void {
+export function recalcularNomina(nomina: Nomina, tabla: TablaSalarial): void {
   const antiguedad = antiguedadDiaria(tabla, nomina.fechaAntiguedad, nomina.fecha);
   const conceptoAntiguedad = nomina.conceptos.find((c) => c.tipoConceptoNomina === TipoConceptoNomina.Antiguedad);
   if (conceptoAntiguedad !== undefined) {

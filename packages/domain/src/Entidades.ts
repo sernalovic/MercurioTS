@@ -11,7 +11,7 @@
  */
 import {
   CategoriaGrafico, CategoriaTrabajador, CentroTrabajo, CodigoIncidencia, Incidencia,
-  SituacionTrabajador, TipoConceptoNomina, TipoDia, TipoNomina, Turno,
+  SituacionTrabajador, TipoConceptoNomina, TipoDia, TipoNomina, TipoReclamacion, TipoRegulacion, Turno,
 } from "./enums";
 
 export type Centimos = number;
@@ -99,7 +99,7 @@ export interface TablaSalarial {
   porcentajeDesempleo: number;
 }
 
-/** Campos de `Conductor` que usan los cálculos del calendario y la nómina. */
+/** Campos de `Conductor` que usan los cálculos del calendario, la nómina y los saldos. */
 export interface Conductor {
   id?: number;
   matricula: number;
@@ -112,6 +112,24 @@ export interface Conductor {
   fechaAntiguedad: string;
   /** Porcentaje de IRPF (0–100). */
   porcentajeIrpf: number;
+  /** Acumuladas y pendientes con los que el conductor empieza de cero (horas en minutos, DCs/DNDs en unidades). */
+  acumuladasIniciales: number;
+  dcsIniciales: number;
+  dndsIniciales: number;
+  regulaciones: Regulacion[];
+}
+
+/** Regulación manual o automática de horas/DCs/DNDs de un conductor. */
+export interface Regulacion {
+  id?: number;
+  conductorId: number;
+  tipoRegulacion: TipoRegulacion;
+  fecha: string;
+  /** Horas reguladas, en minutos (positivas suman, negativas restan). */
+  horas: number;
+  dcs: number;
+  dnds: number;
+  motivo: string | null;
 }
 
 /** Contadores e importes mensuales de un calendario (`ResumenCalendario`); importes en céntimos, horas en minutos. */
@@ -414,6 +432,24 @@ export function nuevoConductor(parciales: Partial<Conductor> = {}): Conductor {
     situacion: SituacionTrabajador.Fijo,
     fechaAntiguedad: "",
     porcentajeIrpf: 0,
+    acumuladasIniciales: 0,
+    dcsIniciales: 0,
+    dndsIniciales: 0,
+    regulaciones: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de una `Regulacion` nueva. */
+export function nuevaRegulacion(parciales: Partial<Regulacion> = {}): Regulacion {
+  return {
+    conductorId: 0,
+    tipoRegulacion: TipoRegulacion.Manual,
+    fecha: "",
+    horas: 0,
+    dcs: 0,
+    dnds: 0,
+    motivo: null,
     ...parciales,
   };
 }
@@ -523,6 +559,87 @@ export function nuevoConceptoNomina(parciales: Partial<ConceptoNomina> = {}): Co
     importeBase: 0,
     devengado: 0,
     deduccion: 0,
+    ...parciales,
+  };
+}
+
+/**
+ * Reclamación mensual de un conductor. Los importes de pluses/quebranto son
+ * céntimos; los de dietas son *unidades* (el importe en céntimos va por
+ * separado en `importeTotal`). Los conceptos mensuales llevan fecha `""`
+ * (equivalente al DateTime.MinValue del original).
+ */
+export interface Reclamacion {
+  id?: number;
+  conductorId: number;
+  fecha: string;
+  fechaEfecto: string;
+  codigo: string | null;
+  notas: string | null;
+  notaInterna: string | null;
+  cerrada: boolean;
+  conceptosReclamados: ConceptoReclamado[];
+}
+
+/** Resuelta cuando tiene conceptos y todos están marcados como resueltos. */
+export const esResuelta = (r: Reclamacion): boolean =>
+  r.conceptosReclamados.length > 0 && r.conceptosReclamados.every((c) => c.resuelto);
+
+export interface ConceptoReclamado {
+  id?: number;
+  reclamacionId?: number;
+  /** Fecha del concepto ("" para los importes mensuales). */
+  fecha: string;
+  tipo: TipoReclamacion;
+  descripcion: string | null;
+  graficoTrabajado: number;
+  /** Horas reclamables, en minutos. */
+  horasReales: number;
+  horasCobradas: number;
+  /** Céntimos (o unidades de dieta según el tipo). */
+  importeReal: number;
+  importeCobrado: number;
+  incidenciasReales: number;
+  incidenciasCobradas: number;
+  importeTotal: number;
+  resuelto: boolean;
+}
+
+export const horasReclamadasDe = (c: ConceptoReclamado): number => c.horasReales - c.horasCobradas;
+export const importeReclamadoDe = (c: ConceptoReclamado): number => c.importeReal - c.importeCobrado;
+export const incidenciasReclamadasDe = (c: ConceptoReclamado): number => c.incidenciasReales - c.incidenciasCobradas;
+
+/** Valores por defecto de una `Reclamacion` nueva. */
+export function nuevaReclamacion(parciales: Partial<Reclamacion> = {}): Reclamacion {
+  return {
+    conductorId: 0,
+    fecha: "",
+    fechaEfecto: "",
+    codigo: null,
+    notas: null,
+    notaInterna: null,
+    cerrada: false,
+    conceptosReclamados: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `ConceptoReclamado` nuevo. */
+export function nuevoConceptoReclamado(parciales: Partial<ConceptoReclamado> = {}): ConceptoReclamado {
+  return {
+    reclamacionId: 0,
+    fecha: "",
+    tipo: TipoReclamacion.OtraHoras,
+    descripcion: null,
+    graficoTrabajado: 0,
+    horasReales: 0,
+    horasCobradas: 0,
+    importeReal: 0,
+    importeCobrado: 0,
+    incidenciasReales: 0,
+    incidenciasCobradas: 0,
+    importeTotal: 0,
+    resuelto: false,
     ...parciales,
   };
 }
