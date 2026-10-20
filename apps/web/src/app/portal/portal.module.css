@@ -1,0 +1,62 @@
+.centro {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.cargando {
+  color: var(--texto-suave);
+}
+
+.tarjeta {
+  display: grid;
+  gap: 0.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
+  padding: 2rem;
+  width: min(22rem, 100%);
+  text-align: center;
+}
+
+.titulo,
+.detalle {
+  margin: 0;
+}
+
+.titulo {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.detalle {
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.formulario {
+  margin-top: 1rem;
+}
+
+.boton {
+  border: none;
+  border-radius: calc(var(--radio) / 2);
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  color: white;
+  background: var(--color-primario);
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: var(--color-primario-activo);
+}
+
+.siguiente {
+  margin-top: 1rem;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}

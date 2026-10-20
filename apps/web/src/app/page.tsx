@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  // Sin sesión abierta el portal empieza en la pantalla de acceso.
-  redirect("/acceso");
+  // El proxy envía a /acceso si no hay sesión; con sesión, aquí empieza el portal.
+  redirect("/portal");
 }
