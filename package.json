@@ -5,7 +5,9 @@
     "dev": "pnpm --filter @mercurio/web dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "dist:win": "pnpm --filter @mercurio/desktop dist:win"
+    "dist:win": "pnpm --filter @mercurio/desktop dist:win",
+    "db:generate": "pnpm --filter @mercurio/db generate",
+    "db:migrate": "pnpm --filter @mercurio/db migrate"
   },
   "packageManager": "pnpm@10.12.1",
   "pnpm": {

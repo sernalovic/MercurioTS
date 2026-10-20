@@ -1,0 +1,4177 @@
+{
+  "id": "ac7501a9-faf1-4048-9d66-3bfd153d4cd5",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.AspNetRoleClaims": {
+      "name": "AspNetRoleClaims",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "AspNetRoleClaims_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "RoleId": {
+          "name": "RoleId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ClaimType": {
+          "name": "ClaimType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ClaimValue": {
+          "name": "ClaimValue",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "IX_AspNetRoleClaims_RoleId": {
+          "name": "IX_AspNetRoleClaims_RoleId",
+          "columns": [
+            {
+              "expression": "RoleId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AspNetRoleClaims_RoleId_AspNetRoles_Id_fk": {
+          "name": "AspNetRoleClaims_RoleId_AspNetRoles_Id_fk",
+          "tableFrom": "AspNetRoleClaims",
+          "tableTo": "AspNetRoles",
+          "columnsFrom": [
+            "RoleId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetRoles": {
+      "name": "AspNetRoles",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "AspNetRoles_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Name": {
+          "name": "Name",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NormalizedName": {
+          "name": "NormalizedName",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ConcurrencyStamp": {
+          "name": "ConcurrencyStamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "RoleNameIndex": {
+          "name": "RoleNameIndex",
+          "columns": [
+            {
+              "expression": "NormalizedName",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetUserClaims": {
+      "name": "AspNetUserClaims",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "AspNetUserClaims_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "UserId": {
+          "name": "UserId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ClaimType": {
+          "name": "ClaimType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ClaimValue": {
+          "name": "ClaimValue",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "IX_AspNetUserClaims_UserId": {
+          "name": "IX_AspNetUserClaims_UserId",
+          "columns": [
+            {
+              "expression": "UserId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AspNetUserClaims_UserId_AspNetUsers_Id_fk": {
+          "name": "AspNetUserClaims_UserId_AspNetUsers_Id_fk",
+          "tableFrom": "AspNetUserClaims",
+          "tableTo": "AspNetUsers",
+          "columnsFrom": [
+            "UserId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetUserLogins": {
+      "name": "AspNetUserLogins",
+      "schema": "",
+      "columns": {
+        "LoginProvider": {
+          "name": "LoginProvider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ProviderKey": {
+          "name": "ProviderKey",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ProviderDisplayName": {
+          "name": "ProviderDisplayName",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "UserId": {
+          "name": "UserId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_AspNetUserLogins_UserId": {
+          "name": "IX_AspNetUserLogins_UserId",
+          "columns": [
+            {
+              "expression": "UserId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AspNetUserLogins_UserId_AspNetUsers_Id_fk": {
+          "name": "AspNetUserLogins_UserId_AspNetUsers_Id_fk",
+          "tableFrom": "AspNetUserLogins",
+          "tableTo": "AspNetUsers",
+          "columnsFrom": [
+            "UserId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PK_AspNetUserLogins": {
+          "name": "PK_AspNetUserLogins",
+          "columns": [
+            "LoginProvider",
+            "ProviderKey"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetUserRoles": {
+      "name": "AspNetUserRoles",
+      "schema": "",
+      "columns": {
+        "UserId": {
+          "name": "UserId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "RoleId": {
+          "name": "RoleId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_AspNetUserRoles_RoleId": {
+          "name": "IX_AspNetUserRoles_RoleId",
+          "columns": [
+            {
+              "expression": "RoleId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "AspNetUserRoles_UserId_AspNetUsers_Id_fk": {
+          "name": "AspNetUserRoles_UserId_AspNetUsers_Id_fk",
+          "tableFrom": "AspNetUserRoles",
+          "tableTo": "AspNetUsers",
+          "columnsFrom": [
+            "UserId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "AspNetUserRoles_RoleId_AspNetRoles_Id_fk": {
+          "name": "AspNetUserRoles_RoleId_AspNetRoles_Id_fk",
+          "tableFrom": "AspNetUserRoles",
+          "tableTo": "AspNetRoles",
+          "columnsFrom": [
+            "RoleId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PK_AspNetUserRoles": {
+          "name": "PK_AspNetUserRoles",
+          "columns": [
+            "UserId",
+            "RoleId"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetUserTokens": {
+      "name": "AspNetUserTokens",
+      "schema": "",
+      "columns": {
+        "UserId": {
+          "name": "UserId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "LoginProvider": {
+          "name": "LoginProvider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Name": {
+          "name": "Name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Value": {
+          "name": "Value",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "AspNetUserTokens_UserId_AspNetUsers_Id_fk": {
+          "name": "AspNetUserTokens_UserId_AspNetUsers_Id_fk",
+          "tableFrom": "AspNetUserTokens",
+          "tableTo": "AspNetUsers",
+          "columnsFrom": [
+            "UserId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "PK_AspNetUserTokens": {
+          "name": "PK_AspNetUserTokens",
+          "columns": [
+            "UserId",
+            "LoginProvider",
+            "Name"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.AspNetUsers": {
+      "name": "AspNetUsers",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "AspNetUsers_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Matricula": {
+          "name": "Matricula",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Nombre": {
+          "name": "Nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Apellidos": {
+          "name": "Apellidos",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaAlta": {
+          "name": "FechaAlta",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsAfiliado": {
+          "name": "IsAfiliado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsAdmin": {
+          "name": "IsAdmin",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsSuper": {
+          "name": "IsSuper",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "UserName": {
+          "name": "UserName",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NormalizedUserName": {
+          "name": "NormalizedUserName",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Email": {
+          "name": "Email",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NormalizedEmail": {
+          "name": "NormalizedEmail",
+          "type": "varchar(256)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "EmailConfirmed": {
+          "name": "EmailConfirmed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PasswordHash": {
+          "name": "PasswordHash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "SecurityStamp": {
+          "name": "SecurityStamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ConcurrencyStamp": {
+          "name": "ConcurrencyStamp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "PhoneNumber": {
+          "name": "PhoneNumber",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "PhoneNumberConfirmed": {
+          "name": "PhoneNumberConfirmed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TwoFactorEnabled": {
+          "name": "TwoFactorEnabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "LockoutEnd": {
+          "name": "LockoutEnd",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "LockoutEnabled": {
+          "name": "LockoutEnabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AccessFailedCount": {
+          "name": "AccessFailedCount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "UserNameIndex": {
+          "name": "UserNameIndex",
+          "columns": [
+            {
+              "expression": "NormalizedUserName",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "EmailIndex": {
+          "name": "EmailIndex",
+          "columns": [
+            {
+              "expression": "NormalizedEmail",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Calendarios": {
+      "name": "Calendarios",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Calendarios_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConductorId": {
+          "name": "ConductorId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Centro": {
+          "name": "Centro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusSabados": {
+          "name": "TotalImportePlusSabados",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusFestivos": {
+          "name": "TotalImportePlusFestivos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusNocturnidad": {
+          "name": "TotalImportePlusNocturnidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusNocturnidadParcial": {
+          "name": "TotalImportePlusNocturnidadParcial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusPaqueteria": {
+          "name": "TotalImportePlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusLimpieza": {
+          "name": "TotalImportePlusLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusMenorDescanso": {
+          "name": "TotalImportePlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusNavidad": {
+          "name": "TotalImportePlusNavidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImportePlusViaje": {
+          "name": "TotalImportePlusViaje",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalQuebrantoMoneda": {
+          "name": "TotalQuebrantoMoneda",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalRefuerzos": {
+          "name": "TotalRefuerzos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImporteDietas": {
+          "name": "TotalImporteDietas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDcsPendientes": {
+          "name": "TotalDcsPendientes",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDndsPendientes": {
+          "name": "TotalDndsPendientes",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalImporteDndsCobrados": {
+          "name": "TotalImporteDndsCobrados",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Calendarios_ConductorId_Fecha": {
+          "name": "IX_Calendarios_ConductorId_Fecha",
+          "columns": [
+            {
+              "expression": "ConductorId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Calendarios_ConductorId_Conductores_Id_fk": {
+          "name": "Calendarios_ConductorId_Conductores_Id_fk",
+          "tableFrom": "Calendarios",
+          "tableTo": "Conductores",
+          "columnsFrom": [
+            "ConductorId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ConceptosNomina": {
+      "name": "ConceptosNomina",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "ConceptosNomina_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "NominaId": {
+          "name": "NominaId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TipoConceptoNomina": {
+          "name": "TipoConceptoNomina",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Codigo": {
+          "name": "Codigo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ComputaParaIrpf": {
+          "name": "ComputaParaIrpf",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TextoConcepto": {
+          "name": "TextoConcepto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Unidades": {
+          "name": "Unidades",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteBase": {
+          "name": "ImporteBase",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Devengado": {
+          "name": "Devengado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Deduccion": {
+          "name": "Deduccion",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_ConceptosNomina_NominaId": {
+          "name": "IX_ConceptosNomina_NominaId",
+          "columns": [
+            {
+              "expression": "NominaId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ConceptosNomina_NominaId_Nominas_Id_fk": {
+          "name": "ConceptosNomina_NominaId_Nominas_Id_fk",
+          "tableFrom": "ConceptosNomina",
+          "tableTo": "Nominas",
+          "columnsFrom": [
+            "NominaId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ConceptosReclamados": {
+      "name": "ConceptosReclamados",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "ConceptosReclamados_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ReclamacionId": {
+          "name": "ReclamacionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Tipo": {
+          "name": "Tipo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descripcion": {
+          "name": "Descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "GraficoTrabajado": {
+          "name": "GraficoTrabajado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasReales": {
+          "name": "HorasReales",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasCobradas": {
+          "name": "HorasCobradas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteReal": {
+          "name": "ImporteReal",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteCobrado": {
+          "name": "ImporteCobrado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IncidenciasReales": {
+          "name": "IncidenciasReales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IncidenciasCobradas": {
+          "name": "IncidenciasCobradas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteTotal": {
+          "name": "ImporteTotal",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Resuelto": {
+          "name": "Resuelto",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_ConceptosReclamados_ReclamacionId": {
+          "name": "IX_ConceptosReclamados_ReclamacionId",
+          "columns": [
+            {
+              "expression": "ReclamacionId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ConceptosReclamados_ReclamacionId_Reclamaciones_Id_fk": {
+          "name": "ConceptosReclamados_ReclamacionId_Reclamaciones_Id_fk",
+          "tableFrom": "ConceptosReclamados",
+          "tableTo": "Reclamaciones",
+          "columnsFrom": [
+            "ReclamacionId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Conductores": {
+      "name": "Conductores",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Conductores_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Centro": {
+          "name": "Centro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Categoria": {
+          "name": "Categoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Situacion": {
+          "name": "Situacion",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Matricula": {
+          "name": "Matricula",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsUsuario": {
+          "name": "IsUsuario",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaAntiguedad": {
+          "name": "FechaAntiguedad",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeIrpf": {
+          "name": "PorcentajeIrpf",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "NumeroAfiliado": {
+          "name": "NumeroAfiliado",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsReduccionJornada": {
+          "name": "IsReduccionJornada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeJornada": {
+          "name": "PorcentajeJornada",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Nombre": {
+          "name": "Nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Apellidos": {
+          "name": "Apellidos",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Telefono": {
+          "name": "Telefono",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Email": {
+          "name": "Email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AcumuladasIniciales": {
+          "name": "AcumuladasIniciales",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DcsIniciales": {
+          "name": "DcsIniciales",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DndsIniciales": {
+          "name": "DndsIniciales",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PlusDistancia": {
+          "name": "PlusDistancia",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Notas": {
+          "name": "Notas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Conductores_Matricula": {
+          "name": "IX_Conductores_Matricula",
+          "columns": [
+            {
+              "expression": "Matricula",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Convenios": {
+      "name": "Convenios",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Convenios_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Año": {
+          "name": "Año",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "JornadaMedia": {
+          "name": "JornadaMedia",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDietas": {
+          "name": "ImporteDietas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "JornadaAnual": {
+          "name": "JornadaAnual",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTrabajoAnuales": {
+          "name": "DiasTrabajoAnuales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDescansoAnuales": {
+          "name": "DiasDescansoAnuales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DescansosSueltosAnuales": {
+          "name": "DescansosSueltosAnuales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasVacacionesAnuales": {
+          "name": "DiasVacacionesAnuales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FindesCompletosAnuales": {
+          "name": "FindesCompletosAnuales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTrabajadosSeguidos": {
+          "name": "DiasTrabajadosSeguidos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DescansosSueltosMes": {
+          "name": "DescansosSueltosMes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "MinimoDescansosMes": {
+          "name": "MinimoDescansosMes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "MaximoDescansosMes": {
+          "name": "MaximoDescansosMes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "MaximoFindesSeguidos": {
+          "name": "MaximoFindesSeguidos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "JornadaMaxima": {
+          "name": "JornadaMaxima",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "JornadaMaximaFindes": {
+          "name": "JornadaMaximaFindes",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "JornadaMaximaPartida": {
+          "name": "JornadaMaximaPartida",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TiempoPartidoMaximo": {
+          "name": "TiempoPartidoMaximo",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "InicioNocturnas": {
+          "name": "InicioNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FinalNocturnas": {
+          "name": "FinalNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "LimiteDesayuno": {
+          "name": "LimiteDesayuno",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "InicioComidaContinuo": {
+          "name": "InicioComidaContinuo",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FinalComidaContinuo": {
+          "name": "FinalComidaContinuo",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "InicioComidaPartido": {
+          "name": "InicioComidaPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FinalComidaPartido": {
+          "name": "FinalComidaPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "InicioCena": {
+          "name": "InicioCena",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FinalCena": {
+          "name": "FinalCena",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "LimitePlusCena": {
+          "name": "LimitePlusCena",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeDesayuno": {
+          "name": "PorcentajeDesayuno",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajePlusCena": {
+          "name": "PorcentajePlusCena",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "MaximoLimpiezas": {
+          "name": "MaximoLimpiezas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusFestivos": {
+          "name": "ImportePlusFestivos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusSabados": {
+          "name": "ImportePlusSabados",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusMenorDescanso": {
+          "name": "ImportePlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusLimpieza": {
+          "name": "ImportePlusLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusPaqueteria": {
+          "name": "ImportePlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNocturnidad": {
+          "name": "ImportePlusNocturnidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNocturnidadDiario": {
+          "name": "ImportePlusNocturnidadDiario",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNavidad": {
+          "name": "ImportePlusNavidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteRefuerzos": {
+          "name": "ImporteRefuerzos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Convenios_Año": {
+          "name": "IX_Convenios_Año",
+          "columns": [
+            {
+              "expression": "Año",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.DiasCalendario": {
+      "name": "DiasCalendario",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "DiasCalendario_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "CalendarioId": {
+          "name": "CalendarioId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "EsFestivo": {
+          "name": "EsFestivo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualIncidencia": {
+          "name": "AnualIncidencia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualCodigo": {
+          "name": "AnualCodigo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualPlusPaqueteria": {
+          "name": "AnualPlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualFacturadoPaqueteria": {
+          "name": "AnualFacturadoPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualLimpieza": {
+          "name": "AnualLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualPlusMenorDescanso": {
+          "name": "AnualPlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualNoCalcular": {
+          "name": "AnualNoCalcular",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualCategoria": {
+          "name": "AnualCategoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualNumero": {
+          "name": "AnualNumero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTipoDia": {
+          "name": "AnualTipoDia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTurno": {
+          "name": "AnualTurno",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualInicio": {
+          "name": "AnualInicio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AnualFinal": {
+          "name": "AnualFinal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AnualInicioPartido": {
+          "name": "AnualInicioPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AnualFinalPartido": {
+          "name": "AnualFinalPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "AnualValoracion": {
+          "name": "AnualValoracion",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTiempoTotal": {
+          "name": "AnualTiempoTotal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTiempoPartido": {
+          "name": "AnualTiempoPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTrabajadas": {
+          "name": "AnualTrabajadas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTrabajadasConvenio": {
+          "name": "AnualTrabajadasConvenio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTiempoVacio": {
+          "name": "AnualTiempoVacio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualAcumuladas": {
+          "name": "AnualAcumuladas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualNocturnas": {
+          "name": "AnualNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualDesayuno": {
+          "name": "AnualDesayuno",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualComida": {
+          "name": "AnualComida",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualCena": {
+          "name": "AnualCena",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "AnualTienePlusPaqueteria": {
+          "name": "AnualTienePlusPaqueteria",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoIncidencia": {
+          "name": "TrabajadoIncidencia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoCodigo": {
+          "name": "TrabajadoCodigo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoPlusPaqueteria": {
+          "name": "TrabajadoPlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoFacturadoPaqueteria": {
+          "name": "TrabajadoFacturadoPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoLimpieza": {
+          "name": "TrabajadoLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoPlusMenorDescanso": {
+          "name": "TrabajadoPlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoNoCalcular": {
+          "name": "TrabajadoNoCalcular",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoCategoria": {
+          "name": "TrabajadoCategoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoNumero": {
+          "name": "TrabajadoNumero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTipoDia": {
+          "name": "TrabajadoTipoDia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTurno": {
+          "name": "TrabajadoTurno",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoInicio": {
+          "name": "TrabajadoInicio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TrabajadoFinal": {
+          "name": "TrabajadoFinal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TrabajadoInicioPartido": {
+          "name": "TrabajadoInicioPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TrabajadoFinalPartido": {
+          "name": "TrabajadoFinalPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TrabajadoValoracion": {
+          "name": "TrabajadoValoracion",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTiempoTotal": {
+          "name": "TrabajadoTiempoTotal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTiempoPartido": {
+          "name": "TrabajadoTiempoPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTrabajadas": {
+          "name": "TrabajadoTrabajadas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTrabajadasConvenio": {
+          "name": "TrabajadoTrabajadasConvenio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTiempoVacio": {
+          "name": "TrabajadoTiempoVacio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoAcumuladas": {
+          "name": "TrabajadoAcumuladas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoNocturnas": {
+          "name": "TrabajadoNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoDesayuno": {
+          "name": "TrabajadoDesayuno",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoComida": {
+          "name": "TrabajadoComida",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoCena": {
+          "name": "TrabajadoCena",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadoTienePlusPaqueteria": {
+          "name": "TrabajadoTienePlusPaqueteria",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualIncidencia": {
+          "name": "VirtualIncidencia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualCodigo": {
+          "name": "VirtualCodigo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualPlusPaqueteria": {
+          "name": "VirtualPlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualFacturadoPaqueteria": {
+          "name": "VirtualFacturadoPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualLimpieza": {
+          "name": "VirtualLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualPlusMenorDescanso": {
+          "name": "VirtualPlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualNoCalcular": {
+          "name": "VirtualNoCalcular",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualCategoria": {
+          "name": "VirtualCategoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualNumero": {
+          "name": "VirtualNumero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTipoDia": {
+          "name": "VirtualTipoDia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTurno": {
+          "name": "VirtualTurno",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualInicio": {
+          "name": "VirtualInicio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "VirtualFinal": {
+          "name": "VirtualFinal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "VirtualInicioPartido": {
+          "name": "VirtualInicioPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "VirtualFinalPartido": {
+          "name": "VirtualFinalPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "VirtualValoracion": {
+          "name": "VirtualValoracion",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTiempoTotal": {
+          "name": "VirtualTiempoTotal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTiempoPartido": {
+          "name": "VirtualTiempoPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTrabajadas": {
+          "name": "VirtualTrabajadas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTrabajadasConvenio": {
+          "name": "VirtualTrabajadasConvenio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTiempoVacio": {
+          "name": "VirtualTiempoVacio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualAcumuladas": {
+          "name": "VirtualAcumuladas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualNocturnas": {
+          "name": "VirtualNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualDesayuno": {
+          "name": "VirtualDesayuno",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualComida": {
+          "name": "VirtualComida",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualCena": {
+          "name": "VirtualCena",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "VirtualTienePlusPaqueteria": {
+          "name": "VirtualTienePlusPaqueteria",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Notas": {
+          "name": "Notas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Vehiculos": {
+          "name": "Vehiculos",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Refuerzos": {
+          "name": "Refuerzos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DndCobrado": {
+          "name": "DndCobrado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DndsCobradosPorDescanso": {
+          "name": "DndsCobradosPorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "IsRemoteUpdated": {
+          "name": "IsRemoteUpdated",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_DiasCalendario_CalendarioId_Fecha": {
+          "name": "IX_DiasCalendario_CalendarioId_Fecha",
+          "columns": [
+            {
+              "expression": "CalendarioId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "DiasCalendario_CalendarioId_Calendarios_Id_fk": {
+          "name": "DiasCalendario_CalendarioId_Calendarios_Id_fk",
+          "tableFrom": "DiasCalendario",
+          "tableTo": "Calendarios",
+          "columnsFrom": [
+            "CalendarioId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Festivos": {
+      "name": "Festivos",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Festivos_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "OpcionesCentroId": {
+          "name": "OpcionesCentroId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Festivos_OpcionesCentroId": {
+          "name": "IX_Festivos_OpcionesCentroId",
+          "columns": [
+            {
+              "expression": "OpcionesCentroId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Festivos_OpcionesCentroId_OpcionesCentro_Id_fk": {
+          "name": "Festivos_OpcionesCentroId_OpcionesCentro_Id_fk",
+          "tableFrom": "Festivos",
+          "tableTo": "OpcionesCentro",
+          "columnsFrom": [
+            "OpcionesCentroId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Graficos": {
+      "name": "Graficos",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Graficos_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Centro": {
+          "name": "Centro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PlusCena": {
+          "name": "PlusCena",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TieneErrorTiempoPartido": {
+          "name": "TieneErrorTiempoPartido",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "NoCalcular": {
+          "name": "NoCalcular",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Categoria": {
+          "name": "Categoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Numero": {
+          "name": "Numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TipoDia": {
+          "name": "TipoDia",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Turno": {
+          "name": "Turno",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Inicio": {
+          "name": "Inicio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Final": {
+          "name": "Final",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "InicioPartido": {
+          "name": "InicioPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "FinalPartido": {
+          "name": "FinalPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Valoracion": {
+          "name": "Valoracion",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TiempoTotal": {
+          "name": "TiempoTotal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TiempoPartido": {
+          "name": "TiempoPartido",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Trabajadas": {
+          "name": "Trabajadas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TrabajadasConvenio": {
+          "name": "TrabajadasConvenio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TiempoVacio": {
+          "name": "TiempoVacio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Acumuladas": {
+          "name": "Acumuladas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Nocturnas": {
+          "name": "Nocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Desayuno": {
+          "name": "Desayuno",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Comida": {
+          "name": "Comida",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Cena": {
+          "name": "Cena",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TienePlusPaqueteria": {
+          "name": "TienePlusPaqueteria",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Graficos_Centro_Fecha_Numero": {
+          "name": "IX_Graficos_Centro_Fecha_Numero",
+          "columns": [
+            {
+              "expression": "Centro",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Numero",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Itinerarios": {
+      "name": "Itinerarios",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Itinerarios_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "LineaId": {
+          "name": "LineaId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Nombre": {
+          "name": "Nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descripcion": {
+          "name": "Descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TiempoReal": {
+          "name": "TiempoReal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TiempoPago": {
+          "name": "TiempoPago",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Itinerarios_LineaId": {
+          "name": "IX_Itinerarios_LineaId",
+          "columns": [
+            {
+              "expression": "LineaId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Itinerarios_LineaId_Lineas_Id_fk": {
+          "name": "Itinerarios_LineaId_Lineas_Id_fk",
+          "tableFrom": "Itinerarios",
+          "tableTo": "Lineas",
+          "columnsFrom": [
+            "LineaId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ItinerariosGraficos": {
+      "name": "ItinerariosGraficos",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "ItinerariosGraficos_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "GraficoId": {
+          "name": "GraficoId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Inicio": {
+          "name": "Inicio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Itinerario": {
+          "name": "Itinerario",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Descripcion": {
+          "name": "Descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Final": {
+          "name": "Final",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "TiempoTotal": {
+          "name": "TiempoTotal",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_ItinerariosGraficos_GraficoId": {
+          "name": "IX_ItinerariosGraficos_GraficoId",
+          "columns": [
+            {
+              "expression": "GraficoId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "ItinerariosGraficos_GraficoId_Graficos_Id_fk": {
+          "name": "ItinerariosGraficos_GraficoId_Graficos_Id_fk",
+          "tableFrom": "ItinerariosGraficos",
+          "tableTo": "Graficos",
+          "columnsFrom": [
+            "GraficoId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Lineas": {
+      "name": "Lineas",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Lineas_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "Nombre": {
+          "name": "Nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descripcion": {
+          "name": "Descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Nominas": {
+      "name": "Nominas",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Nominas_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConductorId": {
+          "name": "ConductorId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TipoNomina": {
+          "name": "TipoNomina",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaInicio": {
+          "name": "FechaInicio",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaFinal": {
+          "name": "FechaFinal",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaAntiguedad": {
+          "name": "FechaAntiguedad",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeIrpf": {
+          "name": "PorcentajeIrpf",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeSeguridadSocial": {
+          "name": "PorcentajeSeguridadSocial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeDesempleo": {
+          "name": "PorcentajeDesempleo",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "BaseIrpf": {
+          "name": "BaseIrpf",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ProrrateoPagas": {
+          "name": "ProrrateoPagas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "BaseSeguridadSocial": {
+          "name": "BaseSeguridadSocial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DescuentoIrpf": {
+          "name": "DescuentoIrpf",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DescuentoSeguridadSocial": {
+          "name": "DescuentoSeguridadSocial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DescuentoDesempleo": {
+          "name": "DescuentoDesempleo",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDevengado": {
+          "name": "TotalDevengado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDeducciones": {
+          "name": "TotalDeducciones",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalLiquido": {
+          "name": "TotalLiquido",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Nominas_ConductorId_Fecha_TipoNomina": {
+          "name": "IX_Nominas_ConductorId_Fecha_TipoNomina",
+          "columns": [
+            {
+              "expression": "ConductorId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "TipoNomina",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Nominas_ConductorId_Conductores_Id_fk": {
+          "name": "Nominas_ConductorId_Conductores_Id_fk",
+          "tableFrom": "Nominas",
+          "tableTo": "Conductores",
+          "columnsFrom": [
+            "ConductorId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.OpcionesCentro": {
+      "name": "OpcionesCentro",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "OpcionesCentro_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConvenioId": {
+          "name": "ConvenioId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Centro": {
+          "name": "Centro",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "NumerosL": {
+          "name": "NumerosL",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NumerosV": {
+          "name": "NumerosV",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NumerosS": {
+          "name": "NumerosS",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NumerosF": {
+          "name": "NumerosF",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NumerosR": {
+          "name": "NumerosR",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "LimpiezasMes": {
+          "name": "LimpiezasMes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PagarPlusViaje": {
+          "name": "PagarPlusViaje",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusViaje": {
+          "name": "ImportePlusViaje",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_OpcionesCentro_ConvenioId": {
+          "name": "IX_OpcionesCentro_ConvenioId",
+          "columns": [
+            {
+              "expression": "ConvenioId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "OpcionesCentro_ConvenioId_Convenios_Id_fk": {
+          "name": "OpcionesCentro_ConvenioId_Convenios_Id_fk",
+          "tableFrom": "OpcionesCentro",
+          "tableTo": "Convenios",
+          "columnsFrom": [
+            "ConvenioId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Paradas": {
+      "name": "Paradas",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Paradas_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ItinerarioId": {
+          "name": "ItinerarioId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Orden": {
+          "name": "Orden",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Descripcion": {
+          "name": "Descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Tiempo": {
+          "name": "Tiempo",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Paradas_ItinerarioId": {
+          "name": "IX_Paradas_ItinerarioId",
+          "columns": [
+            {
+              "expression": "ItinerarioId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Paradas_ItinerarioId_Itinerarios_Id_fk": {
+          "name": "Paradas_ItinerarioId_Itinerarios_Id_fk",
+          "tableFrom": "Paradas",
+          "tableTo": "Itinerarios",
+          "columnsFrom": [
+            "ItinerarioId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Reclamaciones": {
+      "name": "Reclamaciones",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Reclamaciones_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConductorId": {
+          "name": "ConductorId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FechaEfecto": {
+          "name": "FechaEfecto",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Codigo": {
+          "name": "Codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Notas": {
+          "name": "Notas",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "NotaInterna": {
+          "name": "NotaInterna",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "Cerrada": {
+          "name": "Cerrada",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Reclamaciones_ConductorId_Fecha": {
+          "name": "IX_Reclamaciones_ConductorId_Fecha",
+          "columns": [
+            {
+              "expression": "ConductorId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "Fecha",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Reclamaciones_ConductorId_Conductores_Id_fk": {
+          "name": "Reclamaciones_ConductorId_Conductores_Id_fk",
+          "tableFrom": "Reclamaciones",
+          "tableTo": "Conductores",
+          "columnsFrom": [
+            "ConductorId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Regulaciones": {
+      "name": "Regulaciones",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Regulaciones_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConductorId": {
+          "name": "ConductorId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Tipo": {
+          "name": "Tipo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Fecha": {
+          "name": "Fecha",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Horas": {
+          "name": "Horas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Dcs": {
+          "name": "Dcs",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Dnds": {
+          "name": "Dnds",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Motivo": {
+          "name": "Motivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Regulaciones_ConductorId": {
+          "name": "IX_Regulaciones_ConductorId",
+          "columns": [
+            {
+              "expression": "ConductorId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Regulaciones_ConductorId_Conductores_Id_fk": {
+          "name": "Regulaciones_ConductorId_Conductores_Id_fk",
+          "tableFrom": "Regulaciones",
+          "tableTo": "Conductores",
+          "columnsFrom": [
+            "ConductorId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Resumenes": {
+      "name": "Resumenes",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "Resumenes_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "CalendarioId": {
+          "name": "CalendarioId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasActivo": {
+          "name": "DiasActivo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasInactivo": {
+          "name": "DiasInactivo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTrabajo": {
+          "name": "DiasTrabajo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTrabajoJD": {
+          "name": "DiasTrabajoJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTrabajoFN": {
+          "name": "DiasTrabajoFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOV": {
+          "name": "DiasOV",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasJD": {
+          "name": "DiasJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasFN": {
+          "name": "DiasFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasE": {
+          "name": "DiasE",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDS": {
+          "name": "DiasDS",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDC": {
+          "name": "DiasDC",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasF6": {
+          "name": "DiasF6",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasF6D": {
+          "name": "DiasF6D",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDND": {
+          "name": "DiasDND",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDF": {
+          "name": "DiasDF",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasPER": {
+          "name": "DiasPER",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasEJD": {
+          "name": "DiasEJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasEFN": {
+          "name": "DiasEFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOVJD": {
+          "name": "DiasOVJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOVFN": {
+          "name": "DiasOVFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasF6DC": {
+          "name": "DiasF6DC",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasFOR": {
+          "name": "DiasFOR",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasFORJD": {
+          "name": "DiasFORJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasFORFN": {
+          "name": "DiasFORFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOVA": {
+          "name": "DiasOVA",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOVAJD": {
+          "name": "DiasOVAJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasOVAFN": {
+          "name": "DiasOVAFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasLAC": {
+          "name": "DiasLAC",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasLACJD": {
+          "name": "DiasLACJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasLACFN": {
+          "name": "DiasLACFN",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasCO": {
+          "name": "DiasCO",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasCE": {
+          "name": "DiasCE",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasRE": {
+          "name": "DiasRE",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasHorasSindicales": {
+          "name": "DiasHorasSindicales",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasComiteJD": {
+          "name": "DiasComiteJD",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasComiteDC": {
+          "name": "DiasComiteDC",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SabadosTrabajados": {
+          "name": "SabadosTrabajados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SabadosDescansados": {
+          "name": "SabadosDescansados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DomingosTrabajados": {
+          "name": "DomingosTrabajados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DomingosDescansados": {
+          "name": "DomingosDescansados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FestivosTrabajados": {
+          "name": "FestivosTrabajados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FestivosDescansados": {
+          "name": "FestivosDescansados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTurno1": {
+          "name": "DiasTurno1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTurno2": {
+          "name": "DiasTurno2",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTurno3": {
+          "name": "DiasTurno3",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasTurno4": {
+          "name": "DiasTurno4",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasConRefuerzo": {
+          "name": "DiasConRefuerzo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FindesCompletos": {
+          "name": "FindesCompletos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDeberiaTrabajar": {
+          "name": "DiasDeberiaTrabajar",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDeberiaDescansar": {
+          "name": "DiasDeberiaDescansar",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasDeberiaVacaciones": {
+          "name": "DiasDeberiaVacaciones",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasTrabajadas": {
+          "name": "HorasTrabajadas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasTrabajadasConvenio": {
+          "name": "HorasTrabajadasConvenio",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasAcumuladas": {
+          "name": "HorasAcumuladas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasAcumuladasVirtual": {
+          "name": "HorasAcumuladasVirtual",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "HorasNocturnas": {
+          "name": "HorasNocturnas",
+          "type": "interval",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Desayunos": {
+          "name": "Desayunos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DesayunosVirtual": {
+          "name": "DesayunosVirtual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Comidas": {
+          "name": "Comidas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ComidasVirtual": {
+          "name": "ComidasVirtual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Cenas": {
+          "name": "Cenas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "CenasVirtual": {
+          "name": "CenasVirtual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDietas": {
+          "name": "TotalDietas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDietasVirtual": {
+          "name": "TotalDietasVirtual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "DiasConPlusPaqueteria": {
+          "name": "DiasConPlusPaqueteria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "FacturadoPaqueteria": {
+          "name": "FacturadoPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PlusesPaqueteria": {
+          "name": "PlusesPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PlusesMenorDescanso": {
+          "name": "PlusesMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Limpiezas": {
+          "name": "Limpiezas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalLimpiezas": {
+          "name": "TotalLimpiezas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDietas": {
+          "name": "ImporteDietas",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDietasVirtual": {
+          "name": "ImporteDietasVirtual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusSabados": {
+          "name": "ImportePlusSabados",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusFestivos": {
+          "name": "ImportePlusFestivos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusPaqueteria": {
+          "name": "ImportePlusPaqueteria",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusLimpieza": {
+          "name": "ImportePlusLimpieza",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusMenorDescanso": {
+          "name": "ImportePlusMenorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNocturnidad": {
+          "name": "ImportePlusNocturnidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNocturnidadParcial": {
+          "name": "ImportePlusNocturnidadParcial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusNavidad": {
+          "name": "ImportePlusNavidad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImportePlusViaje": {
+          "name": "ImportePlusViaje",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteQuebrantoMoneda": {
+          "name": "ImporteQuebrantoMoneda",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteVariableVacaciones": {
+          "name": "ImporteVariableVacaciones",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteRefuerzos": {
+          "name": "ImporteRefuerzos",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Errores": {
+          "name": "Errores",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDndsCobrados": {
+          "name": "TotalDndsCobrados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDndsCobrados": {
+          "name": "ImporteDndsCobrados",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "TotalDndsCobradosPorDescanso": {
+          "name": "TotalDndsCobradosPorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDndsCobradosPorDescanso": {
+          "name": "ImporteDndsCobradosPorDescanso",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_Resumenes_CalendarioId": {
+          "name": "IX_Resumenes_CalendarioId",
+          "columns": [
+            {
+              "expression": "CalendarioId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Resumenes_CalendarioId_Calendarios_Id_fk": {
+          "name": "Resumenes_CalendarioId_Calendarios_Id_fk",
+          "tableFrom": "Resumenes",
+          "tableTo": "Calendarios",
+          "columnsFrom": [
+            "CalendarioId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.TablasSalariales": {
+      "name": "TablasSalariales",
+      "schema": "",
+      "columns": {
+        "Id": {
+          "name": "Id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "byDefault",
+            "name": "TablasSalariales_Id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "ConvenioId": {
+          "name": "ConvenioId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "Categoria": {
+          "name": "Categoria",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SueldoBaseDiario": {
+          "name": "SueldoBaseDiario",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SueldoBaseMensual": {
+          "name": "SueldoBaseMensual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SueldoBaseAnual": {
+          "name": "SueldoBaseAnual",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ComplementoSalarial": {
+          "name": "ComplementoSalarial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "BaseAntiguedad": {
+          "name": "BaseAntiguedad",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PrecioHoraExtra": {
+          "name": "PrecioHoraExtra",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PrecioQuebrantoMoneda": {
+          "name": "PrecioQuebrantoMoneda",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PagaSeptiembre": {
+          "name": "PagaSeptiembre",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ImporteDndCobrado": {
+          "name": "ImporteDndCobrado",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "SeguroAccidentes": {
+          "name": "SeguroAccidentes",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeSeguridadSocial": {
+          "name": "PorcentajeSeguridadSocial",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "PorcentajeDesempleo": {
+          "name": "PorcentajeDesempleo",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedDate": {
+          "name": "ModifiedDate",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ModifiedBy": {
+          "name": "ModifiedBy",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "IX_TablasSalariales_ConvenioId": {
+          "name": "IX_TablasSalariales_ConvenioId",
+          "columns": [
+            {
+              "expression": "ConvenioId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "TablasSalariales_ConvenioId_Convenios_Id_fk": {
+          "name": "TablasSalariales_ConvenioId_Convenios_Id_fk",
+          "tableFrom": "TablasSalariales",
+          "tableTo": "Convenios",
+          "columnsFrom": [
+            "ConvenioId"
+          ],
+          "columnsTo": [
+            "Id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
