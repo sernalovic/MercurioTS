@@ -49,4 +49,8 @@ Port empezado:
   herencia "vacío" y avisos de líneas descartadas. Entidades `Linea`,
   `Itinerario`, `ItinerarioGrafico` y `Parada`.
 
-Pendiente del port: nada (falta solo portar `ComparacionGraficos` para cerrarlo).
+- `ComparacionGraficos`: informe gráfico a gráfico entre dos grupos
+  (diferencias de turno/inicio/final/partidos/valoración y ausencias).
+
+Estado: **port del dominio completo** (todas las clases de `Mercurio.Domain`
+tienen equivalente en este paquete).
