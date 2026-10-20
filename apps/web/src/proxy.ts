@@ -25,6 +25,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Exclude solo los estáticos; el resto de rutas pasa por el chequeo.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Excluidos solo los estáticos; el resto de rutas pasa por el chequeo.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|privacidad).*)"],
 };
