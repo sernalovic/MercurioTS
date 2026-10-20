@@ -1,0 +1,27 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+.next/
+out/
+target/
+
+# Entornos y secretos
+.env
+.env.*
+!.env.example
+
+# Tauri / Electron
+apps/desktop/src-tauri/gen/
+release/
+
+# Varios
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
