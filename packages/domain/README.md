@@ -34,6 +34,10 @@ Port empezado:
 - `CalculosCalendario`: crear días, ajustar JDs (variantes fin de semana y
   descansos sueltos), diferencias en contra, importes mensuales, y el resumen
   mensual completo (12.1 contadores, 12.2 validaciones y errores, 12.3 importes).
+- Entidades de nómina: `Nomina`, `ConceptoNomina` (+ fábricas).
+- `CalculosNomina`: tramos de antigüedad, texto del complemento por categoría,
+  generar la nómina mensual del calendario, recálculo de bases y descuentos, e
+  incremento de convenios (secciones 10 y 11 de REGLAS-CALCULO.md).
 
-Pendiente del port: `CalculosNomina`, `CalculosReclamacion` y
+Pendiente del port: `CalculosReclamacion` y
 `ExtraccionGraficos`/`ComparacionGraficos`.

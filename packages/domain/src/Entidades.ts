@@ -10,8 +10,8 @@
  * - Fechas: cadenas `YYYY-MM-DD`, sin zona horaria.
  */
 import {
-  CategoriaGrafico, CategoriaTrabajador, CentroTrabajo, CodigoIncidencia, Incidencia, SituacionTrabajador,
-  TipoDia, Turno,
+  CategoriaGrafico, CategoriaTrabajador, CentroTrabajo, CodigoIncidencia, Incidencia,
+  SituacionTrabajador, TipoConceptoNomina, TipoDia, TipoNomina, Turno,
 } from "./enums";
 
 export type Centimos = number;
@@ -229,7 +229,6 @@ export const totalImporteDndsCobrados = (r: ResumenCalendario): Centimos =>
 export const hasErrors = (r: ResumenCalendario): boolean =>
   r.errores.trim() !== "";
 
-/** Calendario mensual de un conductor; importes cobrados (los que figuran en la nómina) en céntimos. */
 export interface Calendario {
   id?: number;
   conductorId: number;
@@ -254,6 +253,44 @@ export interface Calendario {
   totalDcsPendientes: Centimos;
   totalDndsPendientes: Centimos;
   totalImporteDndsCobrados: Centimos;
+}
+
+/** Nómina generada; todos los importes en céntimos, porcentajes 0–100. */
+export interface Nomina {
+  id?: number;
+  conductorId: number;
+  tipoNomina: TipoNomina;
+  /** "YYYY-MM-DD". */
+  fecha: string;
+  fechaInicio: string;
+  fechaFinal: string;
+  fechaAntiguedad: string;
+  porcentajeIrpf: number;
+  porcentajeSeguridadSocial: number;
+  porcentajeDesempleo: number;
+  baseIrpf: Centimos;
+  prorrateoPagas: Centimos;
+  baseSeguridadSocial: Centimos;
+  descuentoIrpf: Centimos;
+  descuentoSeguridadSocial: Centimos;
+  descuentoDesempleo: Centimos;
+  totalDevengado: Centimos;
+  totalDeducciones: Centimos;
+  totalLiquido: Centimos;
+  conceptos: ConceptoNomina[];
+}
+
+export interface ConceptoNomina {
+  id?: number;
+  nominaId?: number;
+  tipoConceptoNomina: TipoConceptoNomina;
+  codigo: number;
+  computaParaIrpf: boolean;
+  textoConcepto: string;
+  unidades: number;
+  importeBase: Centimos;
+  devengado: Centimos;
+  deduccion: Centimos;
 }
 
 export interface OpcionesCentro {
@@ -456,6 +493,36 @@ export function nuevoDiaCalendario(parciales: Partial<DiaCalendario> = {}): DiaC
     dndCobrado: false,
     dndsCobradosPorDescanso: 0,
     isRemoteUpdated: false,
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de una `Nomina` nueva (equivale a `new Nomina()`). */
+export function nuevaNomina(parciales: Partial<Nomina> = {}): Nomina {
+  return {
+    conductorId: 0,
+    tipoNomina: TipoNomina.Mensual,
+    fecha: "", fechaInicio: "", fechaFinal: "", fechaAntiguedad: "",
+    porcentajeIrpf: 0, porcentajeSeguridadSocial: 0, porcentajeDesempleo: 0,
+    baseIrpf: 0, prorrateoPagas: 0, baseSeguridadSocial: 0,
+    descuentoIrpf: 0, descuentoSeguridadSocial: 0, descuentoDesempleo: 0,
+    totalDevengado: 0, totalDeducciones: 0, totalLiquido: 0,
+    conceptos: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `ConceptoNomina` nuevo. */
+export function nuevoConceptoNomina(parciales: Partial<ConceptoNomina> = {}): ConceptoNomina {
+  return {
+    tipoConceptoNomina: TipoConceptoNomina.SalarioBase,
+    codigo: 0,
+    computaParaIrpf: true,
+    textoConcepto: "",
+    unidades: 0,
+    importeBase: 0,
+    devengado: 0,
+    deduccion: 0,
     ...parciales,
   };
 }
