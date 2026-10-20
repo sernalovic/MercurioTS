@@ -16,4 +16,17 @@ Los tests derivan de ese documento, igual que los tests xUnit del proyecto origi
 
 ## Estado
 
-Port empezado. Primer módulo: `Horas` (`Calculos/Horas` del original).
+Port empezado:
+
+- `Horas` (Utilidades.cs): `Duracion`, `EnHoras`, `Max`, `ParseDecimal`.
+- `Enums.cs` completo, con los mismos valores numéricos que el original.
+- `RangoNumeros` ("1-50, 60, 70..80").
+- Entidades mínimas para el cálculo (`Servicio`, `Grafico`, `Convenio`, `OpcionesCentro`, `Festivo`, `DiaCalendario`).
+- `Incidencias.EsTrabajo`.
+- `CalculosHorario` completo: duraciones, dietas, recálculo de servicio y gráfico
+  (incluido el error de tiempo partido, recalculado en cada pasada), tipo de día
+  por rangos, festivos, plus por menor descanso, regenerar día y cambio de propiedad.
+
+Pendiente del port: `CalculosCalendario`, `CalculosNomina`, `CalculosReclamacion`,
+resto de `Incidencias` (descansos, variantes JD/FN, parseo y texto de celdas) y
+`ExtraccionGraficos`/`ComparacionGraficos`.
