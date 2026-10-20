@@ -1,0 +1,81 @@
+.pantalla {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 2rem;
+  width: min(22rem, 100%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 6%);
+}
+
+.cabecera {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.titulo {
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.subtitulo {
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.formulario {
+  display: grid;
+  gap: 1rem;
+}
+
+.etiqueta {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.campo {
+  border: 1px solid var(--borde);
+  border-radius: calc(var(--radio) / 2);
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+  background: var(--fondo);
+  color: inherit;
+}
+
+.campo:focus-visible {
+  outline-offset: 0;
+}
+
+.boton {
+  border: none;
+  border-radius: calc(var(--radio) / 2);
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  color: white;
+  background: var(--color-primario);
+  cursor: pointer;
+}
+
+.boton:hover:not(:disabled) {
+  background: var(--color-primario-activo);
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.9rem;
+}

@@ -1,34 +1,34 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta de Mercurio */
+  --color-fondo: #f4f5f7;
+  --color-superficie: #ffffff;
+  --color-texto: #1c2333;
+  --color-texto-suave: #5b6472;
+  --color-primario: #1d6fe0;
+  --color-primario-activo: #1756af;
+  --color-borde: #d8dce3;
+  --color-error: #c22f2f;
+  --radio: 10px;
+
+  color-scheme: light dark;
+
+  --fondo: var(--color-fondo);
+  --superficie: var(--color-superficie);
+  --texto: var(--color-texto);
+  --texto-suave: var(--color-texto-suave);
+  --borde: var(--color-borde);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --fondo: #12151c;
+    --superficie: #1b2029;
+    --texto: #e6e9ef;
+    --texto-suave: #a2aab8;
+    --borde: #2c3441;
+    --color-primario: #4d8ef0;
+    --color-primario-activo: #7aa9f4;
   }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
@@ -37,9 +37,28 @@ body {
   margin: 0;
 }
 
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: var(--texto);
+  background: var(--fondo);
+  font-family: system-ui, "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
 a {
-  color: inherit;
-  text-decoration: none;
+  color: var(--color-primario);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 2px;
 }
 
 @media (prefers-color-scheme: dark) {
