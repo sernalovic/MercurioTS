@@ -8,3 +8,4 @@ export * from "./CalculosHorario";
 export * from "./CalculosCalendario";
 export * from "./CalculosNomina";
 export * from "./CalculosReclamacion";
+export * from "./ExtraccionGraficos";

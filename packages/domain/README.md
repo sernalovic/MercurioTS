@@ -43,5 +43,10 @@ Port empezado:
   (sección 15), `conceptoPorIncidencia`, `generarReclamacion` y las notas con
   totales en formato es-ES (secciones 9, 13 y 14).
 
-Pendiente del port: `ExtraccionGraficos` y `ComparacionGraficos` (usa el
-importador de gráficos y las herramientas de comparación).
+- `ExtraccionGraficos`: parseo del texto de los PDF de gráficos (sección 16) —
+  palabras clave de centro/día/paridad de turno, itinerarios con horas
+  (`a`/`-`/`Reserva`), cálculo del final por catálogo, textos pendientes,
+  herencia "vacío" y avisos de líneas descartadas. Entidades `Linea`,
+  `Itinerario`, `ItinerarioGrafico` y `Parada`.
+
+Pendiente del port: nada (falta solo portar `ComparacionGraficos` para cerrarlo).

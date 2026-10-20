@@ -57,6 +57,46 @@ export interface Grafico extends Horario {
   fecha: string;
   plusCena: number;
   tieneErrorTiempoPartido: boolean;
+  itinerarios: ItinerarioGrafico[];
+}
+
+/** Tramo de un gráfico: hora de inicio, itinerario, final y tiempo total (minutos; null = sin dato). */
+export interface ItinerarioGrafico {
+  id?: number;
+  graficoId?: number;
+  inicio: number | null;
+  itinerario: string | null;
+  descripcion: string | null;
+  final: number | null;
+  tiempoTotal: number;
+}
+
+/** Línea de transporte con itinerarios. */
+export interface Linea {
+  id?: number;
+  nombre: string;
+  descripcion: string | null;
+  itinerarios: Itinerario[];
+}
+
+/** Itinerario catalogado de una línea (tiempos en minutos). */
+export interface Itinerario {
+  id?: number;
+  lineaId: number;
+  nombre: string;
+  descripcion: string | null;
+  tiempoReal: number;
+  tiempoPago: number;
+  paradas: Parada[];
+}
+
+/** Parada de un itinerario (tiempo en minutos desde el inicio). */
+export interface Parada {
+  id?: number;
+  itinerarioId: number;
+  orden: number;
+  descripcion: string | null;
+  tiempo: number;
 }
 
 /** Uno de los tres servicios de un día: anual (planificado), trabajado (real) o virtual (computado). */
@@ -698,6 +738,54 @@ export function nuevoGrafico(parciales: Partial<Grafico> = {}): Grafico {
     fecha: "",
     plusCena: 0,
     tieneErrorTiempoPartido: false,
+    itinerarios: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `ItinerarioGrafico` nuevo. */
+export function nuevoItinerarioGrafico(parciales: Partial<ItinerarioGrafico> = {}): ItinerarioGrafico {
+  return {
+    graficoId: 0,
+    inicio: null,
+    itinerario: null,
+    descripcion: null,
+    final: null,
+    tiempoTotal: 0,
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de una `Linea` nueva. */
+export function nuevaLinea(parciales: Partial<Linea> = {}): Linea {
+  return {
+    nombre: "",
+    descripcion: null,
+    itinerarios: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de un `Itinerario` nuevo. */
+export function nuevoItinerario(parciales: Partial<Itinerario> = {}): Itinerario {
+  return {
+    lineaId: 0,
+    nombre: "",
+    descripcion: null,
+    tiempoReal: 0,
+    tiempoPago: 0,
+    paradas: [],
+    ...parciales,
+  };
+}
+
+/** Valores por defecto de una `Parada` nueva. */
+export function nuevaParada(parciales: Partial<Parada> = {}): Parada {
+  return {
+    itinerarioId: 0,
+    orden: 0,
+    descripcion: null,
+    tiempo: 0,
     ...parciales,
   };
 }
