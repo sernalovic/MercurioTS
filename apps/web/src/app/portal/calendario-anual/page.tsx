@@ -80,7 +80,7 @@ async function AnualTrabajador({ searchParams }: { searchParams: PageProps<"/por
           Introduce la situación o el número de gráfico de cada día de tu{" "}
           <strong>calendario anual</strong>. Si tienes dudas de como introducir
           la situación, consulta la{" "}
-          <span className={styles.ayudaEnlace} title="Página de ayuda pendiente">AYUDA</span>
+          <Link className={styles.ayudaEnlace} href="/ayuda">AYUDA</Link>
         </p>
 
         {dias.map((d) => {

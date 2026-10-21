@@ -313,6 +313,10 @@
   background: #c0392b;
 }
 
+.cintaVerde {
+  background: #1e7e34;
+}
+
 .tarjetaTexto {
   display: block;
   color: #454545;
@@ -850,6 +854,48 @@
   background: #fff;
   color: #555;
   font-size: 0.95rem;
+}
+
+/* ---- Ayuda ---- */
+
+.ayudaTitulo {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1e7e34;
+  margin: 0.2rem 0 0.9rem;
+}
+
+.ayudaCaja p {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.ayudaTabla {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
+.ayudaTabla th,
+.ayudaTabla td {
+  text-align: left;
+  padding: 0.45rem 0.8rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.95rem;
+}
+
+.ayudaTabla th {
+  background: #eaf2fd;
+  color: #2a7de1;
+}
+
+.ayudaTabla tbody tr:nth-child(even) {
+  background: #fafbfc;
 }
 
 .notaConstruccion {
