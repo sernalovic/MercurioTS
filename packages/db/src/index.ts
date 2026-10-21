@@ -5,6 +5,7 @@
  */
 export * from "./convertir";
 export * from "./schema";
+export * from "./dominio";
 
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { InferSelectModel } from "drizzle-orm";

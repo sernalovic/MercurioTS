@@ -10,10 +10,17 @@
  */
 import { and, asc, eq, gte, lt } from "drizzle-orm";
 import {
-  aIntervalo, aNumero, calendarios, conceptosReclamados, conductores, diasCalendario, regulaciones, reclamaciones, resumenes,
+  aIntervalo, aNumero, calendarioDesdeFila, calendarios, conductorDesdeFila,
+  convenioDesdeFilas, diaDesdeFila, resumenAFila, resumenDesdeFila,
+  servicioTrabajadoAColumnas, convenios, opcionesCentro, festivos, tablasSalariales,
+  conceptosReclamados, conductores, diasCalendario, regulaciones, reclamaciones, resumenes,
   type Calendarios, type Db, type DiasCalendario,
 } from "@mercurio/db";
-import { CodigoIncidencia, Incidencia, TipoReclamacion, Turno } from "@mercurio/domain";
+import {
+  CalculosHorario, CodigoIncidencia, Incidencia, recalcularResumen as recalcularResumenDominio,
+  TipoReclamacion, Turno,
+  type Conductor, type Convenio, type Servicio,
+} from "@mercurio/domain";
 
 export interface DiaDeMes {
   fecha: string; // "YYYY-MM-DD"
@@ -155,24 +162,47 @@ export async function guardarDia(
   // Los descansos no llevan gráfico, turno ni horas.
   const numero = esTrabajo ? datos.numero : 0;
   const turno = esTrabajo ? datos.turno : Turno.SinTurno;
-  const inicio = esTrabajo ? datos.inicio : null;
-  const final = esTrabajo ? datos.final : null;
-  const inicioPartido = esTrabajo ? datos.inicioPartido : null;
-  const finalPartido = esTrabajo ? datos.finalPartido : null;
-
-  // Duración simple del tramo: final - inicio (menos la pausa del partido).
-  // TODO: la valoración completa es trabajo de CalculosHorario (a portar).
-  let trabajadas = 0;
-  if (inicio !== null && final !== null) {
-    trabajadas = Math.max(0, final - inicio);
-    if (inicioPartido !== null && finalPartido !== null) {
-      trabajadas = Math.max(0, trabajadas - Math.max(0, finalPartido - final) - Math.max(0, inicio - inicioPartido));
-    }
-  }
 
   const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
 
   const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+
+  // ---- Valoración completa del servicio con CalculosHorario ----
+  // Trabajadas (con el tope del partido), trabajadas según convenio,
+  // acumuladas, nocturnas, dietas y plus de paquetería salen del dominio
+  // (REGLAS-CALCULO.md 1–5); sin convenio del año, todo queda a cero.
+  const servicio: Servicio = {
+    incidencia: datos.incidencia,
+    codigo: datos.codigo,
+    plusPaqueteria: 0,
+    facturadoPaqueteria: datos.facturadoPaqueteria,
+    limpieza: datos.limpieza,
+    plusMenorDescanso: 0,
+    noCalcular: false,
+    categoria: 0,
+    numero,
+    tipoDia: 0,
+    turno,
+    inicio: esTrabajo ? datos.inicio : null,
+    final: esTrabajo ? datos.final : null,
+    inicioPartido: esTrabajo ? datos.inicioPartido : null,
+    finalPartido: esTrabajo ? datos.finalPartido : null,
+    valoracion: 0,
+    tiempoTotal: 0,
+    tiempoPartido: 0,
+    trabajadas: 0,
+    trabajadasConvenio: 0,
+    tiempoVacio: 0,
+    acumuladas: 0,
+    nocturnas: 0,
+    desayuno: 0,
+    comida: 0,
+    cena: 0,
+    tienePlusPaqueteria: false,
+  };
+  new CalculosHorario(await convenioDelAño(db, args.ano)).recalcularServicio(servicio);
+  // La columna Valoración sigue reflejando la duración útil del tramo.
+  servicio.valoracion = servicio.trabajadas;
 
   // ---- Fila del día (upsert) ----
   const fecha = `${args.ano}-${String(args.mes).padStart(2, "0")}-${String(args.dia).padStart(2, "0")}`;
@@ -182,25 +212,6 @@ export async function guardarDia(
     .where(and(eq(diasCalendario.calendarioId, calendario.id), eq(diasCalendario.fecha, `${fecha} 00:00:00`)))
     .limit(1);
 
-  const servicioTrabajado = {
-    incidencia: datos.incidencia,
-    codigo: datos.codigo,
-    categoria: 0,
-    numero,
-    tipoDia: 0,
-    turno,
-    inicio: inicio === null ? null : aIntervalo(inicio),
-    final: final === null ? null : aIntervalo(final),
-    inicioPartido: inicioPartido === null ? null : aIntervalo(inicioPartido),
-    finalPartido: finalPartido === null ? null : aIntervalo(finalPartido),
-    valoracion: aIntervalo(trabajadas),
-    tiempoTotal: aIntervalo(trabajadas),
-    trabajadas: aIntervalo(trabajadas),
-    trabajadasConvenio: aIntervalo(trabajadas),
-    facturadoPaqueteria: (datos.facturadoPaqueteria / 100).toFixed(2),
-    limpieza: String(datos.limpieza),
-  };
-
   const cambios: Partial<typeof diasCalendario.$inferInsert> = {
     refuerzos: datos.refuerzos,
     notas: datos.notas !== null && datos.notas.trim() === "" ? null : datos.notas,
@@ -209,22 +220,7 @@ export async function guardarDia(
     isRemoteUpdated: true,
     modifiedDate: ahora,
     modifiedBy: args.usuarioId,
-    TrabajadoIncidencia: servicioTrabajado.incidencia,
-    TrabajadoCodigo: servicioTrabajado.codigo,
-    TrabajadoCategoria: servicioTrabajado.categoria,
-    TrabajadoNumero: servicioTrabajado.numero,
-    TrabajadoTipoDia: servicioTrabajado.tipoDia,
-    TrabajadoTurno: servicioTrabajado.turno,
-    TrabajadoInicio: servicioTrabajado.inicio,
-    TrabajadoFinal: servicioTrabajado.final,
-    TrabajadoInicioPartido: servicioTrabajado.inicioPartido,
-    TrabajadoFinalPartido: servicioTrabajado.finalPartido,
-    TrabajadoValoracion: servicioTrabajado.valoracion,
-    TrabajadoTiempoTotal: servicioTrabajado.tiempoTotal,
-    TrabajadoTrabajadas: servicioTrabajado.trabajadas,
-    TrabajadoTrabajadasConvenio: servicioTrabajado.trabajadasConvenio,
-    TrabajadoFacturadoPaqueteria: servicioTrabajado.facturadoPaqueteria,
-    TrabajadoLimpieza: servicioTrabajado.limpieza,
+    ...servicioTrabajadoAColumnas(servicio),
   };
 
   if (existente === undefined) {
@@ -243,45 +239,25 @@ export async function guardarDia(
       modifiedBy: args.usuarioId,
       ...bloqueAnualEnBlanco(),
       ...bloqueVirtualEnBlanco(),
-      TrabajadoIncidencia: servicioTrabajado.incidencia,
-      TrabajadoCodigo: servicioTrabajado.codigo,
-      TrabajadoCategoria: servicioTrabajado.categoria,
-      TrabajadoNumero: servicioTrabajado.numero,
-      TrabajadoTipoDia: servicioTrabajado.tipoDia,
-      TrabajadoTurno: servicioTrabajado.turno,
-      TrabajadoInicio: servicioTrabajado.inicio,
-      TrabajadoFinal: servicioTrabajado.final,
-      TrabajadoInicioPartido: servicioTrabajado.inicioPartido,
-      TrabajadoFinalPartido: servicioTrabajado.finalPartido,
-      TrabajadoValoracion: servicioTrabajado.valoracion,
-      TrabajadoTiempoTotal: servicioTrabajado.tiempoTotal,
-      TrabajadoTiempoPartido: INTERVALO_CERO,
-      TrabajadoTrabajadas: servicioTrabajado.trabajadas,
-      TrabajadoTrabajadasConvenio: servicioTrabajado.trabajadasConvenio,
-      TrabajadoTiempoVacio: INTERVALO_CERO,
-      TrabajadoAcumuladas: INTERVALO_CERO,
-      TrabajadoNocturnas: INTERVALO_CERO,
-      TrabajadoDesayuno: "0",
-      TrabajadoComida: "0",
-      TrabajadoCena: "0",
-      TrabajadoTienePlusPaqueteria: false,
-      TrabajadoPlusPaqueteria: "0",
-      TrabajadoPlusMenorDescanso: "0",
-      TrabajadoNoCalcular: false,
-      TrabajadoFacturadoPaqueteria: servicioTrabajado.facturadoPaqueteria,
-      TrabajadoLimpieza: servicioTrabajado.limpieza,
+      ...servicioTrabajadoAColumnas(servicio),
+      TrabajadoIncidencia: servicio.incidencia,
+      TrabajadoCodigo: servicio.codigo,
+      TrabajadoTurno: servicio.turno,
     };
     await db.insert(diasCalendario).values(alta);
   } else {
     await db.update(diasCalendario).set(cambios).where(eq(diasCalendario.id, existente.id));
   }
 
-  // ---- Resumen del mes: reconteo de días por situación ----
-  await recontarResumen(db, calendario.id);
+  // ---- Resumen del mes: recálculo completo (contadores e importes) ----
+  await recalcularResumenMes(db, {
+    conductorId: args.conductorId, ano: args.ano, mes: args.mes,
+    usuarioId: args.usuarioId, ahora, calendarioId: calendario.id,
+  });
 }
 
 /** Devuelve el calendario del mes, creándolo con resumen en blanco si falta. */
-async function asegurarCalendarioDelMes(
+export async function asegurarCalendarioDelMes(
   db: Db,
   conductorId: number,
   ano: number,
@@ -312,30 +288,98 @@ async function asegurarCalendarioDelMes(
   return creado[0];
 }
 
-/** Vuelve a contar los días por situación del Trabajado y pega el parche al resumen. */
-async function recontarResumen(db: Db, calendarioId: number): Promise<void> {
-  const filas = await db
-    .select({ incidencia: diasCalendario.TrabajadoIncidencia })
-    .from(diasCalendario)
-    .where(eq(diasCalendario.calendarioId, calendarioId));
-  const conteo = new Map<Incidencia, number>();
-  for (const f of filas) conteo.set(f.incidencia, (conteo.get(f.incidencia) ?? 0) + 1);
-  const CONTADORES: Array<[keyof typeof resumenes.$inferInsert, Incidencia]> = [
-    ["diasTrabajo", Incidencia.Trabajo], ["diasTrabajoJD", Incidencia.TrabajoJD],
-    ["diasTrabajoFN", Incidencia.TrabajoFN], ["diasJD", Incidencia.JD], ["diasFN", Incidencia.FN],
-    ["diasDS", Incidencia.DS], ["diasDC", Incidencia.DC], ["diasDND", Incidencia.DND],
-    ["diasF6", Incidencia.F6], ["diasF6D", Incidencia.F6D], ["diasF6DC", Incidencia.F6DC],
-    ["diasPER", Incidencia.PER], ["diasDF", Incidencia.DF],
-    ["diasOV", Incidencia.OV], ["diasOVJD", Incidencia.OVJD], ["diasOVFN", Incidencia.OVFN],
-    ["diasE", Incidencia.E], ["diasEJD", Incidencia.EJD], ["diasEFN", Incidencia.EFN],
-    ["diasFOR", Incidencia.FOR], ["diasFORJD", Incidencia.FORJD], ["diasFORFN", Incidencia.FORFN],
-  ];
-  const parche: Record<string, number> = {};
-  for (const [campo, incidencia] of CONTADORES) parche[campo as string] = conteo.get(incidencia) ?? 0;
+/** Convenio vigente en el año del mes (null si no hay fila para ese año). */
+export async function convenioDelAño(db: Db, ano: number): Promise<Convenio | null> {
+  const [fila] = await db.select().from(convenios).where(eq(convenios.año, ano)).limit(1);
+  if (fila === undefined) return null;
+  const [filasOpciones, filasFestivos, filasTablas] = await Promise.all([
+    db.select().from(opcionesCentro),
+    db.select().from(festivos),
+    db.select().from(tablasSalariales),
+  ]);
+  return convenioDesdeFilas(fila, filasOpciones, filasFestivos, filasTablas);
+}
 
-  await db.update(resumenes)
-    .set(parche as Partial<typeof resumenes.$inferInsert>)
-    .where(eq(resumenes.calendarioId, calendarioId));
+/** Conductor del dominio con sus regulaciones (null si no existe la fila). */
+export async function conductorDominio(db: Db, conductorId: number): Promise<Conductor | null> {
+  const [fila] = await db.select().from(conductores).where(eq(conductores.id, conductorId)).limit(1);
+  if (fila === undefined) return null;
+  const regs = await db.select().from(regulaciones).where(eq(regulaciones.conductorId, conductorId));
+  return conductorDesdeFila(fila, regs);
+}
+
+/**
+ * Recalcula el resumen del mes con los cálculos completos del dominio
+ * (REGLAS-CALCULO.md 12: contadores, validaciones, importes) y escribe la
+ * fila. Los días de frontera se deducen de los calendarios de los meses
+ * contiguos (sin fila: se consideran descanso, como en el original).
+ */
+export async function recalcularResumenMes(
+  db: Db,
+  args: { conductorId: number; ano: number; mes: number; usuarioId: number; ahora: string; calendarioId: number },
+): Promise<void> {
+  const filasDias = await db
+    .select()
+    .from(diasCalendario)
+    .where(eq(diasCalendario.calendarioId, args.calendarioId))
+    .orderBy(asc(diasCalendario.fecha));
+  const [filaResumen] = await db
+    .select()
+    .from(resumenes)
+    .where(eq(resumenes.calendarioId, args.calendarioId))
+    .limit(1);
+
+  const anteriorALAño = args.mes === 1 ? args.ano - 1 : args.ano;
+  const anteriorALMes = args.mes === 1 ? 12 : args.mes - 1;
+  const diaAStr = (d: number) => String(d).padStart(2, "0");
+  const ultimoMesAnterior = anteriorALMes === 12 ? 31 : new Date(args.ano, args.mes - 1, 0).getDate();
+  const fechaAnterior = `${anteriorALAño}-${diaAStr(anteriorALMes)}-${diaAStr(ultimoMesAnterior)} 00:00:00`;
+  const siguienteAño = args.mes === 12 ? args.ano + 1 : args.ano;
+  const siguienteMes = args.mes === 12 ? 1 : args.mes + 1;
+  const fechaSiguiente = `${siguienteAño}-${diaAStr(siguienteMes)}-01 00:00:00`;
+  const filaFrontera = async (fecha: string): Promise<DiasCalendario | null> => {
+    const [fila] = await db
+      .select({ fila: diasCalendario })
+      .from(diasCalendario)
+      .innerJoin(calendarios, eq(diasCalendario.calendarioId, calendarios.id))
+      .where(and(eq(calendarios.conductorId, args.conductorId), eq(diasCalendario.fecha, fecha)))
+      .limit(1);
+    return fila?.fila ?? null;
+  };
+
+  const [calendarioFila] = await db.select().from(calendarios).where(eq(calendarios.id, args.calendarioId)).limit(1);
+  if (calendarioFila === undefined) throw new Error("Calendario del mes no encontrado.");
+  const [filaPrev, filaSig] = await Promise.all([filaFrontera(fechaAnterior), filaFrontera(fechaSiguiente)]);
+  const cal = calendarioDesdeFila(
+    calendarioFila,
+    filasDias,
+    filaResumen === undefined ? null : resumenDesdeFila(filaResumen),
+    await conductorDominio(db, args.conductorId),
+  );
+  recalcularResumenDominio(
+    cal,
+    await convenioDelAño(db, args.ano),
+    filaPrev === null ? null : diaDesdeFila(filaPrev),
+    filaSig === null ? null : diaDesdeFila(filaSig),
+  );
+  const resumen = cal.resumen;
+  if (resumen === null) return;
+
+  if (filaResumen === undefined) {
+    await db.insert(resumenes).values({
+      ...resumenAFila(resumen),
+      modifiedDate: args.ahora,
+      modifiedBy: args.usuarioId,
+    });
+  } else {
+    await db.update(resumenes)
+      .set({
+        ...resumenAFila(resumen),
+        modifiedDate: args.ahora,
+        modifiedBy: args.usuarioId,
+      })
+      .where(eq(resumenes.calendarioId, args.calendarioId));
+  }
 }
 
 export interface DatosDiaPijama {
@@ -380,7 +424,8 @@ export async function guardarDiaPijama(
     .where(and(eq(diasCalendario.calendarioId, calendario.id), eq(diasCalendario.fecha, `${fecha} 00:00:00`)))
     .limit(1);
 
-  // Campos propios del pijama (el resto de Trabajado se conserva).
+  // Campos propios del pijama (el resto de Trabajado se conserva): situación
+  // + gráfico, acumuladas y dietas que el trabajador introduce a mano.
   const acumuladasTexto = datos.acumuladas === null ? INTERVALO_CERO : aIntervalo(datos.acumuladas);
   const cambiosPijama: Partial<typeof diasCalendario.$inferInsert> = {
     TrabajadoIncidencia: datos.incidencia,
@@ -394,26 +439,21 @@ export async function guardarDiaPijama(
     modifiedDate: ahora,
     modifiedBy: args.usuarioId,
   };
-
   if (existente === undefined) {
     // Alta: fila completa con Anual/Virtual en blanco y el resto de Trabajado vacío.
     const alta: typeof diasCalendario.$inferInsert = {
       ...filaDiaEnBlanco(calendario.id, `${fecha} 00:00:00`, ahora, args.usuarioId),
-      isRemoteUpdated: true,
-      TrabajadoIncidencia: datos.incidencia,
-      TrabajadoCodigo: datos.codigo,
-      TrabajadoNumero: esTrabajo ? datos.numero : 0,
-      TrabajadoAcumuladas: acumuladasTexto,
-      TrabajadoDesayuno: String(datos.desayuno),
-      TrabajadoComida: String(datos.comida),
-      TrabajadoCena: String(datos.cena),
+      ...cambiosPijama,
     };
     await db.insert(diasCalendario).values(alta);
   } else {
     await db.update(diasCalendario).set(cambiosPijama).where(eq(diasCalendario.id, existente.id));
   }
 
-  await recontarResumen(db, calendario.id);
+  await recalcularResumenMes(db, {
+    conductorId: args.conductorId, ano: args.ano, mes: args.mes,
+    usuarioId: args.usuarioId, ahora, calendarioId: calendario.id,
+  });
 }
 
 /** Fila completa de un día recién creado, con los tres servicios en blanco. */
@@ -671,6 +711,37 @@ export async function guardarDcsYDnds(
   args: { usuarioId: number; conductorId: number; ano: number; mes: number },
 ): Promise<{ dcs: number; dnds: number }> {
   const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  // Recalculamos el resumen del mes (contadores e importes del dominio) para
+  // que los JD/DC/DND recién colocados cuenten.
+  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+  await recalcularResumenMes(db, {
+    conductorId: args.conductorId, ano: args.ano, mes: args.mes,
+    usuarioId: args.usuarioId, ahora, calendarioId: calendario.id,
+  });
+
+  const saldos = await saldosPendientesDeMes(db, args);
+  await db.update(calendarios)
+    .set({
+      totalDcsPendientes: String(saldos.dcs),
+      totalDndsPendientes: String(saldos.dnds),
+      modifiedDate: ahora,
+      modifiedBy: args.usuarioId,
+    })
+    .where(eq(calendarios.id, calendario.id));
+
+  return saldos;
+}
+
+/**
+ * Saldo de DCs y DNDs pendientes hasta el mes (REGLAS-CALCULO.md 15):
+ * iniciales del conductor + regulaciones − colocados (resumenes de enero al
+ * mes) y cobrados − reclamados en reclamaciones aún en curso. Unidades de
+ * días, no euros. El resumen del mes debe estar recalculado.
+ */
+export async function saldosPendientesDeMes(
+  db: Db,
+  args: { conductorId: number; ano: number; mes: number },
+): Promise<{ dcs: number; dnds: number }> {
   const primero = `${args.ano}-${String(args.mes).padStart(2, "0")}-01 00:00:00`;
   const limite = args.mes === 12 ? `${args.ano + 1}-01-01 00:00:00` : `${args.ano}-${String(args.mes + 1).padStart(2, "0")}-01 00:00:00`;
   const enero = `${args.ano}-01-01 00:00:00`;
@@ -688,10 +759,6 @@ export async function guardarDcsYDnds(
     dnds: regulaciones.dnds,
   }).from(regulaciones)
     .where(and(eq(regulaciones.conductorId, args.conductorId), lt(regulaciones.fecha, limite)));
-
-  // Recontamos el resumen del mes para que los JD/DC/DND recién colocados cuenten.
-  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
-  await recontarResumen(db, calendario.id);
 
   // Contadores de los resúmenes de enero al mes actual (acumulado del año).
   const filas = await db.select({
@@ -747,15 +814,6 @@ export async function guardarDcsYDnds(
     aNumero(doc.dndsIniciales) + regs.reduce((s, r) => s + aNumero(r.dnds), 0)
       + acumulado.jd - acumulado.dnd - acumulado.df - acumulado.cobrados - reclamadosDnds,
   );
-
-  await db.update(calendarios)
-    .set({
-      totalDcsPendientes: String(dcs),
-      totalDndsPendientes: String(dnds),
-      modifiedDate: ahora,
-      modifiedBy: args.usuarioId,
-    })
-    .where(eq(calendarios.id, calendario.id));
 
   return { dcs, dnds };
 }

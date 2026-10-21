@@ -13,6 +13,7 @@ import { Incidencia, Turno, CodigoIncidencia } from "@mercurio/domain";
 import { getDb } from "@/lib/bd";
 import { conductorDeCesion } from "@/lib/trabajador";
 import { estadoDelMes } from "@/lib/calendario";
+import { generarReclamacionAction } from "./actions";
 import {
   ETIQUETA_CODIGO, ETIQUETA_INCIDENCIA, ETIQUETA_TURNO, MESES_NOMBRES,
   inicialSemana, textoHora,
@@ -50,6 +51,9 @@ async function CalendarioTrabajador({ searchParams }: { searchParams: PageProps<
   const siguiente = mes === 12 ? { ano: ano + 1, mes: 1 } : { ano, mes: mes + 1 };
   const url = (p: { ano: number; mes: number }) => `/portal/calendario?ano=${p.ano}&mes=${p.mes}`;
 
+  const aviso = params.aviso === undefined ? null : String(params.aviso);
+  const avisoOk = params.ok === "1";
+
   return (
     <Seccion titulo="Calendario">
       <section className={styles.cajaResumen}>
@@ -66,11 +70,17 @@ async function CalendarioTrabajador({ searchParams }: { searchParams: PageProps<
         </div>
       </section>
 
-      <div className={styles.volverZona}>
+      <form className={styles.volverZona} action={generarReclamacionAction.bind(null, { ano, mes })}>
         <Link className={styles.botonAzul} href="/portal">
           Volver
         </Link>
-      </div>
+        <button className={styles.botonVerde} type="submit">
+          Generar reclamación
+        </button>
+      </form>
+      {aviso !== null && (
+        <span className={`${styles.cinta} ${avisoOk ? styles.cintaVerde : styles.cintaRoja}`}>{aviso}</span>
+      )}
 
       <span className={`${styles.cinta} ${styles.cintaAzul}`}>
         Resumen del mes
