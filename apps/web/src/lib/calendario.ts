@@ -514,3 +514,76 @@ function bloqueVirtualEnBlanco() {
     VirtualTienePlusPaqueteria: false,
   };
 }
+
+export interface DatosImportes {
+  sabados: number; // euros
+  festivos: number;
+  nocturnidad: number;
+  nocturnidadParcial: number;
+  paqueteria: number;
+  limpieza: number;
+  menorDescanso: number;
+  navidad: number;
+  viaje: number;
+  quebranto: number;
+  dietas: number;
+  refuerzos: number;
+  dndsCobrados: number;
+}
+
+/** Fila de importes del mes (o null si aún no hay calendario del mes). */
+export async function importesDelMes(
+  db: Db,
+  conductorId: number,
+  ano: number,
+  mes: number,
+) {
+  const primero = `${ano}-${String(mes).padStart(2, "0")}-01 00:00:00`;
+  const [calendario] = await db
+    .select()
+    .from(calendarios)
+    .where(and(eq(calendarios.conductorId, conductorId), eq(calendarios.fecha, primero)))
+    .limit(1);
+  return calendario ?? null;
+}
+
+/**
+ * Guarda los importes en nómina del mes (pantalla "Importes en nómina"):
+ * pega los totales tal cual los introduce el trabajador, creando el
+ * calendario del mes si falta. No toca días ni resumen.
+ */
+export async function guardarImportes(
+  db: Db,
+  args: {
+    usuarioId: number;
+    conductorId: number;
+    ano: number;
+    mes: number;
+    datos: DatosImportes;
+  },
+): Promise<void> {
+  const d = args.datos;
+  const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+
+  const primero = `${args.ano}-${String(args.mes).padStart(2, "0")}-01 00:00:00`;
+  await db.update(calendarios)
+    .set({
+      totalImportePlusSabados: String(d.sabados),
+      totalImportePlusFestivos: String(d.festivos),
+      totalImportePlusNocturnidad: String(d.nocturnidad),
+      totalImportePlusNocturnidadParcial: String(d.nocturnidadParcial),
+      totalImportePlusPaqueteria: String(d.paqueteria),
+      totalImportePlusLimpieza: String(d.limpieza),
+      totalImportePlusMenorDescanso: String(d.menorDescanso),
+      totalImportePlusNavidad: String(d.navidad),
+      totalImportePlusViaje: String(d.viaje),
+      totalQuebrantoMoneda: String(d.quebranto),
+      totalImporteDietas: String(d.dietas),
+      totalRefuerzos: String(d.refuerzos),
+      totalImporteDndsCobrados: String(d.dndsCobrados),
+      modifiedDate: ahora,
+      modifiedBy: args.usuarioId,
+    })
+    .where(and(eq(calendarios.conductorId, args.conductorId), eq(calendarios.fecha, primero)));
+}

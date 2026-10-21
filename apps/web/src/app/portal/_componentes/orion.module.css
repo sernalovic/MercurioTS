@@ -608,6 +608,39 @@
   cursor: not-allowed;
 }
 
+/* ---- Importes en nómina ---- */
+
+.filaImporte {
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  padding: 0.45rem 0.8rem 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.filaImporte:focus-within {
+  border-color: #1976d2;
+}
+
+.filaImporte label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6d6d6d;
+}
+
+.filaImporte input {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  text-align: right;
+  font-size: 1.15rem;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+  padding: 0.15rem 0 0;
+}
+
 .notaConstruccion {
   margin-top: 0.8rem;
   color: #6b6b6b;

@@ -175,9 +175,18 @@ try {
     .set(parche as Partial<typeof esquema.resumenes.$inferInsert>)
     .where(eq(esquema.resumenes.calendarioId, calendarioId));
 
-  // Pendientes de demostración (DCs/DNDs), como en el pantallazo de Orión 2.
+  // Pendientes e importes de demostración, como en los pantallazos de Orión 2.
   await db.update(esquema.calendarios)
-    .set({ totalDcsPendientes: "20.86", totalDndsPendientes: "3", modifiedDate: ahora })
+    .set({
+      totalDcsPendientes: "20.86", totalDndsPendientes: "3",
+      totalImportePlusSabados: "23.18", totalImportePlusFestivos: "46.35",
+      totalImportePlusNocturnidad: "0", totalImportePlusNocturnidadParcial: "0.63",
+      totalImportePlusPaqueteria: "31.48", totalImportePlusLimpieza: "185.64",
+      totalImportePlusMenorDescanso: "0", totalImportePlusNavidad: "0",
+      totalImportePlusViaje: "0", totalQuebrantoMoneda: "23.04",
+      totalImporteDietas: "9.60", totalRefuerzos: "0", totalImporteDndsCobrados: "0",
+      modifiedDate: ahora,
+    })
     .where(eq(esquema.calendarios.id, calendarioId));
 
   const trabajadasTotal = filasDia
