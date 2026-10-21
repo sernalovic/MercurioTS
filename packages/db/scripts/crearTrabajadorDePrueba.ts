@@ -36,7 +36,7 @@ try {
           "ModifiedDate", "ModifiedBy")
        VALUES (1, 0, 0, $1, false, '2020-01-01', '17.00', 3001, false, 100,
                'Conductor', 'De Prueba', NULL, NULL, '00:00:00',
-               '0.00', '0.00', '0.00', NULL,
+               '20.86', '3.00', '0.00', NULL,
                $2, 1)
        RETURNING "Id"`,
       [matricula, ahora],

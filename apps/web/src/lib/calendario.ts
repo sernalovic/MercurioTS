@@ -8,12 +8,12 @@
  * horas/imports corresponde a los cálculos de `@mercurio/domain`
  * (TODO: port de CalculosCalendario).
  */
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, lt } from "drizzle-orm";
 import {
-  aIntervalo, calendarios, diasCalendario, resumenes,
+  aIntervalo, aNumero, calendarios, conceptosReclamados, conductores, diasCalendario, regulaciones, reclamaciones, resumenes,
   type Calendarios, type Db, type DiasCalendario,
 } from "@mercurio/db";
-import { CodigoIncidencia, Incidencia, Turno } from "@mercurio/domain";
+import { CodigoIncidencia, Incidencia, TipoReclamacion, Turno } from "@mercurio/domain";
 
 export interface DiaDeMes {
   fecha: string; // "YYYY-MM-DD"
@@ -656,4 +656,106 @@ export async function guardarCalendarioAnual(
       });
     }
   }
+}
+
+/**
+ * "Guardar DCs y DNDs" (Pijama): recalcula el saldo de DCs y DNDs pendientes
+ * del mes (REGLAS-CALCULO.md 15) y lo guarda en TotalDcsPendientes /
+ * TotalDndsPendientes. Los descansos los coloca el trabajador desde el
+ * detalle del día del Calendario (situación DC, F6DC, DND o DF del servicio
+ * Trabajado); también se restan generados por JD (comité, trabajo, FOR) y
+ * los DNDs cobrados, y los reclamados en reclamaciones aún en curso.
+ */
+export async function guardarDcsYDnds(
+  db: Db,
+  args: { usuarioId: number; conductorId: number; ano: number; mes: number },
+): Promise<{ dcs: number; dnds: number }> {
+  const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const primero = `${args.ano}-${String(args.mes).padStart(2, "0")}-01 00:00:00`;
+  const limite = args.mes === 12 ? `${args.ano + 1}-01-01 00:00:00` : `${args.ano}-${String(args.mes + 1).padStart(2, "0")}-01 00:00:00`;
+  const enero = `${args.ano}-01-01 00:00:00`;
+
+  // Saldos iniciales del trabajador.
+  const [doc] = await db.select({
+    dcsIniciales: conductores.dcsIniciales,
+    dndsIniciales: conductores.dndsIniciales,
+  }).from(conductores).where(eq(conductores.id, args.conductorId));
+  if (doc === undefined) throw new Error("Trabajador no encontrado.");
+
+  // Regulaciones válidas: fecha anterior al primer día del mes siguiente.
+  const regs = await db.select({
+    dcs: regulaciones.dcs,
+    dnds: regulaciones.dnds,
+  }).from(regulaciones)
+    .where(and(eq(regulaciones.conductorId, args.conductorId), lt(regulaciones.fecha, limite)));
+
+  // Recontamos el resumen del mes para que los JD/DC/DND recién colocados cuenten.
+  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+  await recontarResumen(db, calendario.id);
+
+  // Contadores de los resúmenes de enero al mes actual (acumulado del año).
+  const filas = await db.select({
+    diasDC: resumenes.diasDC,
+    diasF6DC: resumenes.diasF6DC,
+    diasDND: resumenes.diasDND,
+    diasDF: resumenes.diasDF,
+    diasComiteJD: resumenes.diasComiteJD,
+    diasTrabajoJD: resumenes.diasTrabajoJD,
+    diasTrabajoFN: resumenes.diasTrabajoFN,
+    diasFORJD: resumenes.diasFORJD,
+    diasFORFN: resumenes.diasFORFN,
+    dndsCobrados: resumenes.totalDndsCobrados,
+  }).from(resumenes)
+    .innerJoin(calendarios, eq(resumenes.calendarioId, calendarios.id))
+    .where(and(
+      eq(calendarios.conductorId, args.conductorId),
+      gte(calendarios.fecha, enero),
+      lt(calendarios.fecha, limite),
+    ));
+
+  // DCs/DNDs reclamados en reclamaciones aún en curso del mes anterior y atrás.
+  const reclamados = await db.select({
+    tipo: conceptosReclamados.tipo,
+    importeReal: conceptosReclamados.importeReal,
+  }).from(conceptosReclamados)
+    .innerJoin(reclamaciones, eq(conceptosReclamados.reclamacionId, reclamaciones.id))
+    .where(and(
+      eq(reclamaciones.conductorId, args.conductorId),
+      eq(reclamaciones.cerrada, false),
+      lt(reclamaciones.fecha, primero),
+    ));
+  const reclamadosDcs = reclamados
+    .filter((r) => r.tipo === TipoReclamacion.TotalDc)
+    .reduce((s, r) => s + aNumero(r.importeReal), 0);
+  const reclamadosDnds = reclamados
+    .filter((r) => r.tipo === TipoReclamacion.TotalDnd)
+    .reduce((s, r) => s + aNumero(r.importeReal), 0);
+
+  // Saldo hasta el mes (unidades de días, no euros).
+  const acumulado = filas.reduce((s, f) => ({
+    dc: s.dc + f.diasDC, f6dc: s.f6dc + f.diasF6DC,
+    dnd: s.dnd + f.diasDND, df: s.df + f.diasDF,
+    jd: s.jd + f.diasComiteJD + f.diasTrabajoJD + f.diasTrabajoFN + f.diasFORJD + f.diasFORFN,
+    cobrados: s.cobrados + f.dndsCobrados,
+  }), { dc: 0, f6dc: 0, dnd: 0, df: 0, jd: 0, cobrados: 0 });
+  const redondea = (v: number) => Math.round(v * 10000) / 10000;
+  const dcs = redondea(
+    aNumero(doc.dcsIniciales) + regs.reduce((s, r) => s + aNumero(r.dcs), 0)
+      - acumulado.dc - acumulado.f6dc - reclamadosDcs,
+  );
+  const dnds = redondea(
+    aNumero(doc.dndsIniciales) + regs.reduce((s, r) => s + aNumero(r.dnds), 0)
+      + acumulado.jd - acumulado.dnd - acumulado.df - acumulado.cobrados - reclamadosDnds,
+  );
+
+  await db.update(calendarios)
+    .set({
+      totalDcsPendientes: String(dcs),
+      totalDndsPendientes: String(dnds),
+      modifiedDate: ahora,
+      modifiedBy: args.usuarioId,
+    })
+    .where(eq(calendarios.id, calendario.id));
+
+  return { dcs, dnds };
 }

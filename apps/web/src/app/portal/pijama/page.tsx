@@ -16,6 +16,7 @@ import { estadoDelMes } from "@/lib/calendario";
 import {
   ETIQUETA_INCIDENCIA, ETIQUETA_TURNO, MESES_NOMBRES, inicialSemana, textoDecimal, textoHora,
 } from "@/lib/situaciones";
+import { guardarDcsYDndsAction } from "./actions";
 import Seccion from "../_componentes/seccion";
 import styles from "../_componentes/orion.module.css";
 
@@ -65,19 +66,7 @@ async function PijamaTrabajador({ searchParams }: { searchParams: PageProps<"/po
         </div>
       </section>
 
-      <div className={styles.volverZona}>
-        <Link className={styles.botonAzul} href="/portal">
-          Volver
-        </Link>
-        <button
-          className={`${styles.botonVerde} ${styles.botonDeshabilitado}`}
-          type="button"
-          disabled
-          title="Pendiente: asignación de DCs y DNDs"
-        >
-          Guardar DCs y DNDs
-        </button>
-      </div>
+      <BarraGuardar ano={ano} mes={mes} />
 
       {/* Pendientes del mes (columnas TotalDcsPendientes / TotalDndsPendientes). */}
       <div className={styles.tarjetaDato}>
@@ -97,7 +86,24 @@ async function PijamaTrabajador({ searchParams }: { searchParams: PageProps<"/po
           <FilaDia key={d.fecha} fecha={d.fecha} fila={d.fila} ano={ano} mes={mes} />
         ))}
       </div>
+
+      <BarraGuardar ano={ano} mes={mes} />
     </Seccion>
+  );
+}
+
+/** Barra "Volver" + "Guardar DCs y DNDs" (arriba y abajo, como en Orión 2). */
+function BarraGuardar({ ano, mes }: { ano: number; mes: number }) {
+  const accion = guardarDcsYDndsAction.bind(null, { ano, mes });
+  return (
+    <form className={styles.volverZona} action={accion}>
+      <Link className={styles.botonAzul} href="/portal">
+        Volver
+      </Link>
+      <button className={styles.botonVerde} type="submit">
+        Guardar DCs y DNDs
+      </button>
+    </form>
   );
 }
 
