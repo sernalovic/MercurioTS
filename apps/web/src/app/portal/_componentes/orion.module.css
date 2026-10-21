@@ -940,6 +940,204 @@
   color: inherit;
 }
 
+/* ---- Trabajadores (administración) ---- */
+
+.trabajadoresCabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0.6rem 0 0.4rem;
+}
+
+.trabajadoresTitulo {
+  color: #4c9e33;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.trabajadoresBotones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.botonCian {
+  display: inline-block;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: #00bcd4;
+  border: none;
+  border-radius: 5px;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.botonCian:hover {
+  background: #00a0b5;
+}
+
+.separadorTrabajadores {
+  border: none;
+  border-top: 1px solid #9d9d9d;
+  margin: 0.2rem 0 0.7rem;
+}
+
+.tablaTrabajadores {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 2px;
+  font-size: 0.95rem;
+}
+
+.tablaTrabajadores th {
+  text-align: left;
+  padding: 0.35rem 0.45rem;
+  color: #313131;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.tablaTrabajadores tbody td {
+  background: #ececec;
+  padding: 0.6rem 0.45rem;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.celdaNumero {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.accionesFila {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.botonLapiz,
+.botonPapelera {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.botonLapiz {
+  background: #f9c440;
+  color: #453600;
+}
+
+.botonPapelera {
+  background: #e53935;
+  color: #fff;
+}
+
+/* Barra de la ficha ("Editar trabajador N | Conductores"). */
+.barraEditar {
+  color: #2a7de1;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Select y textarea de la ficha (la caja .filaDato ya estiliza el input). */
+.filaDato select {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 1.15rem;
+  color: #222;
+  padding: 0.15rem 0 0;
+}
+
+.filaDato textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  font-size: 1rem;
+  color: #222;
+  padding: 0.45rem 0.6rem;
+  min-height: 7rem;
+  margin-top: 0.35rem;
+  resize: vertical;
+}
+
+/* Interruptor de "Reducción de jornada" (aspa deslizante de Orión). */
+.filaInterruptor {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0.8rem;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.interruptor {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex: none;
+}
+
+.interruptor input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.interruptorCirculo {
+  position: absolute;
+  inset: 0;
+  background: #c9c9c9;
+  border-radius: 999px;
+  pointer-events: none;
+  transition: background 0.15s;
+}
+
+.interruptorCirculo::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 30%);
+  transition: transform 0.15s;
+}
+
+.interruptor input:checked + .interruptorCirculo {
+  background: #2a7de1;
+}
+
+.interruptor input:checked + .interruptorCirculo::before {
+  transform: translateX(16px);
+}
+
 /* ---- Pantallas estrechas (móvil) ----
  * El ancho mínimo del detalle del día viene de la columna de etiquetas
  * (9.5rem) más el padding del contenido; los rebajamos bajo 480px. */

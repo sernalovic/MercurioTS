@@ -4,7 +4,7 @@
  * Las etiquetas raras (LAC, RE, OVA…) se muestran con su código tal cual
  * hasta confirmar su texto exacto.
  */
-import { CodigoIncidencia, Incidencia, Turno } from "@mercurio/domain";
+import { CentroTrabajo, CodigoIncidencia, CategoriaTrabajador, Incidencia, SituacionTrabajador, Turno } from "@mercurio/domain";
 
 export const ETIQUETA_INCIDENCIA: Record<Incidencia, string> = {
   [Incidencia.Inactivo]: "—",
@@ -119,3 +119,38 @@ export function codigoAnualDe(incidencia: Incidencia, numero: number): string {
     .replace(/JD$/, "").replace(/FN$/, "");
   return CODIGOS_ANUALES[familia] !== undefined ? familia : "";
 }
+
+// ---- Trabajadores (administración) ----
+
+export const ETIQUETA_CENTRO: Record<CentroTrabajo, string> = {
+  [CentroTrabajo.Todos]: "Todos",
+  [CentroTrabajo.Donosti]: "Donosti",
+  [CentroTrabajo.Bilbao]: "Bilbao",
+  [CentroTrabajo.Arrasate]: "Arrasate",
+  [CentroTrabajo.Vitoria]: "Vitoria",
+  [CentroTrabajo.Pruebas]: "Pruebas",
+};
+
+/** Centros para el selector de la ficha del trabajador (sin "Todos"). */
+export const ETIQUETAS_CENTROS = Object.entries(ETIQUETA_CENTRO)
+  .filter(([valor]) => Number(valor) !== CentroTrabajo.Todos)
+  .map(([valor, etiqueta]) => ({ valor: Number(valor), etiqueta }));
+
+export const ETIQUETA_CATEGORIA_TRABAJADOR: Record<CategoriaTrabajador, string> = {
+  [CategoriaTrabajador.Conductor]: "Conductor/a",
+  [CategoriaTrabajador.ConductorFormacion]: "Conductor/a (formación)",
+  [CategoriaTrabajador.Taquilla]: "Taquilla",
+};
+
+export const ETIQUETAS_CATEGORIAS = Object.entries(ETIQUETA_CATEGORIA_TRABAJADOR)
+  .map(([valor, etiqueta]) => ({ valor: Number(valor), etiqueta }));
+
+export const ETIQUETA_SITUACION_TRABAJADOR: Record<SituacionTrabajador, string> = {
+  [SituacionTrabajador.Fijo]: "Fijo",
+  [SituacionTrabajador.Eventual]: "Eventual",
+  [SituacionTrabajador.Inactivo]: "Inactivo",
+  [SituacionTrabajador.FijoInaplicacion]: "Fijo (inaplicación parcial)",
+};
+
+export const ETIQUETAS_SITUACIONES_TRABAJADOR = Object.entries(ETIQUETA_SITUACION_TRABAJADOR)
+  .map(([valor, etiqueta]) => ({ valor: Number(valor), etiqueta }));
