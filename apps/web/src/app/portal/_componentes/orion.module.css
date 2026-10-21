@@ -520,6 +520,12 @@
   padding: 0.34rem 0;
 }
 
+/* En pantallas estrechas, la columna de controles debe poder encoger
+   respecto del texto más largo de un select (p. ej. la Situación). */
+.filaFormulario > * {
+  min-width: 0;
+}
+
 .filaFormulario > label {
   font-size: 0.85rem;
   color: #454545;
@@ -932,4 +938,31 @@
 
 .pie a {
   color: inherit;
+}
+
+/* ---- Pantallas estrechas (móvil) ----
+ * El ancho mínimo del detalle del día viene de la columna de etiquetas
+ * (9.5rem) más el padding del contenido; los rebajamos bajo 480px. */
+
+@media (max-width: 480px) {
+  .contenido {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .cabecera {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .barra {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .filaFormulario {
+    grid-template-columns: 7rem 1fr;
+    gap: 0.5rem;
+  }
+
+  .filaFormulario > label {
+    font-size: 0.78rem;
+  }
 }
