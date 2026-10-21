@@ -311,8 +311,9 @@ export async function conductorDominio(db: Db, conductorId: number): Promise<Con
 /**
  * Recalcula el resumen del mes con los cálculos completos del dominio
  * (REGLAS-CALCULO.md 12: contadores, validaciones, importes) y escribe la
- * fila. Los días de frontera se deducen de los calendarios de los meses
- * contiguos (sin fila: se consideran descanso, como en el original).
+ * fila. Los días de frontera salen de los calendarios de los meses contiguos;
+ * si no existe fila, el dominio no suma el medio finde (igual que el original,
+ * `DiasVecinosAsync` devuelve null y no hay bonus).
  */
 export async function recalcularResumenMes(
   db: Db,
