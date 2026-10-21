@@ -560,6 +560,54 @@
   margin-top: 0.55rem;
 }
 
+/* ---- Pijama ---- */
+
+.zonaSinTarjeta {
+  display: block;
+}
+
+.tarjetaDato {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #6d6d6d;
+}
+
+.tarjetaDato strong {
+  color: #333;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaPijamaDatos {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  margin-left: auto;
+  color: #555;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+}
+
+.diaContenidoPijama {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  font-size: 0.88rem;
+}
+
+.botonDeshabilitado {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .notaConstruccion {
   margin-top: 0.8rem;
   color: #6b6b6b;

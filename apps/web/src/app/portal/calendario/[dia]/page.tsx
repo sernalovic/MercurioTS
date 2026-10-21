@@ -195,8 +195,8 @@ async function Detalle({
           <input
             id="facturadoPaqueteria"
             name="facturadoPaqueteria"
-            type="number"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             className={`${styles.control} ${styles.controlCorto}`}
             defaultValue={textoEuros(vista.facturadoPaqueteria)}
           />

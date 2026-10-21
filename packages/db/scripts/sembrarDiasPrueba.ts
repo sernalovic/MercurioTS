@@ -66,6 +66,12 @@ try {
     let codigo = CodigoIncidencia.Ninguno;
     let vehiculos: string | null = "404";
     let notas: string | null = null;
+    // Datos propios del pijama (horas acumuladas y dietas).
+    let acumuladas: number | null = null; // minutos
+    let cena = 0;
+    const acumuladasDeDia: Record<number, number> = { 2: 40, 3: 30, 13: 55, 14: 55, 15: 70, 29: 15 };
+    if (dia in acumuladasDeDia) acumuladas = acumuladasDeDia[dia];
+    if (dia === 3) cena = 0.58;
 
     if (semana === 6 || semana === 0) {
       incidencia = Incidencia.JD;
@@ -124,7 +130,7 @@ try {
       TrabajadoTrabajadas: inicio === null || final === null ? "00:00:00" : aIntervalo(final - inicio),
       TrabajadoTrabajadasConvenio: inicio === null || final === null ? "00:00:00" : aIntervalo(final - inicio),
       TrabajadoTiempoVacio: "00:00:00",
-      TrabajadoAcumuladas: "00:00:00",
+      TrabajadoAcumuladas: acumuladas === null ? "00:00:00" : aIntervalo(acumuladas),
       TrabajadoNocturnas: "00:00:00",
       TrabajadoPlusPaqueteria: "0",
       TrabajadoFacturadoPaqueteria: "0",
@@ -133,7 +139,7 @@ try {
       TrabajadoNoCalcular: false,
       TrabajadoDesayuno: "0",
       TrabajadoComida: "0",
-      TrabajadoCena: "0",
+      TrabajadoCena: String(cena),
       TrabajadoTienePlusPaqueteria: incidencia === Incidencia.Trabajo,
       notas,
       vehiculos,
@@ -168,6 +174,11 @@ try {
   await db.update(esquema.resumenes)
     .set(parche as Partial<typeof esquema.resumenes.$inferInsert>)
     .where(eq(esquema.resumenes.calendarioId, calendarioId));
+
+  // Pendientes de demostración (DCs/DNDs), como en el pantallazo de Orión 2.
+  await db.update(esquema.calendarios)
+    .set({ totalDcsPendientes: "20.86", totalDndsPendientes: "3", modifiedDate: ahora })
+    .where(eq(esquema.calendarios.id, calendarioId));
 
   const trabajadasTotal = filasDia
     .filter((f) => f.TrabajadoIncidencia === Incidencia.Trabajo && f.TrabajadoTrabajadas !== "00:00:00")

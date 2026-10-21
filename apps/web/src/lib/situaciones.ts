@@ -28,13 +28,13 @@ export const ETIQUETA_INCIDENCIA: Record<Incidencia, string> = {
   [Incidencia.FOR]: "FOR: Formación",
   [Incidencia.FORJD]: "FOR: Formación (JD)",
   [Incidencia.FORFN]: "FOR: Formación (FN)",
-  [Incidencia.OVA]: "OVA",
-  [Incidencia.OVAJD]: "OVA (JD)",
-  [Incidencia.OVAFN]: "OVA (FN)",
-  [Incidencia.LAC]: "LAC",
-  [Incidencia.LACJD]: "LAC (JD)",
-  [Incidencia.LACFN]: "LAC (FN)",
-  [Incidencia.RE]: "RE",
+  [Incidencia.OVA]: "OVA: Vacaciones atrasadas",
+  [Incidencia.OVAJD]: "OVA: Vacaciones atrasadas (JD)",
+  [Incidencia.OVAFN]: "OVA: Vacaciones atrasadas (FN)",
+  [Incidencia.LAC]: "LAC: Lactancia",
+  [Incidencia.LACJD]: "LAC: Lactancia (JD)",
+  [Incidencia.LACFN]: "LAC: Lactancia (FN)",
+  [Incidencia.RE]: "RE: Reducción de jornada",
   [Incidencia.DF]: "DF: Descanso festivo",
   [Incidencia.F6D]: "F6D",
 };
@@ -91,4 +91,9 @@ export function textoHora(minutos: number | null): string {
 /** Céntimos → "0,00" con coma decimal (formato del original). */
 export function textoEuros(cents: number): string {
   return (cents / 100).toFixed(2).replace(".", ",");
+}
+
+/** Número → coma decimal con los decimales dados (pijama: dietas, pendientes). */
+export function textoDecimal(valor: number, decimales = 2): string {
+  return valor.toFixed(decimales).replace(".", ",");
 }

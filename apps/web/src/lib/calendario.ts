@@ -172,28 +172,7 @@ export async function guardarDia(
 
   const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
 
-  // ---- Calendario del mes (con resumen en blanco si falta) ----
-  const primero = `${args.ano}-${String(args.mes).padStart(2, "0")}-01 00:00:00`;
-  let [calendario] = await db
-    .select()
-    .from(calendarios)
-    .where(and(eq(calendarios.conductorId, args.conductorId), eq(calendarios.fecha, primero)))
-    .limit(1);
-  if (calendario === undefined) {
-    const creado = await db.insert(calendarios).values({
-      conductorId: args.conductorId,
-      centro: 1,
-      fecha: primero,
-      totalImportePlusSabados: "0", totalImportePlusFestivos: "0", totalImportePlusNocturnidad: "0",
-      totalImportePlusNocturnidadParcial: "0", totalImportePlusPaqueteria: "0", totalImportePlusLimpieza: "0",
-      totalImportePlusMenorDescanso: "0", totalImportePlusNavidad: "0", totalImportePlusViaje: "0",
-      totalQuebrantoMoneda: "0", totalRefuerzos: "0", totalImporteDietas: "0",
-      totalDcsPendientes: "0", totalDndsPendientes: "0", totalImporteDndsCobrados: "0",
-      modifiedDate: ahora, modifiedBy: args.usuarioId,
-    }).returning();
-    calendario = creado[0];
-    await db.insert(resumenes).values(resumenEnBlanco(calendario.id, ahora, args.usuarioId));
-  }
+  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
 
   // ---- Fila del día (upsert) ----
   const fecha = `${args.ano}-${String(args.mes).padStart(2, "0")}-${String(args.dia).padStart(2, "0")}`;
@@ -298,10 +277,47 @@ export async function guardarDia(
   }
 
   // ---- Resumen del mes: reconteo de días por situación ----
+  await recontarResumen(db, calendario.id);
+}
+
+/** Devuelve el calendario del mes, creándolo con resumen en blanco si falta. */
+async function asegurarCalendarioDelMes(
+  db: Db,
+  conductorId: number,
+  ano: number,
+  mes: number,
+  usuarioId: number,
+  ahora: string,
+) {
+  const primero = `${ano}-${String(mes).padStart(2, "0")}-01 00:00:00`;
+  const [calendario] = await db
+    .select()
+    .from(calendarios)
+    .where(and(eq(calendarios.conductorId, conductorId), eq(calendarios.fecha, primero)))
+    .limit(1);
+  if (calendario !== undefined) return calendario;
+
+  const creado = await db.insert(calendarios).values({
+    conductorId,
+    centro: 1,
+    fecha: primero,
+    totalImportePlusSabados: "0", totalImportePlusFestivos: "0", totalImportePlusNocturnidad: "0",
+    totalImportePlusNocturnidadParcial: "0", totalImportePlusPaqueteria: "0", totalImportePlusLimpieza: "0",
+    totalImportePlusMenorDescanso: "0", totalImportePlusNavidad: "0", totalImportePlusViaje: "0",
+    totalQuebrantoMoneda: "0", totalRefuerzos: "0", totalImporteDietas: "0",
+    totalDcsPendientes: "0", totalDndsPendientes: "0", totalImporteDndsCobrados: "0",
+    modifiedDate: ahora, modifiedBy: usuarioId,
+  }).returning();
+  await db.insert(resumenes).values(resumenEnBlanco(creado[0].id, ahora, usuarioId));
+  return creado[0];
+}
+
+/** Vuelve a contar los días por situación del Trabajado y pega el parche al resumen. */
+async function recontarResumen(db: Db, calendarioId: number): Promise<void> {
   const filas = await db
     .select({ incidencia: diasCalendario.TrabajadoIncidencia })
     .from(diasCalendario)
-    .where(eq(diasCalendario.calendarioId, calendario.id));
+    .where(eq(diasCalendario.calendarioId, calendarioId));
   const conteo = new Map<Incidencia, number>();
   for (const f of filas) conteo.set(f.incidencia, (conteo.get(f.incidencia) ?? 0) + 1);
   const CONTADORES: Array<[keyof typeof resumenes.$inferInsert, Incidencia]> = [
@@ -319,7 +335,116 @@ export async function guardarDia(
 
   await db.update(resumenes)
     .set(parche as Partial<typeof resumenes.$inferInsert>)
-    .where(eq(resumenes.calendarioId, calendario.id));
+    .where(eq(resumenes.calendarioId, calendarioId));
+}
+
+export interface DatosDiaPijama {
+  incidencia: Incidencia;
+  codigo: CodigoIncidencia;
+  numero: number;
+  acumuladas: number | null; // minutos
+  desayuno: number; // unidades
+  comida: number;
+  cena: number;
+}
+
+/**
+ * Guarda el detalle del día del PIJAMA: solo situación, gráfico, comité,
+ * horas acumuladas y dietas. No toca turno ni horarios (esos son del
+ * calendario); los descansos sí pierden el número de gráfico.
+ */
+export async function guardarDiaPijama(
+  db: Db,
+  args: {
+    usuarioId: number;
+    conductorId: number;
+    ano: number;
+    mes: number;
+    dia: number;
+    datos: DatosDiaPijama;
+  },
+): Promise<void> {
+  const { datos } = args;
+  const esTrabajo =
+    datos.incidencia === Incidencia.Trabajo ||
+    datos.incidencia === Incidencia.TrabajoJD ||
+    datos.incidencia === Incidencia.TrabajoFN;
+
+  const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+
+  const fecha = `${args.ano}-${String(args.mes).padStart(2, "0")}-${String(args.dia).padStart(2, "0")}`;
+  const [existente] = await db
+    .select()
+    .from(diasCalendario)
+    .where(and(eq(diasCalendario.calendarioId, calendario.id), eq(diasCalendario.fecha, `${fecha} 00:00:00`)))
+    .limit(1);
+
+  // Campos propios del pijama (el resto de Trabajado se conserva).
+  const acumuladasTexto = datos.acumuladas === null ? INTERVALO_CERO : aIntervalo(datos.acumuladas);
+  const cambiosPijama: Partial<typeof diasCalendario.$inferInsert> = {
+    TrabajadoIncidencia: datos.incidencia,
+    TrabajadoCodigo: datos.codigo,
+    TrabajadoNumero: esTrabajo ? datos.numero : 0,
+    TrabajadoAcumuladas: acumuladasTexto,
+    TrabajadoDesayuno: String(datos.desayuno),
+    TrabajadoComida: String(datos.comida),
+    TrabajadoCena: String(datos.cena),
+    isRemoteUpdated: true,
+    modifiedDate: ahora,
+    modifiedBy: args.usuarioId,
+  };
+
+  if (existente === undefined) {
+    // Alta: fila completa con Anual/Virtual en blanco y el resto de Trabajado vacío.
+    const alta: typeof diasCalendario.$inferInsert = {
+      calendarioId: calendario.id,
+      fecha: `${fecha} 00:00:00`,
+      esFestivo: false,
+      refuerzos: 0,
+      notas: null,
+      vehiculos: null,
+      dndCobrado: false,
+      dndsCobradosPorDescanso: "0",
+      isRemoteUpdated: true,
+      modifiedDate: ahora,
+      modifiedBy: args.usuarioId,
+      ...bloqueAnualEnBlanco(),
+      ...bloqueVirtualEnBlanco(),
+      TrabajadoIncidencia: datos.incidencia,
+      TrabajadoCodigo: datos.codigo,
+      TrabajadoCategoria: 0,
+      TrabajadoNumero: esTrabajo ? datos.numero : 0,
+      TrabajadoTipoDia: 0,
+      TrabajadoTurno: Turno.SinTurno,
+      TrabajadoInicio: null,
+      TrabajadoFinal: null,
+      TrabajadoInicioPartido: null,
+      TrabajadoFinalPartido: null,
+      TrabajadoValoracion: INTERVALO_CERO,
+      TrabajadoTiempoTotal: INTERVALO_CERO,
+      TrabajadoTiempoPartido: INTERVALO_CERO,
+      TrabajadoTrabajadas: INTERVALO_CERO,
+      TrabajadoTrabajadasConvenio: INTERVALO_CERO,
+      TrabajadoTiempoVacio: INTERVALO_CERO,
+      TrabajadoAcumuladas: acumuladasTexto,
+      TrabajadoNocturnas: INTERVALO_CERO,
+      TrabajadoDesayuno: String(datos.desayuno),
+      TrabajadoComida: String(datos.comida),
+      TrabajadoCena: String(datos.cena),
+      TrabajadoTienePlusPaqueteria: false,
+      TrabajadoPlusPaqueteria: "0",
+      TrabajadoPlusMenorDescanso: "0",
+      TrabajadoNoCalcular: false,
+      TrabajadoFacturadoPaqueteria: "0",
+      TrabajadoLimpieza: "0",
+    };
+    await db.insert(diasCalendario).values(alta);
+  } else {
+    await db.update(diasCalendario).set(cambiosPijama).where(eq(diasCalendario.id, existente.id));
+  }
+
+  await recontarResumen(db, calendario.id);
 }
 
 /**
