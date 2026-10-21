@@ -14,7 +14,7 @@ export default function MenuOrion({ children }: { children: React.ReactNode }) {
   return (
     <header className={styles.cabecera}>
       <div className={styles.marca}>
-        <span className={styles.marcaUgt}>UGT FeSMC</span>
+        <img src="/mercurio.ico" alt="Mercurio" className={styles.marcaIcono} />
         <span className={styles.marcaSistema}>Mercurio</span>
       </div>
       <button
