@@ -745,6 +745,54 @@
   vertical-align: middle;
 }
 
+/* ---- Datos de trabajador/a ---- */
+
+.datosTitulo {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1e7e34;
+  margin: 0.2rem 0 0.9rem;
+}
+
+.datosMatricula {
+  color: #2a7de1;
+}
+
+.filaDato {
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  margin-bottom: 0.8rem;
+}
+
+.filaDato:focus-within {
+  border-color: #1976d2;
+}
+
+.filaDato label {
+  display: block;
+  font-size: 0.85rem;
+  color: #6d6d6d;
+}
+
+.filaDato input {
+  display: block;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.3rem;
+  color: #222;
+  padding: 0.15rem 0 0;
+}
+
+.notaAtencion {
+  color: #1e7e34;
+  font-size: 0.95rem;
+  margin: -0.5rem 0 0.8rem;
+}
+
 .notaConstruccion {
   margin-top: 0.8rem;
   color: #6b6b6b;

@@ -22,3 +22,37 @@ export async function conductorDeCesion(
   }
   return null;
 }
+
+/** Ficha del trabajador editable en "Datos de trabajador/a". */
+export interface DatosConductor {
+  nombre: string;
+  apellidos: string;
+  email: string | null;
+  telefono: string | null;
+  /** "YYYY-MM-DD HH:mm:ss" */
+  fechaAntiguedad: string;
+  porcentajeIrpf: string;
+}
+
+/**
+ * Guarda la ficha del trabajador (pantalla "Datos de trabajador/a"). NO toca
+ * la cuenta de usuario: cambiar el email aquí no cambia el email del login.
+ */
+export async function guardarDatosConductor(
+  db: Db,
+  args: { usuarioId: number; conductorId: number; datos: DatosConductor },
+): Promise<void> {
+  const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  await db.update(conductores)
+    .set({
+      nombre: args.datos.nombre,
+      apellidos: args.datos.apellidos,
+      email: args.datos.email,
+      telefono: args.datos.telefono,
+      fechaAntiguedad: args.datos.fechaAntiguedad,
+      porcentajeIrpf: args.datos.porcentajeIrpf,
+      modifiedDate: ahora,
+      modifiedBy: args.usuarioId,
+    })
+    .where(eq(conductores.id, args.conductorId));
+}
