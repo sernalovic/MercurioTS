@@ -235,22 +235,22 @@
 }
 
 .puntoTrabajados {
-  background: #f06292;
+  background: #42a5f5;
 }
 
 .puntoDescansos {
-  background: #2a7de1;
+  background: #ffd54f;
 }
 
 .puntoVacaciones {
-  background: #ffb74d;
+  background: #8d6cab;
 }
 
 .grafico {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 104px;
+  gap: 6px;
+  height: 118px;
 }
 
 .columnaMes {
@@ -260,6 +260,22 @@
   justify-content: flex-end;
   align-items: stretch;
   height: 100%;
+}
+
+.grupoBarras {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 92px;
+}
+
+.barraMes {
+  display: block;
+  flex: 1 1 0;
+  max-width: 15px;
+  min-height: 0;
+  border-radius: 3px 3px 0 0;
 }
 
 .etiquetaMes {

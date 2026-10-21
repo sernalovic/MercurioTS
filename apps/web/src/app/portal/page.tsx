@@ -124,9 +124,12 @@ async function Portada({ searchParams }: { searchParams: PageProps<"/portal">["s
       vacaciones: fila === undefined ? 0 : fila.diasOV + fila.diasOVJD + fila.diasOVFN,
     };
   });
-  // Escala apilada: el mes más alto ocupa la caja completa; cada segmento
-  // es su parte del total del mes.
-  const maximo = Math.max(1, ...serie.map((s) => s.trabajados + s.descansos + s.vacaciones));
+  // Escala agrupada: la barra más alta ocupa la caja completa; cada serie
+  // tiene su propia barra junto a las otras del mes (no apiladas).
+  const maximo = Math.max(
+    1,
+    ...serie.flatMap((s) => [s.trabajados, s.descansos, s.vacaciones]),
+  );
 
   const tarjetas = sesion.esAdmin
     ? [...TARJETAS_TRABAJADOR, {
@@ -171,16 +174,22 @@ async function Portada({ searchParams }: { searchParams: PageProps<"/portal">["s
             <div className={styles.grafico}>
               {serie.map((mes) => (
                 <div key={mes.etiqueta} className={styles.columnaMes}>
-                  <div>
-                    {mes.trabajados > 0 && (
-                      <div style={{ height: `${(mes.trabajados / maximo) * 96}px`, background: "#f06292" }} />
-                    )}
-                    {mes.descansos > 0 && (
-                      <div style={{ height: `${(mes.descansos / maximo) * 96}px`, background: "#2a7de1" }} />
-                    )}
-                    {mes.vacaciones > 0 && (
-                      <div style={{ height: `${(mes.vacaciones / maximo) * 96}px`, background: "#ffb74d" }} />
-                    )}
+                  <div className={styles.grupoBarras}>
+                    <span
+                      className={styles.barraMes}
+                      style={{ height: `${(mes.trabajados / maximo) * 92}px`, background: "#42a5f5" }}
+                      title={`Trabajados: ${mes.trabajados}`}
+                    />
+                    <span
+                      className={styles.barraMes}
+                      style={{ height: `${(mes.descansos / maximo) * 92}px`, background: "#ffd54f" }}
+                      title={`Descansos: ${mes.descansos}`}
+                    />
+                    <span
+                      className={styles.barraMes}
+                      style={{ height: `${(mes.vacaciones / maximo) * 92}px`, background: "#8d6cab" }}
+                      title={`Vacaciones: ${mes.vacaciones}`}
+                    />
                   </div>
                   <span className={styles.etiquetaMes}>{mes.etiqueta}</span>
                 </div>
