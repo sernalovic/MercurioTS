@@ -7,8 +7,15 @@ export * from "./convertir";
 export * from "./schema";
 
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { InferSelectModel } from "drizzle-orm";
 import pg from "pg";
+import { calendarios, diasCalendario, resumenes } from "./schema";
 import * as schema from "./schema";
+
+/** Fila completa de Calendarios / DiasCalendario / Resumenes (modo string). */
+export type Calendarios = InferSelectModel<typeof calendarios>;
+export type DiasCalendario = InferSelectModel<typeof diasCalendario>;
+export type Resumenes = InferSelectModel<typeof resumenes>;
 
 export type Db = NodePgDatabase<typeof schema>;
 

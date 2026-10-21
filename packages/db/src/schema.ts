@@ -233,38 +233,108 @@ export const festivos = pgTable("Festivos", {
 }, (t) => [index("IX_Festivos_OpcionesCentroId").on(t.opcionesCentroId)]);
 
 /**
- * Los tres servicios de un día del calendario comparten la mismas columnas
+ * Los tres servicios de un día del calendario comparten las mismas columnas
  * (Horario + Servicio) con los prefijos Anual / Trabajado / Virtual.
+ * Se escriben con claves LITERALES por servicio: las claves calculadas tipo
+ * `[`${p}X`]` colisionan entre los tres spreads y drizzle pierde estos campos
+ * en `$inferInsert`/`$inferSelect`.
  */
-function servicio(prefix: "Anual" | "Trabajado" | "Virtual") {
+function servicioAnual() {
+  const p = "Anual" as const;
   return {
-    [`${prefix}Incidencia`]: integer(`${prefix}Incidencia`).$type<Incidencia>().notNull(),
-    [`${prefix}Codigo`]: integer(`${prefix}Codigo`).$type<CodigoIncidencia>().notNull(),
-    [`${prefix}PlusPaqueteria`]: numeric(`${prefix}PlusPaqueteria`).notNull(),
-    [`${prefix}FacturadoPaqueteria`]: numeric(`${prefix}FacturadoPaqueteria`).notNull(),
-    [`${prefix}Limpieza`]: numeric(`${prefix}Limpieza`).notNull(),
-    [`${prefix}PlusMenorDescanso`]: numeric(`${prefix}PlusMenorDescanso`).notNull(),
-    [`${prefix}NoCalcular`]: boolean(`${prefix}NoCalcular`).notNull(),
-    [`${prefix}Categoria`]: integer(`${prefix}Categoria`).$type<CategoriaGrafico>().notNull(),
-    [`${prefix}Numero`]: integer(`${prefix}Numero`).notNull(),
-    [`${prefix}TipoDia`]: integer(`${prefix}TipoDia`).$type<TipoDia>().notNull(),
-    [`${prefix}Turno`]: integer(`${prefix}Turno`).$type<Turno>().notNull(),
-    [`${prefix}Inicio`]: interval(`${prefix}Inicio`),
-    [`${prefix}Final`]: interval(`${prefix}Final`),
-    [`${prefix}InicioPartido`]: interval(`${prefix}InicioPartido`),
-    [`${prefix}FinalPartido`]: interval(`${prefix}FinalPartido`),
-    [`${prefix}Valoracion`]: interval(`${prefix}Valoracion`).notNull(),
-    [`${prefix}TiempoTotal`]: interval(`${prefix}TiempoTotal`).notNull(),
-    [`${prefix}TiempoPartido`]: interval(`${prefix}TiempoPartido`).notNull(),
-    [`${prefix}Trabajadas`]: interval(`${prefix}Trabajadas`).notNull(),
-    [`${prefix}TrabajadasConvenio`]: interval(`${prefix}TrabajadasConvenio`).notNull(),
-    [`${prefix}TiempoVacio`]: interval(`${prefix}TiempoVacio`).notNull(),
-    [`${prefix}Acumuladas`]: interval(`${prefix}Acumuladas`).notNull(),
-    [`${prefix}Nocturnas`]: interval(`${prefix}Nocturnas`).notNull(),
-    [`${prefix}Desayuno`]: numeric(`${prefix}Desayuno`).notNull(),
-    [`${prefix}Comida`]: numeric(`${prefix}Comida`).notNull(),
-    [`${prefix}Cena`]: numeric(`${prefix}Cena`).notNull(),
-    [`${prefix}TienePlusPaqueteria`]: boolean(`${prefix}TienePlusPaqueteria`).notNull(),
+    AnualIncidencia: integer(`${p}Incidencia`).$type<Incidencia>().notNull(),
+    AnualCodigo: integer(`${p}Codigo`).$type<CodigoIncidencia>().notNull(),
+    AnualPlusPaqueteria: numeric(`${p}PlusPaqueteria`).notNull(),
+    AnualFacturadoPaqueteria: numeric(`${p}FacturadoPaqueteria`).notNull(),
+    AnualLimpieza: numeric(`${p}Limpieza`).notNull(),
+    AnualPlusMenorDescanso: numeric(`${p}PlusMenorDescanso`).notNull(),
+    AnualNoCalcular: boolean(`${p}NoCalcular`).notNull(),
+    AnualCategoria: integer(`${p}Categoria`).$type<CategoriaGrafico>().notNull(),
+    AnualNumero: integer(`${p}Numero`).notNull(),
+    AnualTipoDia: integer(`${p}TipoDia`).$type<TipoDia>().notNull(),
+    AnualTurno: integer(`${p}Turno`).$type<Turno>().notNull(),
+    AnualInicio: interval(`${p}Inicio`),
+    AnualFinal: interval(`${p}Final`),
+    AnualInicioPartido: interval(`${p}InicioPartido`),
+    AnualFinalPartido: interval(`${p}FinalPartido`),
+    AnualValoracion: interval(`${p}Valoracion`).notNull(),
+    AnualTiempoTotal: interval(`${p}TiempoTotal`).notNull(),
+    AnualTiempoPartido: interval(`${p}TiempoPartido`).notNull(),
+    AnualTrabajadas: interval(`${p}Trabajadas`).notNull(),
+    AnualTrabajadasConvenio: interval(`${p}TrabajadasConvenio`).notNull(),
+    AnualTiempoVacio: interval(`${p}TiempoVacio`).notNull(),
+    AnualAcumuladas: interval(`${p}Acumuladas`).notNull(),
+    AnualNocturnas: interval(`${p}Nocturnas`).notNull(),
+    AnualDesayuno: numeric(`${p}Desayuno`).notNull(),
+    AnualComida: numeric(`${p}Comida`).notNull(),
+    AnualCena: numeric(`${p}Cena`).notNull(),
+    AnualTienePlusPaqueteria: boolean(`${p}TienePlusPaqueteria`).notNull(),
+  };
+}
+
+function servicioTrabajado() {
+  const p = "Trabajado" as const;
+  return {
+    TrabajadoIncidencia: integer(`${p}Incidencia`).$type<Incidencia>().notNull(),
+    TrabajadoCodigo: integer(`${p}Codigo`).$type<CodigoIncidencia>().notNull(),
+    TrabajadoPlusPaqueteria: numeric(`${p}PlusPaqueteria`).notNull(),
+    TrabajadoFacturadoPaqueteria: numeric(`${p}FacturadoPaqueteria`).notNull(),
+    TrabajadoLimpieza: numeric(`${p}Limpieza`).notNull(),
+    TrabajadoPlusMenorDescanso: numeric(`${p}PlusMenorDescanso`).notNull(),
+    TrabajadoNoCalcular: boolean(`${p}NoCalcular`).notNull(),
+    TrabajadoCategoria: integer(`${p}Categoria`).$type<CategoriaGrafico>().notNull(),
+    TrabajadoNumero: integer(`${p}Numero`).notNull(),
+    TrabajadoTipoDia: integer(`${p}TipoDia`).$type<TipoDia>().notNull(),
+    TrabajadoTurno: integer(`${p}Turno`).$type<Turno>().notNull(),
+    TrabajadoInicio: interval(`${p}Inicio`),
+    TrabajadoFinal: interval(`${p}Final`),
+    TrabajadoInicioPartido: interval(`${p}InicioPartido`),
+    TrabajadoFinalPartido: interval(`${p}FinalPartido`),
+    TrabajadoValoracion: interval(`${p}Valoracion`).notNull(),
+    TrabajadoTiempoTotal: interval(`${p}TiempoTotal`).notNull(),
+    TrabajadoTiempoPartido: interval(`${p}TiempoPartido`).notNull(),
+    TrabajadoTrabajadas: interval(`${p}Trabajadas`).notNull(),
+    TrabajadoTrabajadasConvenio: interval(`${p}TrabajadasConvenio`).notNull(),
+    TrabajadoTiempoVacio: interval(`${p}TiempoVacio`).notNull(),
+    TrabajadoAcumuladas: interval(`${p}Acumuladas`).notNull(),
+    TrabajadoNocturnas: interval(`${p}Nocturnas`).notNull(),
+    TrabajadoDesayuno: numeric(`${p}Desayuno`).notNull(),
+    TrabajadoComida: numeric(`${p}Comida`).notNull(),
+    TrabajadoCena: numeric(`${p}Cena`).notNull(),
+    TrabajadoTienePlusPaqueteria: boolean(`${p}TienePlusPaqueteria`).notNull(),
+  };
+}
+
+function servicioVirtual() {
+  const p = "Virtual" as const;
+  return {
+    VirtualIncidencia: integer(`${p}Incidencia`).$type<Incidencia>().notNull(),
+    VirtualCodigo: integer(`${p}Codigo`).$type<CodigoIncidencia>().notNull(),
+    VirtualPlusPaqueteria: numeric(`${p}PlusPaqueteria`).notNull(),
+    VirtualFacturadoPaqueteria: numeric(`${p}FacturadoPaqueteria`).notNull(),
+    VirtualLimpieza: numeric(`${p}Limpieza`).notNull(),
+    VirtualPlusMenorDescanso: numeric(`${p}PlusMenorDescanso`).notNull(),
+    VirtualNoCalcular: boolean(`${p}NoCalcular`).notNull(),
+    VirtualCategoria: integer(`${p}Categoria`).$type<CategoriaGrafico>().notNull(),
+    VirtualNumero: integer(`${p}Numero`).notNull(),
+    VirtualTipoDia: integer(`${p}TipoDia`).$type<TipoDia>().notNull(),
+    VirtualTurno: integer(`${p}Turno`).$type<Turno>().notNull(),
+    VirtualInicio: interval(`${p}Inicio`),
+    VirtualFinal: interval(`${p}Final`),
+    VirtualInicioPartido: interval(`${p}InicioPartido`),
+    VirtualFinalPartido: interval(`${p}FinalPartido`),
+    VirtualValoracion: interval(`${p}Valoracion`).notNull(),
+    VirtualTiempoTotal: interval(`${p}TiempoTotal`).notNull(),
+    VirtualTiempoPartido: interval(`${p}TiempoPartido`).notNull(),
+    VirtualTrabajadas: interval(`${p}Trabajadas`).notNull(),
+    VirtualTrabajadasConvenio: interval(`${p}TrabajadasConvenio`).notNull(),
+    VirtualTiempoVacio: interval(`${p}TiempoVacio`).notNull(),
+    VirtualAcumuladas: interval(`${p}Acumuladas`).notNull(),
+    VirtualNocturnas: interval(`${p}Nocturnas`).notNull(),
+    VirtualDesayuno: numeric(`${p}Desayuno`).notNull(),
+    VirtualComida: numeric(`${p}Comida`).notNull(),
+    VirtualCena: numeric(`${p}Cena`).notNull(),
+    VirtualTienePlusPaqueteria: boolean(`${p}TienePlusPaqueteria`).notNull(),
   };
 }
 
@@ -302,9 +372,9 @@ export const diasCalendario = pgTable(
     calendarioId: integer("CalendarioId").notNull().references(() => calendarios.id, { onDelete: "cascade" }),
     fecha: timestamp("Fecha", { mode: "string" }).notNull(),
     esFestivo: boolean("EsFestivo").notNull(),
-    ...servicio("Anual"),
-    ...servicio("Trabajado"),
-    ...servicio("Virtual"),
+    ...servicioAnual(),
+    ...servicioTrabajado(),
+    ...servicioVirtual(),
     notas: text("Notas"),
     vehiculos: text("Vehiculos"),
     refuerzos: integer("Refuerzos").notNull(),
