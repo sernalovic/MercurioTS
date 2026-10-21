@@ -1,6 +1,6 @@
 /**
- * Logs del sistema (pendiente): el archivo de excepciones y códigos de error
- * del servidor se publicará junto con el registro de actividad.
+ * Logs del sistema: pantalla placeholder del menú de administración (el
+ * original no la implementa). De momento solo informa de que no hay ficheros.
  */
 import type { Metadata } from "next";
 import EnConstruccion from "../../_componentes/en-construccion";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function Pagina() {
   return (
     <Seccion titulo="Logs del sistema" requiereAdmin>
-      <EnConstruccion nota="El archivo de logs del servidor llega en las siguientes fases." />
+      <EnConstruccion nota="De momento no hay ficheros de log disponibles." />
     </Seccion>
   );
 }
