@@ -398,46 +398,15 @@ export async function guardarDiaPijama(
   if (existente === undefined) {
     // Alta: fila completa con Anual/Virtual en blanco y el resto de Trabajado vacío.
     const alta: typeof diasCalendario.$inferInsert = {
-      calendarioId: calendario.id,
-      fecha: `${fecha} 00:00:00`,
-      esFestivo: false,
-      refuerzos: 0,
-      notas: null,
-      vehiculos: null,
-      dndCobrado: false,
-      dndsCobradosPorDescanso: "0",
+      ...filaDiaEnBlanco(calendario.id, `${fecha} 00:00:00`, ahora, args.usuarioId),
       isRemoteUpdated: true,
-      modifiedDate: ahora,
-      modifiedBy: args.usuarioId,
-      ...bloqueAnualEnBlanco(),
-      ...bloqueVirtualEnBlanco(),
       TrabajadoIncidencia: datos.incidencia,
       TrabajadoCodigo: datos.codigo,
-      TrabajadoCategoria: 0,
       TrabajadoNumero: esTrabajo ? datos.numero : 0,
-      TrabajadoTipoDia: 0,
-      TrabajadoTurno: Turno.SinTurno,
-      TrabajadoInicio: null,
-      TrabajadoFinal: null,
-      TrabajadoInicioPartido: null,
-      TrabajadoFinalPartido: null,
-      TrabajadoValoracion: INTERVALO_CERO,
-      TrabajadoTiempoTotal: INTERVALO_CERO,
-      TrabajadoTiempoPartido: INTERVALO_CERO,
-      TrabajadoTrabajadas: INTERVALO_CERO,
-      TrabajadoTrabajadasConvenio: INTERVALO_CERO,
-      TrabajadoTiempoVacio: INTERVALO_CERO,
       TrabajadoAcumuladas: acumuladasTexto,
-      TrabajadoNocturnas: INTERVALO_CERO,
       TrabajadoDesayuno: String(datos.desayuno),
       TrabajadoComida: String(datos.comida),
       TrabajadoCena: String(datos.cena),
-      TrabajadoTienePlusPaqueteria: false,
-      TrabajadoPlusPaqueteria: "0",
-      TrabajadoPlusMenorDescanso: "0",
-      TrabajadoNoCalcular: false,
-      TrabajadoFacturadoPaqueteria: "0",
-      TrabajadoLimpieza: "0",
     };
     await db.insert(diasCalendario).values(alta);
   } else {
@@ -445,6 +414,57 @@ export async function guardarDiaPijama(
   }
 
   await recontarResumen(db, calendario.id);
+}
+
+/** Fila completa de un día recién creado, con los tres servicios en blanco. */
+function filaDiaEnBlanco(
+  calendarioId: number,
+  fecha: string,
+  ahora: string,
+  usuarioId: number,
+): typeof diasCalendario.$inferInsert {
+  return {
+    calendarioId,
+    fecha,
+    esFestivo: false,
+    refuerzos: 0,
+    notas: null,
+    vehiculos: null,
+    dndCobrado: false,
+    dndsCobradosPorDescanso: "0",
+    isRemoteUpdated: false,
+    modifiedDate: ahora,
+    modifiedBy: usuarioId,
+    ...bloqueAnualEnBlanco(),
+    ...bloqueVirtualEnBlanco(),
+    TrabajadoIncidencia: Incidencia.Inactivo,
+    TrabajadoCodigo: CodigoIncidencia.Ninguno,
+    TrabajadoCategoria: 0,
+    TrabajadoNumero: 0,
+    TrabajadoTipoDia: 0,
+    TrabajadoTurno: Turno.SinTurno,
+    TrabajadoInicio: null,
+    TrabajadoFinal: null,
+    TrabajadoInicioPartido: null,
+    TrabajadoFinalPartido: null,
+    TrabajadoValoracion: INTERVALO_CERO,
+    TrabajadoTiempoTotal: INTERVALO_CERO,
+    TrabajadoTiempoPartido: INTERVALO_CERO,
+    TrabajadoTrabajadas: INTERVALO_CERO,
+    TrabajadoTrabajadasConvenio: INTERVALO_CERO,
+    TrabajadoTiempoVacio: INTERVALO_CERO,
+    TrabajadoAcumuladas: INTERVALO_CERO,
+    TrabajadoNocturnas: INTERVALO_CERO,
+    TrabajadoDesayuno: "0",
+    TrabajadoComida: "0",
+    TrabajadoCena: "0",
+    TrabajadoTienePlusPaqueteria: false,
+    TrabajadoPlusPaqueteria: "0",
+    TrabajadoPlusMenorDescanso: "0",
+    TrabajadoNoCalcular: false,
+    TrabajadoFacturadoPaqueteria: "0",
+    TrabajadoLimpieza: "0",
+  };
 }
 
 /**
@@ -586,4 +606,54 @@ export async function guardarImportes(
       modifiedBy: args.usuarioId,
     })
     .where(and(eq(calendarios.conductorId, args.conductorId), eq(calendarios.fecha, primero)));
+}
+
+export interface ValorAnual {
+  dia: number; // 1..31
+  incidencia: Incidencia;
+  numero: number; // gráfico (solo variantes de trabajo)
+}
+
+/**
+ * Guarda el calendario anual del mes (pantalla "Calendario anual"): la
+ * situación y el gráfico ANUALES de cada día. No toca el Trabajado ni el
+ * Virtual; las casillas en blanco vacían el día solo si la fila existe.
+ */
+export async function guardarCalendarioAnual(
+  db: Db,
+  args: {
+    usuarioId: number;
+    conductorId: number;
+    ano: number;
+    mes: number;
+    valores: ValorAnual[];
+  },
+): Promise<void> {
+  const ahora = new Date().toISOString().slice(0, 19).replace("T", " ");
+  const calendario = await asegurarCalendarioDelMes(db, args.conductorId, args.ano, args.mes, args.usuarioId, ahora);
+  const filas = await db.select().from(diasCalendario)
+    .where(eq(diasCalendario.calendarioId, calendario.id));
+  const porDia = new Map(filas.map((f) => [Number(f.fecha.slice(8, 10)), f]));
+
+  for (const v of args.valores) {
+    if (v.dia < 1 || v.dia > 31) continue;
+    const numero = v.incidencia === Incidencia.Trabajo || v.incidencia === Incidencia.TrabajoJD
+      || v.incidencia === Incidencia.TrabajoFN ? v.numero : 0;
+    const existente = porDia.get(v.dia);
+    if (existente !== undefined) {
+      await db.update(diasCalendario).set({
+        AnualIncidencia: v.incidencia,
+        AnualNumero: numero,
+        modifiedDate: ahora,
+        modifiedBy: args.usuarioId,
+      }).where(eq(diasCalendario.id, existente.id));
+    } else if (v.incidencia !== Incidencia.Inactivo) {
+      const fecha = `${args.ano}-${String(args.mes).padStart(2, "0")}-${String(v.dia).padStart(2, "0")}`;
+      await db.insert(diasCalendario).values({
+        ...filaDiaEnBlanco(calendario.id, `${fecha} 00:00:00`, ahora, args.usuarioId),
+        AnualIncidencia: v.incidencia,
+        AnualNumero: numero,
+      });
+    }
+  }
 }

@@ -731,6 +731,20 @@
   margin-left: auto;
 }
 
+/* ---- Calendario anual ---- */
+
+.ayudaEnlace {
+  display: inline-block;
+  background: #fdeeee;
+  color: #c0392b;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.12rem 0.5rem;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 .notaConstruccion {
   margin-top: 0.8rem;
   color: #6b6b6b;

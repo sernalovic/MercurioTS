@@ -97,3 +97,25 @@ export function textoEuros(cents: number): string {
 export function textoDecimal(valor: number, decimales = 2): string {
   return valor.toFixed(decimales).replace(".", ",");
 }
+
+/** Códigos cortos que acepta el Calendario anual ("JD", "DC", "F6"…). */
+export const CODIGOS_ANUALES: Record<string, Incidencia> = {
+  T: Incidencia.Trabajo, JD: Incidencia.JD, FN: Incidencia.FN, DS: Incidencia.DS,
+  DND: Incidencia.DND, DC: Incidencia.DC, F6: Incidencia.F6, "F6D": Incidencia.F6D,
+  "F6DC": Incidencia.F6DC, PER: Incidencia.PER, OV: Incidencia.OV, OVA: Incidencia.OVA,
+  E: Incidencia.E, FOR: Incidencia.FOR, LAC: Incidencia.LAC, RE: Incidencia.RE, DF: Incidencia.DF,
+};
+
+/** Situación del bloque anual → valor para la casilla del Calendario anual. */
+export function codigoAnualDe(incidencia: Incidencia, numero: number): string {
+  if (incidencia === Incidencia.Inactivo) return "";
+  if (incidencia === Incidencia.Trabajo) return numero > 0 ? String(numero) : "T";
+  const base = (Object.keys(CODIGOS_ANUALES) as string[])
+    .find((c) => CODIGOS_ANUALES[c] === incidencia);
+  if (base !== undefined) return base;
+  // Variants (TrabajoJD, OVJD, OVAFN…): base family code.
+  const familia = incidencia
+    .toString()
+    .replace(/JD$/, "").replace(/FN$/, "");
+  return CODIGOS_ANUALES[familia] !== undefined ? familia : "";
+}
