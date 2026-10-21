@@ -90,11 +90,11 @@ export function vacacionesPendientesHastaMes(e: SaldosEntrada): number {
 
 // ---- 9, 13 y 14 Reclamaciones ----
 
-const TiposDieta: readonly TipoReclamacion[] = [
+export const TiposDieta: readonly TipoReclamacion[] = [
   TipoReclamacion.DietaDesayuno, TipoReclamacion.DietaComida, TipoReclamacion.DietaCena,
 ];
 
-const TiposPlus: readonly TipoReclamacion[] = [
+export const TiposPlus: readonly TipoReclamacion[] = [
   TipoReclamacion.PlusSabados, TipoReclamacion.PlusFestivos, TipoReclamacion.PlusPaqueteria,
   TipoReclamacion.PlusLimpieza, TipoReclamacion.PlusMenorDescanso, TipoReclamacion.PlusNocturnidad,
   TipoReclamacion.PlusNocturnidadParcial, TipoReclamacion.PlusNavidad,
