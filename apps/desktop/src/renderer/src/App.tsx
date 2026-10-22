@@ -8,6 +8,7 @@ import { leerConfig, guardarConfig, type Configuracion } from "./lib/configuraci
 import { entrar, verificar, type SesionInfo } from "./lib/api";
 import { PantallaAcceso } from "./pantallas/Acceso";
 import { PantallaMenu } from "./pantallas/Menu";
+import { PantallaConductores } from "./pantallas/Conductores";
 import { Barra } from "./componentes/Barra";
 import { PantallaPendiente } from "./pantallas/Pendiente";
 
@@ -103,6 +104,13 @@ export function App(): ReactNode {
       <main className="cuerpo">
         {pantalla === "menu" ? (
           <PantallaMenu sesion={sesion} irA={setPantalla} />
+        ) : pantalla === "conductores" ? (
+          <PantallaConductores
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            onVolver={() => setPantalla("menu")}
+          />
         ) : (
           <PantallaPendiente nombre={pantalla} irA={setPantalla} />
         )}

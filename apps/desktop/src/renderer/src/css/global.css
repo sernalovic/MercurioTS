@@ -244,6 +244,56 @@ body {
   font-size: 20px;
 }
 
+.opcionesPagina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.tituloPagina {
+  font-size: 20px;
+}
+
+.cargando {
+  color: var(--texto-suave);
+}
+
+.marcoRejilla {
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  overflow: auto;
+}
+
+.rejilla {
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.rejilla th {
+  position: sticky;
+  top: 0;
+  background: var(--fin-sem);
+  border-bottom: 1px solid var(--borde);
+  padding: 6px 10px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.rejilla td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--fila-alterna);
+}
+
+.rejilla tbody tr:nth-child(even) td { background: var(--fila-alterna); }
+.rejilla tbody tr:hover td { background: var(--aviso); }
+
+.rejilla .num { text-align: right; font-variant-numeric: tabular-nums; }
+.rejilla .centradoMic { text-align: center; }
+.rejilla .vacio { color: var(--texto-suave); text-align: center; padding: 18px; }
+
 .pendiente {
   color: var(--texto-suave);
 }
