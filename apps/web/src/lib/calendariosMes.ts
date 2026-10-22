@@ -9,7 +9,7 @@ import {
   calendarioDesdeFila, calendarios, conductorDesdeFila, conductores,
   diaDesdeFila, diasCalendario, graficos, graficoDesdeFila, regulaciones,
   resumenAFila, resumenDesdeFila, resumenes,
-  servicioTrabajadoAColumnas, servicioVirtualAColumnas,
+  servicioAnualAColumnas, servicioTrabajadoAColumnas, servicioVirtualAColumnas,
   type Db, type DiasCalendario,
 } from "@mercurio/db";
 import {
@@ -17,6 +17,9 @@ import {
   type Calendario, type DiaCalendario, type Grafico,
 } from "@mercurio/domain";
 import { convenioDelAño } from "./calendario";
+import {
+  CentroTrabajo, crearDias, nuevoResumenCalendario, nuevoServicio, parse,
+} from "@mercurio/domain";
 
 export interface ContextoMes {
   db: Db;
@@ -238,4 +241,136 @@ export async function regenerarTodosDelMes(ctx: ContextoMes): Promise<number> {
   }
   await persistirDias(ctx, cals, "trabajadoYVirtual");
   return cals.length;
+}
+
+// ---- Añadir calendarios pegando desde Excel ----
+
+export type ResultadoPegado =
+  | { requiereConfirmacion: true; fallidas: string[] }
+  | { requiereConfirmacion: false; insertados: number; fallidas: string[] };
+
+/** Totales a cero de la fila Calendarios (igual que el original al crear). */
+const TOTALES_CERO = {
+  totalImportePlusSabados: "0", totalImportePlusFestivos: "0", totalImportePlusNocturnidad: "0",
+  totalImportePlusNocturnidadParcial: "0", totalImportePlusPaqueteria: "0", totalImportePlusLimpieza: "0",
+  totalImportePlusMenorDescanso: "0", totalImportePlusNavidad: "0", totalImportePlusViaje: "0",
+  totalQuebrantoMoneda: "0", totalRefuerzos: "0", totalImporteDietas: "0",
+  totalDcsPendientes: "0", totalDndsPendientes: "0", totalImporteDndsCobrados: "0",
+};
+
+/**
+ * Crea los calendarios del mes a partir del texto pegado desde Excel:
+ * una línea por conductor con la matrícula y una celda por día (número de
+ * gráfico o abreviatura). Port de `CrearDesdePegado`: el servidor hace el
+ * parseo, siembra Anual/Trabajado/Virtual con `Incidencias.parse`, marca
+ * los festivos y deja al regenerado aplicar gráficos y resúmenes. Sin
+ * `confirmado` solo informa (falta de 14 festivos, pide confirmación).
+ */
+export async function pegarCalendarios(
+  ctx: ContextoMes,
+  lineas: string,
+  confirmado: boolean,
+): Promise<ResultadoPegado> {
+  const convenio = await convenioDelAño(ctx.db, ctx.ano);
+  if (convenio === null) throw errorConvenio(ctx.ano);
+  const calc = new CalculosHorario(convenio);
+
+  const filasConductores = await ctx.db
+    .select({ id: conductores.id, matricula: conductores.matricula })
+    .from(conductores);
+  const porMatricula = new Map(filasConductores.map((f) => [f.matricula, f.id]));
+  const { primero } = rangoMes(ctx.ano, ctx.mes);
+  const filasCal = await ctx.db
+    .select({ conductorId: calendarios.conductorId })
+    .from(calendarios)
+    .where(eq(calendarios.fecha, primero));
+  const existentes = new Set(filasCal.map((f) => f.conductorId));
+
+  const elegidos: { conductorId: number; celdas: string[] }[] = [];
+  const fallidas: string[] = [];
+  for (const linea of lineas.split("\n")) {
+    const texto = linea.replace(/\r$/, "");
+    if (texto.trim() === "") continue;
+    const celdas = texto.split("\t");
+    const matricula = Number((celdas[0] ?? "").trim());
+    const conductorId = porMatricula.get(matricula);
+    if (!Number.isInteger(matricula) || conductorId === undefined) {
+      fallidas.push((celdas[0] ?? "").trim());
+      continue;
+    }
+    if (existentes.has(conductorId)) {
+      fallidas.push(`${matricula} (ya tiene calendario)`);
+      continue;
+    }
+    existentes.add(conductorId);
+    elegidos.push({ conductorId, celdas });
+  }
+
+  if (!calc.hay14Festivos(ctx.centro) && !confirmado) {
+    return { requiereConfirmacion: true, fallidas };
+  }
+  if (elegidos.length === 0) {
+    return { requiereConfirmacion: false, insertados: 0, fallidas };
+  }
+
+  const creados = await ctx.db
+    .insert(calendarios)
+    .values(
+      elegidos.map((elegido) => ({
+        conductorId: elegido.conductorId,
+        centro: ctx.centro as CentroTrabajo,
+        fecha: primero,
+        ...TOTALES_CERO,
+        modifiedDate: ctx.ahora,
+        modifiedBy: ctx.usuarioId,
+      })),
+    )
+    .returning({ id: calendarios.id, conductorId: calendarios.conductorId });
+  const celdasPorConductor = new Map(elegidos.map((e) => [e.conductorId, e.celdas]));
+
+  for (const creado of creados) {
+    const provisional = { id: creado.id } as unknown as Calendario;
+    crearDias(provisional, ctx.ano, ctx.mes);
+    const celdas = celdasPorConductor.get(creado.conductorId) ?? [];
+
+    const filasDias = (provisional.dias ?? []).map((d) => {
+      const diaNum = Number(d.fecha.slice(8, 10));
+      const textoCelda = diaNum < celdas.length ? (celdas[diaNum] ?? "") : "";
+      const { incidencia, numero } = parse(textoCelda);
+      const s = nuevoServicio({ incidencia, numero });
+      return {
+        calendarioId: creado.id,
+        fecha: `${d.fecha} 00:00:00`,
+        esFestivo: calc.esFestivo(d.fecha, ctx.centro),
+        ...servicioAnualAColumnas(s),
+        ...servicioTrabajadoAColumnas(s),
+        ...servicioVirtualAColumnas(s),
+        notas: null,
+        vehiculos: null,
+        refuerzos: 0,
+        dndCobrado: false,
+        dndsCobradosPorDescanso: "0",
+        isRemoteUpdated: false,
+        modifiedDate: ctx.ahora,
+        modifiedBy: ctx.usuarioId,
+      };
+    });
+    if (filasDias.length > 0) {
+      await ctx.db.insert(diasCalendario).values(filasDias);
+    }
+
+    const resumen = nuevoResumenCalendario({
+      calendarioId: creado.id,
+      diasInactivo: filasDias.length,
+    });
+    await ctx.db.insert(resumenes).values({
+      ...resumenAFila(resumen),
+      modifiedDate: ctx.ahora,
+      modifiedBy: ctx.usuarioId,
+    });
+  }
+
+  // Aplica gráficos y recalcula los resúmenes de todo el mes (como el original).
+  await regenerarTodosDelMes(ctx);
+  return { requiereConfirmacion: false, insertados: elegidos.length, fallidas };
 }

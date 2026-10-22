@@ -10,6 +10,13 @@ import type { ReactNode } from "react";
 import { api } from "../lib/api";
 import { RejillaCalendarios, type CabCalendario } from "../componentes/RejillaCalendarios";
 
+interface ResultadoPegado {
+  ok: boolean;
+  requiereConfirmacion?: boolean;
+  insertados?: number;
+  fallidas?: string[];
+}
+
 /** Mismos valores y orden que `CentroTrabajo` del dominio. */
 const CENTROS = ["Todos", "Donosti", "Bilbao", "Arrasate", "Vitoria", "Pruebas"];
 
@@ -31,6 +38,8 @@ export function PantallaCalendarios({ servidor, token, centro, mes, onVolver }: 
   const [seleccion, setSeleccion] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [mostrarPegado, setMostrarPegado] = useState(false);
+  const [textoPegado, setTextoPegado] = useState("");
 
   function cargar(): void {
     setOcupado(true);
@@ -63,6 +72,54 @@ export function PantallaCalendarios({ servidor, token, centro, mes, onVolver }: 
           centro: centro === "Todos" ? 0 : CENTROS.indexOf(centro),
         },
       });
+      cargar();
+    } catch (e) {
+      setError((e as Error).message);
+      setOcupado(false);
+    }
+  }
+
+  /** Port de `CrearDesdePegado`: aviso por operativa/confirmación de festivos. */
+  async function crearDesdePegado(): Promise<void> {
+    if (centro === "Todos") {
+      window.alert("No se pueden añadir calendarios en todos los centros.");
+      return;
+    }
+    if (!textoPegado.trim()) {
+      window.alert("Pega el texto de los calendarios desde Excel.");
+      return;
+    }
+    setOcupado(true);
+    setError(null);
+    const cuerpo = {
+      fecha: mes,
+      centro: CENTROS.indexOf(centro),
+      texto: textoPegado,
+      confirmado: false,
+    };
+    try {
+      let r = await api<ResultadoPegado>(servidor, token, "calendarios/pegar", { metodo: "POST", cuerpo });
+      if (r.requiereConfirmacion === true) {
+        const seguir = window.confirm(
+          "Parece que no están puestos todos los festivos para este centro.\n\n¿Quieres continuar?",
+        );
+        if (!seguir) {
+          setOcupado(false);
+          return;
+        }
+        r = await api<ResultadoPegado>(servidor, token, "calendarios/pegar", {
+          metodo: "POST",
+          cuerpo: { ...cuerpo, confirmado: true },
+        });
+      }
+      if (r.fallidas !== undefined && r.fallidas.length > 0) {
+        window.alert(
+          "Los siguientes calendarios no se han añadido, por no contener un trabajador válido:\n\n" +
+            r.fallidas.join("\n"),
+        );
+      }
+      setTextoPegado("");
+      setMostrarPegado(false);
       cargar();
     } catch (e) {
       setError((e as Error).message);
@@ -111,15 +168,30 @@ export function PantallaCalendarios({ servidor, token, centro, mes, onVolver }: 
         <button className="boton" onClick={onVolver}>Volver</button>
         <button className="boton" onClick={() => cargar()} disabled={ocupado}>Recargar</button>
         <button className="boton" disabled title="Disponible con la fase de Detalle">Detalle</button>
-        <button className="boton" disabled title="Disponible con la fase de pegado desde Excel">Añadir calendarios (pegar)</button>
+        <button className="boton" onClick={() => setMostrarPegado(!mostrarPegado)} disabled={ocupado}>Añadir calendarios (pegar)</button>
         <button className="boton" onClick={borrarCalendario} disabled={seleccion === null || ocupado}>Borrar calendario</button>
         <button className="boton" onClick={() => operacion("ajustarJds", "Esta función cambiará JD por DS o FN donde corresponda.\n\n¿Quieres continuar?")} disabled={ocupado}>Ajustar JDs</button>
         <button className="boton" onClick={() => operacion("marcarFestivos", "Vas a marcar los festivos de todos los calendarios.\n\n¿Quieres continuar?")} disabled={ocupado}>Marcar festivos</button>
         <button className="boton" onClick={() => operacion("recalcularResumenes", "Vas a recalcular los resúmenes de todos los calendarios.\n\n¿Quieres continuar?")} disabled={ocupado}>Recalcular resúmenes</button>
         <button className="boton" onClick={() => operacion("regenerarTodos", "Vas a modificar los servicios de todos los calendarios.\n\nEsta acción puede provocar pérdida de datos en los servicios virtuales.\n\n¿Quieres continuar?")} disabled={ocupado}>Regenerar todos</button>
       </div>
+      {mostrarPegado ? (
+        <div className="panelPegado">
+          <p>
+            Pega desde Excel el calendario anual del mes: una fila por conductor con la matrícula en la
+            primera columna y una columna por día (número de gráfico o situación: JD, FN, OV, E, DC...).
+          </p>
+          <textarea
+            className="areaPegado"
+            value={textoPegado}
+            onChange={(e) => setTextoPegado(e.target.value)}
+            spellCheck={false}
+          />
+          <button className="botonPrincipal" onClick={crearDesdePegado} disabled={ocupado}>Crear calendarios</button>
+        </div>
+      ) : null}
       <RejillaCalendarios filas={filas} seleccion={seleccion} onSeleccion={setSeleccion} />
-      <p className="pendiente">Detalle del calendario y añadir por pegado: fases siguientes.</p>
+      <p className="pendiente">Detalle del calendario: fase siguiente.</p>
     </div>
   );
 }

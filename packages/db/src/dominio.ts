@@ -507,6 +507,55 @@ export function servicioVirtualAColumnas(s: Servicio): ColumnasVirtual {
   };
 }
 
+/**
+ * Columnas del servicio ANUAL. El pegado desde Excel lo siembra igual al
+ * trabajado/virtual; el regenerado del mes lo respeta.
+ */
+export function servicioAnualAColumnas(s: Servicio): ColumnasAnual {
+  return {
+    AnualIncidencia: s.incidencia,
+    AnualCodigo: s.codigo,
+    AnualNoCalcular: s.noCalcular,
+    AnualCategoria: s.categoria,
+    AnualNumero: s.numero,
+    AnualTipoDia: s.tipoDia,
+    AnualTurno: s.turno,
+    AnualInicio: s.inicio === null ? null : aIntervalo(s.inicio),
+    AnualFinal: s.final === null ? null : aIntervalo(s.final),
+    AnualInicioPartido: s.inicioPartido === null ? null : aIntervalo(s.inicioPartido),
+    AnualFinalPartido: s.finalPartido === null ? null : aIntervalo(s.finalPartido),
+    AnualValoracion: aIntervalo(s.valoracion),
+    AnualTiempoTotal: aIntervalo(s.tiempoTotal),
+    AnualTiempoPartido: aIntervalo(s.tiempoPartido),
+    AnualTrabajadas: aIntervalo(s.trabajadas),
+    AnualTrabajadasConvenio: aIntervalo(s.trabajadasConvenio),
+    AnualTiempoVacio: aIntervalo(s.tiempoVacio),
+    AnualAcumuladas: aIntervalo(s.acumuladas),
+    AnualNocturnas: aIntervalo(s.nocturnas),
+    AnualDesayuno: aTextoNumerico(s.desayuno),
+    AnualComida: aTextoNumerico(s.comida),
+    AnualCena: aTextoNumerico(s.cena),
+    AnualPlusPaqueteria: aNumerico(s.plusPaqueteria),
+    AnualFacturadoPaqueteria: aNumerico(s.facturadoPaqueteria),
+    AnualLimpieza: aTextoNumerico(s.limpieza),
+    AnualPlusMenorDescanso: aNumerico(s.plusMenorDescanso),
+    AnualTienePlusPaqueteria: s.tienePlusPaqueteria,
+  };
+}
+
+type ColumnasAnual = Pick<
+  typeof diasCalendario.$inferInsert,
+  | "AnualIncidencia" | "AnualCodigo" | "AnualNoCalcular"
+  | "AnualCategoria" | "AnualNumero" | "AnualTipoDia" | "AnualTurno"
+  | "AnualInicio" | "AnualFinal" | "AnualInicioPartido" | "AnualFinalPartido"
+  | "AnualValoracion" | "AnualTiempoTotal" | "AnualTiempoPartido"
+  | "AnualTrabajadas" | "AnualTrabajadasConvenio"
+  | "AnualTiempoVacio" | "AnualAcumuladas" | "AnualNocturnas"
+  | "AnualDesayuno" | "AnualComida" | "AnualCena"
+  | "AnualPlusPaqueteria" | "AnualFacturadoPaqueteria"
+  | "AnualLimpieza" | "AnualPlusMenorDescanso" | "AnualTienePlusPaqueteria"
+>;
+
 type ColumnasVirtual = Pick<
   typeof diasCalendario.$inferInsert,
   | "VirtualIncidencia" | "VirtualCodigo" | "VirtualNoCalcular"

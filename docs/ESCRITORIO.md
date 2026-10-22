@@ -31,7 +31,7 @@ electron + electron-vite.
 |---|---|---|
 | M1 | Esqueleto Electron (ventana, config, preload), login, shell con centro/mes, menú de tiles, API `cuenta/entrar` + `cuenta/verificar` + CORS | **hecha** |
 | M2 | Pantalla Conductores: rejilla de conductores + regulaciones, CRUD, guardado en lote | **hecha** |
-| M3 | Rejillas de Calendarios + **operaciones del mes** (marcar festivos, ajustar JDs, recalcular resúmenes, regenerar todos, verificados con snapshot/restore); queda pegado de Excel | **en curso** |
+| M3 | Rejillas de Calendarios (mensual y por conductor, 3 vistas), borrar, **operaciones del mes** y **pegado desde Excel** (parse y siembra en el servidor, regenerado final) | **hecha** |
 | M4 | Pantalla Gráficos: grupos por validez, gráficos, itinerarios, recalcular, importar/exportar JSON | pendiente |
 | M5 | Detalle de calendario: editor con recálculo en vivo, saldos, generar reclamación/nómina | pendiente |
 | M6 | Reclamaciones (PDF) y Nóminas | pendiente |

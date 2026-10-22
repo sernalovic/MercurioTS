@@ -386,6 +386,36 @@ body {
 .rejillaDias td.diaFest { background: var(--festivo); }
 .rejillaDias td.diaSem { background: var(--fin-sem); }
 
+/* Panel de pegado desde Excel de la pantalla Calendarios. */
+.panelPegado {
+  background: #fff;
+  border: 1px solid var(--borde);
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.panelPegado p {
+  color: var(--texto-suave);
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+
+.panelPegado .botonPrincipal {
+  margin-top: 8px;
+}
+
+.areaPegado {
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  box-sizing: border-box;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  padding: 6px;
+  border: 1px solid var(--borde);
+  resize: vertical;
+}
+
 .pendiente {
   color: var(--texto-suave);
 }
