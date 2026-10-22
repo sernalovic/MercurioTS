@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { api } from "../lib/api";
+import type { ConductorContexto } from "./CalendariosConductor";
 
 interface FilaApi {
   id: number;
@@ -213,11 +214,12 @@ function validar(f: Fila): string | null {
   return null;
 }
 
-export function PantallaConductores({ servidor, token, centro, onVolver }: {
+export function PantallaConductores({ servidor, token, centro, onVolver, onVerCalendarios }: {
   servidor: string;
   token: string;
   centro: string;
   onVolver: () => void;
+  onVerCalendarios: (conductor: ConductorContexto) => void;
 }): ReactNode {
   const [filas, setFilas] = useState<Fila[]>([]);
   const [originales, setOriginales] = useState<Map<number, Fila>>(new Map());
@@ -337,6 +339,17 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
     setRegs((anterior) => anterior.map((g) => (g.id === idReg ? { ...g, [campo]: valor } : g)));
   }
 
+  function verCalendarios(): void {
+    const fila = filas.find((f) => f.id === seleccion && f.id > 0);
+    if (fila === undefined) return;
+    onVerCalendarios({
+      id: fila.id,
+      matricula: Number(fila.matricula),
+      nombre: fila.nombre,
+      apellidos: fila.apellidos,
+    });
+  }
+
   async function guardar(): Promise<void> {
     setError(null);
     for (const g of regs) {
@@ -409,7 +422,7 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
         <button className="boton" onClick={añadir}>Añadir</button>
         <button className="boton" onClick={borrar} disabled={seleccion === null}>Borrar</button>
         <button className="boton" onClick={deshacer} disabled={borrados.length === 0}>Deshacer borrado</button>
-        <button className="boton" disabled title="Disponible con la fase de Calendarios">Ver calendarios</button>
+        <button className="boton" onClick={verCalendarios} disabled={!(seleccion !== null && seleccion > 0)}>Ver calendarios</button>
         <button className="botonPrincipal" onClick={guardar} disabled={ocupado || !hayCambios}>Guardar</button>
       </div>
       <div className="marcoRejilla">

@@ -9,6 +9,8 @@ import { entrar, verificar, type SesionInfo } from "./lib/api";
 import { PantallaAcceso } from "./pantallas/Acceso";
 import { PantallaMenu } from "./pantallas/Menu";
 import { PantallaConductores } from "./pantallas/Conductores";
+import { PantallaCalendarios } from "./pantallas/Calendarios";
+import { PantallaCalendariosConductor, type ConductorContexto } from "./pantallas/CalendariosConductor";
 import { Barra } from "./componentes/Barra";
 import { PantallaPendiente } from "./pantallas/Pendiente";
 
@@ -18,6 +20,7 @@ export type NombrePantalla =
   | "conductores"
   | "graficos"
   | "calendarios"
+  | "calendariosConductor"
   | "reclamaciones"
   | "nominas"
   | "convenios"
@@ -32,6 +35,7 @@ export function App(): ReactNode {
   const [centro, setCentro] = useState("");
   const [mes, setMes] = useState(() => new Date().toISOString().slice(0, 7));
   const [pantalla, setPantalla] = useState<NombrePantalla>("menu");
+  const [conductorContexto, setConductorContexto] = useState<ConductorContexto | null>(null);
 
   // Al abrir: si hay token guardado aún válido se recupera la sesión.
   useEffect(() => {
@@ -110,6 +114,25 @@ export function App(): ReactNode {
             token={config.Token}
             centro={centro}
             onVolver={() => setPantalla("menu")}
+            onVerCalendarios={(c) => {
+              setConductorContexto(c);
+              setPantalla("calendariosConductor");
+            }}
+          />
+        ) : pantalla === "calendarios" ? (
+          <PantallaCalendarios
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            mes={mes}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "calendariosConductor" && conductorContexto !== null ? (
+          <PantallaCalendariosConductor
+            servidor={config.Servidor}
+            token={config.Token}
+            conductor={conductorContexto}
+            onVolver={() => setPantalla("conductores")}
           />
         ) : (
           <PantallaPendiente nombre={pantalla} irA={setPantalla} />

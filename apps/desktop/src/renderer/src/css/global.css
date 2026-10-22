@@ -343,6 +343,49 @@ body {
   margin: 0;
 }
 
+/* Rejillas de calendarios: columnas estrechas de día, festivos y
+   sábados coloreados, matrícula fija a la izquierda. */
+.cabeceraPagina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.etiquetaMini {
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.rejillaDias {
+  table-layout: fixed;
+}
+
+.rejillaDias th.dia {
+  width: 30px;
+  padding: 6px 2px;
+  text-align: center;
+}
+
+.rejillaDias th.matriculas { width: 80px; }
+
+.rejillaDias td.matriculas {
+  position: sticky;
+  left: 0;
+  background: inherit;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.rejillaDias tbody tr:nth-child(even) td.matriculas { background-color: var(--fila-alterna); }
+.rejillaDias tbody tr:hover td.matriculas { background-color: var(--aviso); }
+.rejillaDias tbody tr.sel td.matriculas { background-color: var(--festivo); }
+
+.rejillaDias td.centro { text-align: center; }
+
+.rejillaDias td.diaFest { background: var(--festivo); }
+.rejillaDias td.diaSem { background: var(--fin-sem); }
+
 .pendiente {
   color: var(--texto-suave);
 }
