@@ -11,6 +11,7 @@ import { PantallaMenu } from "./pantallas/Menu";
 import { PantallaConductores } from "./pantallas/Conductores";
 import { PantallaCalendarios } from "./pantallas/Calendarios";
 import { PantallaCalendariosConductor, type ConductorContexto } from "./pantallas/CalendariosConductor";
+import { PantallaDetalleCalendario } from "./pantallas/DetalleCalendario";
 import { PantallaGraficos } from "./pantallas/Graficos";
 import { Barra } from "./componentes/Barra";
 import { PantallaPendiente } from "./pantallas/Pendiente";
@@ -22,6 +23,7 @@ export type NombrePantalla =
   | "graficos"
   | "calendarios"
   | "calendariosConductor"
+  | "detalleCalendario"
   | "reclamaciones"
   | "nominas"
   | "convenios"
@@ -37,6 +39,7 @@ export function App(): ReactNode {
   const [mes, setMes] = useState(() => new Date().toISOString().slice(0, 7));
   const [pantalla, setPantalla] = useState<NombrePantalla>("menu");
   const [conductorContexto, setConductorContexto] = useState<ConductorContexto | null>(null);
+  const [idCalendarioDetalle, setIdCalendarioDetalle] = useState<number | null>(null);
 
   // Al abrir: si hay token guardado aún válido se recupera la sesión.
   useEffect(() => {
@@ -141,6 +144,17 @@ export function App(): ReactNode {
             token={config.Token}
             conductor={conductorContexto}
             onVolver={() => setPantalla("conductores")}
+            onDetalle={(id) => {
+              setIdCalendarioDetalle(id);
+              setPantalla("detalleCalendario");
+            }}
+          />
+        ) : pantalla === "detalleCalendario" && idCalendarioDetalle !== null ? (
+          <PantallaDetalleCalendario
+            servidor={config.Servidor}
+            token={config.Token}
+            idCalendario={idCalendarioDetalle}
+            onVolver={() => setPantalla("calendariosConductor")}
           />
         ) : (
           <PantallaPendiente nombre={pantalla} irA={setPantalla} />

@@ -16,11 +16,12 @@ export interface ConductorContexto {
   apellidos: string;
 }
 
-export function PantallaCalendariosConductor({ servidor, token, conductor, onVolver }: {
+export function PantallaCalendariosConductor({ servidor, token, conductor, onVolver, onDetalle }: {
   servidor: string;
   token: string;
   conductor: ConductorContexto;
   onVolver: () => void;
+  onDetalle: (idCalendario: number) => void;
 }): ReactNode {
   const [año, setAño] = useState(() => new Date().getFullYear());
   const [filas, setFilas] = useState<CabCalendario[]>([]);
@@ -58,7 +59,13 @@ export function PantallaCalendariosConductor({ servidor, token, conductor, onVol
         <span className="hueco" />
         <button className="boton" onClick={onVolver}>Volver</button>
         <button className="boton" onClick={() => cargar()} disabled={ocupado}>Recargar</button>
-        <button className="boton" disabled title="Disponible con la fase de Detalle">Detalle</button>
+        <button
+          className="boton"
+          onClick={() => seleccion !== null && onDetalle(seleccion)}
+          disabled={seleccion === null}
+        >
+          Detalle
+        </button>
       </div>
       <RejillaCalendarios filas={filas} seleccion={seleccion} onSeleccion={setSeleccion} />
       <p className="pendiente">El detalle de cada calendario entra con la fase de Detalle.</p>

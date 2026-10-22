@@ -45,3 +45,31 @@ export function centimosDe(texto: string): number {
 export function unidades(n: number): string {
   return (Math.round(n * 100) / 100).toString();
 }
+
+/**
+ * Parse de `Utilidades.ParseHora` del original: acepta "hh:mm", "hh.mm",
+ * "hh,mm", "hhmm" o "h"; vacío o no válido → null. Devuelve minutos.
+ */
+export function parseHora(texto: string): number | null {
+  if (texto.trim() === "") return null;
+  let t = texto.trim().replace(".", ":").replace(",", ":");
+  if (!t.includes(":") && t.length > 2) t = `${t.slice(0, -2)}:${t.slice(-2)}`;
+  const partes = t.split(":");
+  const h = Number(partes[0]);
+  if (!Number.isInteger(h)) return null;
+  const m = partes.length > 1 && partes[1] !== "" && Number.isInteger(Number(partes[1])) ? Number(partes[1]) : 0;
+  return h * 60 + m;
+}
+
+/** `Utilidades.Duracion` del original: horas totales con signo; "" si es cero. */
+export function duracionC(min: number | null): string {
+  if (min === null || min === 0) return "";
+  const s = min < 0 ? "-" : "";
+  const a = Math.abs(min);
+  return `${s}${Math.floor(a / 60)}:${String(a % 60).padStart(2, "0")}`;
+}
+
+/** Importe en céntimos → "0.##" como mostraba el original (`StringFormat=0.##`). */
+export function importe(c: number): string {
+  return (Math.round(c) / 100).toFixed(2).replace(/0$/, "").replace(/\.$/, "");
+}
