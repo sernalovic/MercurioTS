@@ -294,6 +294,33 @@ body {
 .rejilla .centradoMic { text-align: center; }
 .rejilla .vacio { color: var(--texto-suave); text-align: center; padding: 18px; }
 
+/* Celdas editables de la rejilla de conductores. */
+.rejilla .celda {
+  font: inherit;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  padding: 2px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rejilla .celda:focus {
+  border-color: var(--primario);
+  background: #fff;
+  outline: none;
+}
+
+.rejilla input[type="checkbox"].celda, .rejilla input[type="checkbox"] {
+  width: auto;
+}
+
+.rejilla tbody tr.sel td { background: var(--festivo); }
+.rejilla tbody tr.sel:hover td { background: var(--aviso); }
+
+.hueco { flex: 1; }
+
 .pendiente {
   color: var(--texto-suave);
 }
