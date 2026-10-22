@@ -8,6 +8,7 @@
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
+import { pedirTexto } from "../lib/dialogos";
 import { duracion, importe, minutosDeHora, parseHora } from "../lib/horas";
 import { pdfReclamacion } from "../lib/pdf";
 import {
@@ -231,10 +232,11 @@ export function PantallaReclamaciones({ servidor, token, centro, mes, onVolver }
 
   // ---- comandos (textos exactos del original) ----
 
-  function nueva(): void {
+  async function nueva(): Promise<void> {
     if (conductor === null) return;
-    const texto = window.prompt(
-      "Nueva reclamación\n\nMes (mm/aaaa):",
+    const texto = await pedirTexto(
+      "Nueva reclamación",
+      "Mes (mm/aaaa):",
       `${mes.slice(5, 7)}/${mes.slice(0, 4)}`,
     );
     if (texto === null) return;

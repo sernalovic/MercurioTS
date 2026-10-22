@@ -303,7 +303,9 @@ export function convenioDesdeFilas(
   filasFestivos: FilaFestivo[],
   filasTablas: FilaTablaSalarial[],
 ): Convenio {
-  const opciones: OpcionesCentro[] = filasOpciones.map((o) => ({
+  const opciones: OpcionesCentro[] = filasOpciones
+    .filter((o) => o.convenioId === fila.id)
+    .map((o) => ({
     id: o.id,
     centro: o.centro,
     numerosL: o.numerosL,
@@ -318,7 +320,9 @@ export function convenioDesdeFilas(
       .filter((f) => f.opcionesCentroId === o.id)
       .map((f) => ({ id: f.id, fecha: f.fecha.slice(0, 10) })),
   }));
-  const tablas: TablaSalarial[] = filasTablas.map((t) => ({
+  const tablas: TablaSalarial[] = filasTablas
+    .filter((t) => t.convenioId === fila.id)
+    .map((t) => ({
     id: t.id,
     categoria: t.categoria,
     sueldoBaseDiario: aCentimos(t.sueldoBaseDiario),
@@ -335,6 +339,7 @@ export function convenioDesdeFilas(
     porcentajeDesempleo: aNumero(t.porcentajeDesempleo),
   }));
   return {
+    id: fila.id,
     año: fila.año,
     jornadaMedia: aMinutos(fila.jornadaMedia),
     importeDietas: aCentimos(fila.importeDietas),

@@ -618,3 +618,133 @@ body {
 /* ===== fin pantallas Reclamaciones y Nóminas ===== */
 
 .erroresResumen { color: var(--primario); white-space: pre-wrap; }
+
+/* ===== Pantallas Convenios y Lneas (fase M7) ===== */
+/* Lista de convenios (años) a la izquierda + detalle en pestañas. */
+.conveniosCuerpo {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.conveniosLista {
+  width: 110px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.filaLista {
+  border: 1px solid transparent;
+  background: none;
+  text-align: left;
+  padding: 4px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.filaLista:hover { background: var(--fin-sem); }
+.filaLista.sel { background: var(--festivo); border-color: var(--borde); }
+.conveniosDetalle { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pestañas {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 10px;
+}
+.pestañas button {
+  padding: 5px 14px;
+  border: 1px solid var(--borde);
+  border-bottom: none;
+  background: var(--fin-sem);
+  cursor: pointer;
+  font: inherit;
+}
+.pestañas button.sel { background: #fff; font-weight: 600; }
+.conveniosGeneral {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px 24px;
+  overflow: auto;
+}
+.campoEtiqueta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.campoEtiqueta span {
+  width: 190px;
+  margin-top: 4px;
+  flex: none;
+}
+.campoEtiqueta.corto span { width: 120px; }
+.campoEtiqueta .celda { width: 110px; }
+.campoEtiqueta .celda.ancho { width: 240px; }
+.rejilla.tablasSalariales .celda { width: 70px; }
+.rejilla.tablasSalariales select.celda { width: 130px; }
+.rejilla.rejillaFestivos td { padding: 3px 6px; }
+.casilla { display: flex; align-items: center; gap: 6px; margin: 8px 0; }
+.conveniosOpciones { display: flex; flex-direction: column; gap: 10px; }
+.conveniosOpcionesDatos { max-width: 420px; }
+.cabeceraFestivos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cabeceraFestivos .tituloSeccion { margin: 0 12px 0 0; }
+.rejillaFestivos { width: 300px; }
+/* Tres columnas de líneas / itinerarios / paradas. */
+.lineasCuerpo {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.lineasColumna { flex: 1; min-width: 220px; }
+.cabeceraSeccion {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.cabeceraSeccion .tituloSeccion { margin: 0 10px 0 0; }
+/* ===== fin pantallas Convenios y Lneas ===== */
+
+/* ===== Dilogo de pedir texto (Dialogos.Pedir) ===== */
+.velo {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+.ventanaPedir {
+  background: #fff;
+  border: 1px solid var(--borde);
+  padding: 16px 18px;
+  min-width: 320px;
+  max-width: 480px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+.ventanaPedir h3 { margin: 0 0 6px; font-size: 14px; color: var(--primario); }
+.ventanaPedir p { margin: 0 0 10px; white-space: pre-wrap; }
+.ventanaPedir input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px 8px;
+  border: 1px solid var(--borde);
+  font: inherit;
+}
+.opcionesVentana {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+/* ===== fin dilogo pedir ===== */

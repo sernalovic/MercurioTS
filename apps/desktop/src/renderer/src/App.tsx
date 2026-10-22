@@ -15,7 +15,10 @@ import { PantallaDetalleCalendario } from "./pantallas/DetalleCalendario";
 import { PantallaGraficos } from "./pantallas/Graficos";
 import { PantallaReclamaciones } from "./pantallas/Reclamaciones";
 import { PantallaNominas } from "./pantallas/Nominas";
+import { PantallaConvenios } from "./pantallas/Convenios";
+import { PantallaLineas } from "./pantallas/Lineas";
 import { Barra } from "./componentes/Barra";
+import { PedirHost } from "./lib/dialogos";
 import { PantallaPendiente } from "./pantallas/Pendiente";
 
 /** Pantallas navegables: mismos tiles que el menú del original. */
@@ -173,10 +176,23 @@ export function App(): ReactNode {
             centro={centro}
             onVolver={() => setPantalla("menu")}
           />
+        ) : pantalla === "convenios" ? (
+          <PantallaConvenios
+            servidor={config.Servidor}
+            token={config.Token}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "lineas" ? (
+          <PantallaLineas
+            servidor={config.Servidor}
+            token={config.Token}
+            onVolver={() => setPantalla("menu")}
+          />
         ) : (
           <PantallaPendiente nombre={pantalla} irA={setPantalla} />
         )}
       </main>
+      <PedirHost />
     </div>
   );
 }

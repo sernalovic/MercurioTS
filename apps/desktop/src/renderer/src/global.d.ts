@@ -11,6 +11,7 @@ declare global {
       leerConfig(): Promise<unknown>;
       guardarConfig(configuracion: unknown): Promise<boolean>;
       guardarPdf(datos: ArrayBuffer, nombreDefecto: string): Promise<string | null>;
+      guardarJson(datos: string, nombreDefecto: string): Promise<string | null>;
     };
   }
 }

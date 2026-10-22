@@ -13,4 +13,7 @@ contextBridge.exposeInMainWorld("mercurio", {
   /** Diálogo de guardar PDF + escritura + apertura (Pdf.Reclamacion + Pdf.Abrir). */
   guardarPdf: (datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> =>
     ipcRenderer.invoke("pdf:guardar", datos, nombreDefecto),
+  /** Diálogo de guardar JSON + escritura (LineasViewModel.Exportar). */
+  guardarJson: (datos: string, nombreDefecto: string): Promise<string | null> =>
+    ipcRenderer.invoke("json:guardar", datos, nombreDefecto),
 });

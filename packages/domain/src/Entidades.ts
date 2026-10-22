@@ -366,6 +366,7 @@ export interface OpcionesCentro {
 }
 
 export interface Convenio {
+  id?: number;
   año: number;
   /** `JornadaMedia` y el resto de duraciones: minutos. */
   jornadaMedia: number;

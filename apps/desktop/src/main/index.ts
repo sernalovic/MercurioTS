@@ -115,6 +115,24 @@ ipcMain.handle(
   },
 );
 
+/**
+ * Port de `LineasViewModel.Exportar`: diálogo de guardar JSON (nombre por
+ * defecto en Documentos) y escritura del fichero. Devuelve la ruta o null.
+ */
+ipcMain.handle(
+  "json:guardar",
+  async (_evento, datos: string, nombreDefecto: string): Promise<string | null> => {
+    const ventana = BrowserWindow.getAllWindows()[0];
+    const resultado = await dialog.showSaveDialog(ventana, {
+      filters: [{ name: "Archivos JSON", extensions: ["json"] }],
+      defaultPath: path.join(app.getPath("documents"), nombreDefecto),
+    });
+    if (resultado.canceled || !resultado.filePath) return null;
+    fs.writeFileSync(resultado.filePath, datos, "utf-8");
+    return resultado.filePath;
+  },
+);
+
 app.whenReady().then(() => {
   crearVentana();
   app.on("activate", () => {

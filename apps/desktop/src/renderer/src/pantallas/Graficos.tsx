@@ -9,6 +9,7 @@
  */
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
+import { pedirTexto } from "../lib/dialogos";
 import { duracion, hora, minutosDeHora, euros } from "../lib/horas";
 import {
   CalculosHorario, TipoDia, Turno, CategoriaGrafico, nombreEnum, Duracion,
@@ -243,14 +244,15 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
 
   // ---- grupos ----
 
-  function nuevoGrupo(): void {
+  async function nuevoGrupo(): Promise<void> {
     if (centro === "Todos") {
       window.alert("Selecciona un centro concreto.");
       return;
     }
     const hoy = new Date();
-    const texto = window.prompt(
-      "Nuevo grupo de gráficos\n\nFecha de validez (dd/mm/aaaa):",
+    const texto = await pedirTexto(
+      "Nuevo grupo de gráficos",
+      "Fecha de validez (dd/mm/aaaa):",
       `${String(hoy.getDate()).padStart(2, "0")}/${String(hoy.getMonth() + 1).padStart(2, "0")}/${hoy.getFullYear()}`,
     );
     if (texto === null) return;

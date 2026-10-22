@@ -7,6 +7,7 @@
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
+import { pedirTexto } from "../lib/dialogos";
 import { TipoNomina, nombreEnum, recalcularNomina,
   type Convenio, type Nomina, type TablaSalarial,
 } from "@mercurio/domain";
@@ -146,8 +147,9 @@ export function PantallaNominas({ servidor, token, centro, onVolver }: {
 
   async function cambiarAntiguedad(): Promise<void> {
     if (nom === null) return;
-    const texto = window.prompt(
-      "Nueva fecha de antigüedad\n\nFecha (dd/mm/aaaa):",
+    const texto = await pedirTexto(
+      "Nueva fecha de antigüedad",
+      "Fecha (dd/mm/aaaa):",
       diaMes(nom.fechaAntiguedad),
     );
     if (texto === null) return;
@@ -158,8 +160,9 @@ export function PantallaNominas({ servidor, token, centro, onVolver }: {
 
   async function cambiarIrpf(): Promise<void> {
     if (nom === null) return;
-    const texto = window.prompt(
-      "Porcentaje I.R.P.F.\n\nIntroduce el nuevo porcentaje de I.R.P.F.",
+    const texto = await pedirTexto(
+      "Porcentaje I.R.P.F.",
+      "Introduce el nuevo porcentaje de I.R.P.F.",
       String(nom.porcentajeIrpf).replace(".", ","),
     );
     if (texto === null) return;
