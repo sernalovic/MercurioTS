@@ -31,13 +31,13 @@ export interface FilaConductor {
 }
 
 /** Mismos valores y orden que `CentroTrabajo` del dominio. */
-export const ETIQUETAS_CENTRO: Record<number, string> = {
+const ETIQUETAS_CENTRO: Record<number, string> = {
   0: "Todos", 1: "Donosti", 2: "Bilbao", 3: "Arrasate", 4: "Vitoria", 5: "Pruebas",
 };
-export const ETIQUETAS_CATEGORIA: Record<number, string> = {
+const ETIQUETAS_CATEGORIA: Record<number, string> = {
   0: "Conductor", 1: "Conductor de formación", 2: "Taquilla",
 };
-export const ETIQUETAS_SITUACION: Record<number, string> = {
+const ETIQUETAS_SITUACION: Record<number, string> = {
   0: "Fijo", 1: "Eventual", 2: "Inactivo", 3: "Fijo (inaplicación)",
 };
 
