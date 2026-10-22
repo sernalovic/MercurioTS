@@ -94,3 +94,8 @@ export async function obtenerSesionDePeticion(request: Request): Promise<SesionI
   if (!cabecera.toLowerCase().startsWith("bearer ")) return null;
   return decodificarSesion(cabecera.slice(7).trim());
 }
+
+/** Borra la cookie de sesión (solo en Server Actions / Route Handlers). */
+export async function cerrarSesion(): Promise<void> {
+  (await cookies()).delete(NOMBRE_COOKIE);
+}
