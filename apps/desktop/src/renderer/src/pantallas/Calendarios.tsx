@@ -49,6 +49,27 @@ export function PantallaCalendarios({ servidor, token, centro, mes, onVolver }: 
 
   useEffect(cargar, [servidor, token, centro, mes, vista]);
 
+  /** Operación del mes: confirmación opcional, POST al servidor y recarga. */
+  async function operacion(nombre: string, confirmacion: string | null): Promise<void> {
+    if (confirmacion !== null && !window.confirm(confirmacion)) return;
+    setOcupado(true);
+    setError(null);
+    try {
+      await api(servidor, token, "calendarios/operaciones", {
+        metodo: "POST",
+        cuerpo: {
+          operacion: nombre,
+          fecha: mes,
+          centro: centro === "Todos" ? 0 : CENTROS.indexOf(centro),
+        },
+      });
+      cargar();
+    } catch (e) {
+      setError((e as Error).message);
+      setOcupado(false);
+    }
+  }
+
   async function borrarCalendario(): Promise<void> {
     const fila = filas.find((f) => f.id === seleccion);
     if (fila === undefined) return;
@@ -92,13 +113,13 @@ export function PantallaCalendarios({ servidor, token, centro, mes, onVolver }: 
         <button className="boton" disabled title="Disponible con la fase de Detalle">Detalle</button>
         <button className="boton" disabled title="Disponible con la fase de pegado desde Excel">Añadir calendarios (pegar)</button>
         <button className="boton" onClick={borrarCalendario} disabled={seleccion === null || ocupado}>Borrar calendario</button>
-        <button className="boton" disabled title="Disponible al portar las operaciones del mes">Ajustar JDs</button>
-        <button className="boton" disabled title="Disponible al portar las operaciones del mes">Marcar festivos</button>
-        <button className="boton" disabled title="Disponible al portar las operaciones del mes">Recalcular resúmenes</button>
-        <button className="boton" disabled title="Disponible al portar las operaciones del mes">Regenerar todos</button>
+        <button className="boton" onClick={() => operacion("ajustarJds", "Esta función cambiará JD por DS o FN donde corresponda.\n\n¿Quieres continuar?")} disabled={ocupado}>Ajustar JDs</button>
+        <button className="boton" onClick={() => operacion("marcarFestivos", "Vas a marcar los festivos de todos los calendarios.\n\n¿Quieres continuar?")} disabled={ocupado}>Marcar festivos</button>
+        <button className="boton" onClick={() => operacion("recalcularResumenes", "Vas a recalcular los resúmenes de todos los calendarios.\n\n¿Quieres continuar?")} disabled={ocupado}>Recalcular resúmenes</button>
+        <button className="boton" onClick={() => operacion("regenerarTodos", "Vas a modificar los servicios de todos los calendarios.\n\nEsta acción puede provocar pérdida de datos en los servicios virtuales.\n\n¿Quieres continuar?")} disabled={ocupado}>Regenerar todos</button>
       </div>
       <RejillaCalendarios filas={filas} seleccion={seleccion} onSeleccion={setSeleccion} />
-      <p className="pendiente">Detalle del calendario y operaciones del mes: fases siguientes.</p>
+      <p className="pendiente">Detalle del calendario y añadir por pegado: fases siguientes.</p>
     </div>
   );
 }

@@ -8,7 +8,7 @@
  * de drizzle (los tres spreads `Trabajado*` colisionan y pierden campos).
  */
 import type {
-  Calendario, Conductor, Convenio, DiaCalendario, OpcionesCentro, Reclamacion,
+  Calendario, Conductor, Convenio, DiaCalendario, Grafico, OpcionesCentro, Reclamacion,
   Regulacion, ResumenCalendario, Servicio, TablaSalarial,
 } from "@mercurio/domain";
 import {
@@ -17,7 +17,7 @@ import {
 import type { InferSelectModel } from "drizzle-orm";
 import {
   calendarios, conceptosReclamados, conductores, convenios, diasCalendario,
-  festivos, opcionesCentro, regulaciones, resumenes, tablasSalariales,
+  festivos, graficos, opcionesCentro, regulaciones, resumenes, tablasSalariales,
 } from "./schema";
 import { aCentimos, aIntervalo, aMinutos, aNumero, aNumerico, aTextoNumerico } from "./convertir";
 
@@ -32,6 +32,7 @@ type FilaRegulacion = InferSelectModel<typeof regulaciones>;
 type FilaResumen = InferSelectModel<typeof resumenes>;
 type FilaTablaSalarial = InferSelectModel<typeof tablasSalariales>;
 type FilaConcepto = InferSelectModel<typeof conceptosReclamados>;
+type FilaGrafico = InferSelectModel<typeof graficos>;
 
 /** Fecha sentinel de los conceptos mensuales (DateTime.MinValue del original). */
 const FECHA_MINIMA = "0001-01-01 00:00:00";
@@ -95,6 +96,39 @@ export function diaDesdeFila(fila: FilaDia): DiaCalendario {
     dndCobrado: fila.dndCobrado,
     dndsCobradosPorDescanso: aCentimos(fila.dndsCobradosPorDescanso),
     isRemoteUpdated: fila.isRemoteUpdated,
+  };
+}
+
+/** Fila de gráfico → Grafico del dominio (horas en minutos, sin itinerarios). */
+export function graficoDesdeFila(fila: FilaGrafico): Grafico {
+  return {
+    id: fila.id,
+    centro: fila.centro,
+    fecha: fila.fecha.slice(0, 10),
+    plusCena: aCentimos(fila.plusCena),
+    tieneErrorTiempoPartido: fila.tieneErrorTiempoPartido,
+    itinerarios: [],
+    noCalcular: fila.noCalcular,
+    categoria: fila.categoria,
+    numero: fila.numero,
+    tipoDia: fila.tipoDia as TipoDia,
+    turno: fila.turno,
+    inicio: vueltaNulo(fila.inicio),
+    final: vueltaNulo(fila.final),
+    inicioPartido: vueltaNulo(fila.inicioPartido),
+    finalPartido: vueltaNulo(fila.finalPartido),
+    valoracion: aMinutos(fila.valoracion),
+    tiempoTotal: aMinutos(fila.tiempoTotal),
+    tiempoPartido: aMinutos(fila.tiempoPartido),
+    trabajadas: aMinutos(fila.trabajadas),
+    trabajadasConvenio: aMinutos(fila.trabajadasConvenio),
+    tiempoVacio: aMinutos(fila.tiempoVacio),
+    acumuladas: aMinutos(fila.acumuladas),
+    nocturnas: aMinutos(fila.nocturnas),
+    desayuno: aNumero(fila.desayuno),
+    comida: aNumero(fila.comida),
+    cena: aNumero(fila.cena),
+    tienePlusPaqueteria: fila.tienePlusPaqueteria,
   };
 }
 
@@ -435,6 +469,56 @@ export function servicioTrabajadoAColumnas(s: Servicio): ColumnasServicio {
     TrabajadoTienePlusPaqueteria: s.tienePlusPaqueteria,
   };
 }
+
+/**
+ * Columnas del servicio VIRTUAL a partir de un Servicio del dominio. El
+ * regenerado del mes toca Trabajado y Virtual; las claves van literales
+ * (mismo motivo que en las del trabajado).
+ */
+export function servicioVirtualAColumnas(s: Servicio): ColumnasVirtual {
+  return {
+    VirtualIncidencia: s.incidencia,
+    VirtualCodigo: s.codigo,
+    VirtualNoCalcular: s.noCalcular,
+    VirtualCategoria: s.categoria,
+    VirtualNumero: s.numero,
+    VirtualTipoDia: s.tipoDia,
+    VirtualTurno: s.turno,
+    VirtualInicio: s.inicio === null ? null : aIntervalo(s.inicio),
+    VirtualFinal: s.final === null ? null : aIntervalo(s.final),
+    VirtualInicioPartido: s.inicioPartido === null ? null : aIntervalo(s.inicioPartido),
+    VirtualFinalPartido: s.finalPartido === null ? null : aIntervalo(s.finalPartido),
+    VirtualValoracion: aIntervalo(s.valoracion),
+    VirtualTiempoTotal: aIntervalo(s.tiempoTotal),
+    VirtualTiempoPartido: aIntervalo(s.tiempoPartido),
+    VirtualTrabajadas: aIntervalo(s.trabajadas),
+    VirtualTrabajadasConvenio: aIntervalo(s.trabajadasConvenio),
+    VirtualTiempoVacio: aIntervalo(s.tiempoVacio),
+    VirtualAcumuladas: aIntervalo(s.acumuladas),
+    VirtualNocturnas: aIntervalo(s.nocturnas),
+    VirtualDesayuno: aTextoNumerico(s.desayuno),
+    VirtualComida: aTextoNumerico(s.comida),
+    VirtualCena: aTextoNumerico(s.cena),
+    VirtualPlusPaqueteria: aNumerico(s.plusPaqueteria),
+    VirtualFacturadoPaqueteria: aNumerico(s.facturadoPaqueteria),
+    VirtualLimpieza: aTextoNumerico(s.limpieza),
+    VirtualPlusMenorDescanso: aNumerico(s.plusMenorDescanso),
+    VirtualTienePlusPaqueteria: s.tienePlusPaqueteria,
+  };
+}
+
+type ColumnasVirtual = Pick<
+  typeof diasCalendario.$inferInsert,
+  | "VirtualIncidencia" | "VirtualCodigo" | "VirtualNoCalcular"
+  | "VirtualCategoria" | "VirtualNumero" | "VirtualTipoDia" | "VirtualTurno"
+  | "VirtualInicio" | "VirtualFinal" | "VirtualInicioPartido" | "VirtualFinalPartido"
+  | "VirtualValoracion" | "VirtualTiempoTotal" | "VirtualTiempoPartido"
+  | "VirtualTrabajadas" | "VirtualTrabajadasConvenio"
+  | "VirtualTiempoVacio" | "VirtualAcumuladas" | "VirtualNocturnas"
+  | "VirtualDesayuno" | "VirtualComida" | "VirtualCena"
+  | "VirtualPlusPaqueteria" | "VirtualFacturadoPaqueteria"
+  | "VirtualLimpieza" | "VirtualPlusMenorDescanso" | "VirtualTienePlusPaqueteria"
+>;
 
 /**
  * Todas las columnas del resumen a partir del objeto del dominio (tras
