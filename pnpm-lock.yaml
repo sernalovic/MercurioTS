@@ -10,6 +10,9 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@mercurio/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       react:
         specifier: 19.3.0
         version: 19.3.0

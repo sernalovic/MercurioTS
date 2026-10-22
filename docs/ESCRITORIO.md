@@ -32,7 +32,7 @@ electron + electron-vite.
 | M1 | Esqueleto Electron (ventana, config, preload), login, shell con centro/mes, menú de tiles, API `cuenta/entrar` + `cuenta/verificar` + CORS | **hecha** |
 | M2 | Pantalla Conductores: rejilla de conductores + regulaciones, CRUD, guardado en lote | **hecha** |
 | M3 | Rejillas de Calendarios (mensual y por conductor, 3 vistas), borrar, **operaciones del mes** y **pegado desde Excel** (parse y siembra en el servidor, regenerado final) | **hecha** |
-| M4 | Pantalla Gráficos: grupos por validez, gráficos, itinerarios, recalcular, importar/exportar JSON | pendiente |
+| M4 | Pantalla Gráficos: grupos por validez, gráficos con itinerarios, recalcular/deducir día/turno en el cliente con `CalculosHorario`, guardar en lote (`graficos`, `graficos/porFecha`, `itinerariosGraficos`, `convenios`). Los botones Importar/Exportar JSON del original no tenían comando en el ViewModel y no se portan | **hecha** |
 | M5 | Detalle de calendario: editor con recálculo en vivo, saldos, generar reclamación/nómina | pendiente |
 | M6 | Reclamaciones (PDF) y Nóminas | pendiente |
 | M7 | Convenios (3 pestañas) y Líneas/Itinerarios/Paradas | pendiente |

@@ -11,6 +11,7 @@ import { PantallaMenu } from "./pantallas/Menu";
 import { PantallaConductores } from "./pantallas/Conductores";
 import { PantallaCalendarios } from "./pantallas/Calendarios";
 import { PantallaCalendariosConductor, type ConductorContexto } from "./pantallas/CalendariosConductor";
+import { PantallaGraficos } from "./pantallas/Graficos";
 import { Barra } from "./componentes/Barra";
 import { PantallaPendiente } from "./pantallas/Pendiente";
 
@@ -118,6 +119,13 @@ export function App(): ReactNode {
               setConductorContexto(c);
               setPantalla("calendariosConductor");
             }}
+          />
+        ) : pantalla === "graficos" ? (
+          <PantallaGraficos
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            onVolver={() => setPantalla("menu")}
           />
         ) : pantalla === "calendarios" ? (
           <PantallaCalendarios
