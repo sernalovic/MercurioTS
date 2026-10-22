@@ -1,0 +1,264 @@
+/**
+ * Estilos globales del escritorio. Mismo sistema de color que la WPF
+ * (`App.xaml`): primario #B5121B, fondo #F4F5F7, borde #D0D4DA y los
+ * estados festivo/aviso/fin de semana/fila alterna.
+ */
+:root {
+  --primario: #B5121B;
+  --primario-oscuro: #8d0e15;
+  --fondo: #F4F5F7;
+  --borde: #D0D4DA;
+  --texto: #1c1c1c;
+  --texto-suave: #63666b;
+  --festivo: #FDE7E7;
+  --aviso: #FFF4CE;
+  --fin-sem: #F1F3F7;
+  --fila-alterna: #FAFAFB;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #raiz {
+  height: 100%;
+}
+
+body {
+  font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+  user-select: none;
+}
+
+/* ---- Acceso ---- */
+.acceso {
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.acceso .tarjeta {
+  width: 420px;
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.logotipo {
+  color: var(--primario);
+  font-size: 28px;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.subtitulo {
+  color: var(--texto-suave);
+  margin-bottom: 24px;
+}
+
+.etiqueta {
+  display: block;
+  margin: 12px 0 4px;
+  font-weight: 600;
+}
+
+.campo {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  font: inherit;
+  background: var(--fondo);
+}
+
+.campo:focus {
+  outline: 2px solid var(--primario);
+  outline-offset: -1px;
+}
+
+.plegable {
+  margin-top: 16px;
+  border: 0;
+  background: none;
+  color: var(--texto-suave);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.plegable + .campo {
+  margin-top: 4px;
+}
+
+.error {
+  margin-top: 12px;
+  padding: 8px 10px;
+  border: 1px solid #e3b6b8;
+  background: var(--festivo);
+  color: var(--primario-oscuro);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.entrar {
+  width: 100%;
+  margin-top: 16px;
+  padding: 10px;
+  border: 1px solid var(--primario-oscuro);
+  border-radius: 4px;
+  background: var(--primario);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.entrar:hover:not(:disabled) { background: var(--primario-oscuro); }
+.entrar:disabled { opacity: 0.6; cursor: default; }
+
+/* ---- Shell ---- */
+.escritorio {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #fff;
+  border-bottom: 1px solid var(--borde);
+  flex: none;
+}
+
+.logotipo-chico {
+  color: var(--primario);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-right: 16px;
+}
+
+.etiquetabarra {
+  color: var(--texto-suave);
+}
+
+.combo {
+  padding: 5px 6px;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  font: inherit;
+}
+
+.botonflecha {
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.botonflecha:hover { background: var(--fila-alterna); }
+
+.mes {
+  min-width: 150px;
+  text-align: center;
+  font-weight: 600;
+  font-variant: small-caps;
+}
+
+.sesion {
+  margin-left: auto;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.sesion strong { color: var(--texto); }
+
+.botonsalir {
+  border: 1px solid var(--borde);
+  background: var(--fondo);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.botonsalir:hover {
+  background: var(--festivo);
+  border-color: var(--primario);
+  color: var(--primario-oscuro);
+}
+
+.cuerpo {
+  flex: 1;
+  overflow: auto;
+}
+
+/* ---- Menú de tiles ---- */
+.menu {
+  padding: 24px 32px;
+}
+
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.tile {
+  width: 200px;
+  height: 120px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--texto);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tile:hover {
+  border-color: var(--primario);
+  color: var(--primario);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+}
+
+/* ---- Página (AyudaViewModel) ---- */
+.pagina {
+  padding: 16px 24px 32px;
+}
+
+.paginacampos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.titulo {
+  font-size: 20px;
+}
+
+.pendiente {
+  color: var(--texto-suave);
+}
+
+.boton {
+  margin-left: auto;
+  border: 1px solid var(--borde);
+  background: #fff;
+  border-radius: 4px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.boton:hover {
+  border-color: var(--primario);
+  color: var(--primario);
+}

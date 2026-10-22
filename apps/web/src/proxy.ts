@@ -14,6 +14,12 @@ import { NextResponse, type NextRequest } from "next/server";
 const CONFORMA_JWT = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
 export function proxy(request: NextRequest) {
+  // La API `/api/v1` se autentica con token Bearer (escritorio), no con
+  // la cookie: no entra en este chequeo.
+  if (request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   const cookie = request.cookies.get("Mercurio.Sesion")?.value;
   const conSesion = cookie !== undefined && CONFORMA_JWT.test(cookie);
 

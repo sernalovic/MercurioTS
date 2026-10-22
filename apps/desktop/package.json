@@ -2,17 +2,34 @@
   "name": "@mercurio/desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Aplicación de escritorio de Mercurio (Electron) para los administradores.",
-  "main": "src/main.cjs",
+  "description": "Mercurio de escritorio: juego de pantallas de administración sobre la API del portal.",
+  "main": "out/main/index.js",
   "scripts": {
-    "start": "electron .",
-    "lint": "",
-    "test": "echo \"(sin tests todavía)\" && exit 0",
-    "build": "echo \"(el escritorio se empaqueta con dist:win)\"",
-    "dist:win": "electron-builder --win"
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "empaquetar": "electron-vite build && electron-builder"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "build": {
+    "appId": "org.mercurio.desktop",
+    "productName": "Mercurio",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    }
   },
   "devDependencies": {
-    "electron": "^44.9.1",
-    "electron-builder": "^26.15.3"
+    "@types/react": "~19.3.0",
+    "@types/react-dom": "~19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^6.0.0",
+    "typescript": "^7.0.2"
   }
 }

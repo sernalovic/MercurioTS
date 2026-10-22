@@ -1,16 +1,20 @@
 /**
- * Sesión de la web: JWT HS256 en una cookie httpOnly.
+ * Sesi\u00f3n compartida: JWT HS256 firmado con `MERCURIO_SECRETO`.
  *
- * Port del patrón del sistema anterior (cookie de Identity, 14 días) con los
- * mismos claims: sub (Id de `AspNetUsers`), nombre, matricula y roles
- * Admin/Super (equivalentes a las políticas del original).
+ * - La web lo guarda en una cookie httpOnly (misma vida que el original:
+ *   14 d\u00edas, `ConfigureApplicationCookie.ExpireTimeSpan`).
+ * - La aplicaci\u00f3n de escritorio lo recibe de `POST /api/v1/cuenta/entrar`
+ *   y lo env\u00eda en la cabecera `Authorization: Bearer …` de cada consulta.
+ *
+ * Mismos claims que el original: sub (Id de `AspNetUsers`), nombre,
+ * matr\u00edcula y roles Admin/Super (equivalentes a las pol\u00edticas del original).
  */
 import "server-only";
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
 export const NOMBRE_COOKIE = "Mercurio.Sesion";
-const DIAS_SESION = 14; // ConfigureApplicationCookie.ExpireTimeSpan del original
+export const DIAS_SESION = 14; // ConfigureApplicationCookie.ExpireTimeSpan del original
 
 export interface SesionInfo {
   id: number;
@@ -30,9 +34,9 @@ function contrasena(): string {
   return secreto;
 }
 
-/** Crea el JWT de sesión y lo deja en la cookie. */
-export async function crearSesion(info: SesionInfo): Promise<void> {
-  const token = await new SignJWT({
+/** Firmar el token con los claims de la sesi\u00f3n (compartida web/escritorio). */
+export async function emitirToken(info: SesionInfo): Promise<string> {
+  return new SignJWT({
     nombre: info.nombre,
     matricula: info.matricula,
     esAdmin: info.esAdmin,
@@ -44,7 +48,11 @@ export async function crearSesion(info: SesionInfo): Promise<void> {
     .setIssuedAt()
     .setExpirationTime(`${DIAS_SESION}d`)
     .sign(new TextEncoder().encode(contrasena()));
+}
 
+/** Crea el JWT de sesi\u00f3n y lo deja en la cookie. */
+export async function crearSesion(info: SesionInfo): Promise<void> {
+  const token = await emitirToken(info);
   (await cookies()).set(NOMBRE_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
@@ -54,29 +62,35 @@ export async function crearSesion(info: SesionInfo): Promise<void> {
   });
 }
 
-/** Lee y valida la cookie de sesión; `null` si no hay sesión válida. */
-export async function obtenerSesion(): Promise<SesionInfo | null> {
-  const valor = (await cookies()).get(NOMBRE_COOKIE)?.value;
-  if (!valor) return null;
+/** Lee y devuelve el token indicado; `null` si no es v\u00e1lido. */
+export async function decodificarSesion(token: string | undefined): Promise<SesionInfo | null> {
+  if (!token) return null;
   try {
-    const { payload } = await jwtVerify(
-      valor,
-      new TextEncoder().encode(contrasena()),
-      { issuer: "mercurio" },
-    );
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(contrasena()), {
+      issuer: "mercurio",
+    });
     return {
       id: Number(payload.sub),
       nombre: String(payload.nombre ?? ""),
       matricula: Number(payload.matricula ?? 0),
-      esAdmin: payload.esAdmin === true,
-      esSuper: payload.esSuper === true,
+      esAdmin: Boolean(payload.esAdmin),
+      esSuper: Boolean(payload.esSuper),
     };
   } catch {
     return null;
   }
 }
 
-/** Borra la cookie de sesión (solo en Server Actions / Route Handlers). */
-export async function cerrarSesion(): Promise<void> {
-  (await cookies()).delete(NOMBRE_COOKIE);
+/** Lee y valida la cookie de sesi\u00f3n; `null` si no hay sesi\u00f3n v\u00e1lida. */
+export async function obtenerSesion(): Promise<SesionInfo | null> {
+  const valor = (await cookies()).get(NOMBRE_COOKIE)?.value;
+  if (!valor) return null;
+  return decodificarSesion(valor);
+}
+
+/** Sesión de una petición de la API: `Authorization: Bearer <token>`. */
+export async function obtenerSesionDePeticion(request: Request): Promise<SesionInfo | null> {
+  const cabecera = request.headers.get("authorization") ?? "";
+  if (!cabecera.toLowerCase().startsWith("bearer ")) return null;
+  return decodificarSesion(cabecera.slice(7).trim());
 }
