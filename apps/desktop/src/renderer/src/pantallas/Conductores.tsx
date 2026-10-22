@@ -30,6 +30,7 @@ interface FilaApi {
   dndsIniciales: string;
   plusDistancia: string;
   notas: string | null;
+  regulaciones?: RegApi[];
 }
 
 /** La fila tal como la edita la rejilla (fechas ISO, horas hh:mm). */
@@ -54,6 +55,60 @@ interface Fila {
   dndsIniciales: string;
   plusDistancia: string;
   notas: string;
+}
+
+interface RegApi {
+  id: number;
+  tipo: number;
+  fecha: string;
+  horas: string;
+  dcs: string;
+  dnds: string;
+  motivo: string | null;
+}
+
+/** La regulación tal como la edita la rejilla (fecha ISO, horas hh:mm). */
+interface RegFila {
+  id: number;
+  conductorId: number;
+  tipo: string;
+  fecha: string;
+  horas: string;
+  dcs: string;
+  dnds: string;
+  motivo: string;
+}
+
+function aRegFila(g: RegApi, conductorId: number): RegFila {
+  return {
+    id: g.id,
+    conductorId,
+    tipo: String(g.tipo),
+    fecha: g.fecha.slice(0, 10),
+    horas: g.horas.slice(0, 5),
+    dcs: g.dcs,
+    dnds: g.dnds,
+    motivo: g.motivo ?? "",
+  };
+}
+
+/** Cuerpo que envía la UI al API (números validados allí). */
+function aCuerpoReg(g: RegFila): unknown {
+  return {
+    id: g.id > 0 ? g.id : 0,
+    tipo: Number(g.tipo),
+    fecha: g.fecha,
+    horas: g.horas,
+    dcs: g.dcs,
+    dnds: g.dnds,
+    motivo: g.motivo.trim() || null,
+  };
+}
+
+/** ¿Es una regulación nueva o cambió respecto a su original? */
+function esCambioReg(g: RegFila, original: RegFila | undefined): boolean {
+  if (original === undefined) return true;
+  return JSON.stringify(aCuerpoReg(g)) !== JSON.stringify(aCuerpoReg(original));
 }
 
 /** Contador de Ids temporales de filas nuevas (negativos, nunca en la BD). */
@@ -97,7 +152,30 @@ function aFila(c: FilaApi): Fila {
 }
 
 /** Cuerpo que envía la UI al API (números validados allí). */
-function aConductor(f: Fila): unknown {
+interface CuerpoConductor {
+  id: number;
+  centro: number;
+  categoria: number;
+  situacion: number;
+  matricula: number;
+  isUsuario: boolean;
+  fechaAntiguedad: string;
+  porcentajeIrpf: string;
+  numeroAfiliado: string;
+  isReduccionJornada: boolean;
+  porcentajeJornada: string;
+  nombre: string;
+  apellidos: string;
+  telefono: string | null;
+  email: string | null;
+  acumuladasIniciales: string;
+  dcsIniciales: string;
+  dndsIniciales: string;
+  plusDistancia: string;
+  notas: string | null;
+}
+
+function aConductor(f: Fila): CuerpoConductor {
   return {
     id: f.id > 0 ? f.id : 0,
     centro: Number(f.centro),
@@ -144,11 +222,14 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
   const [filas, setFilas] = useState<Fila[]>([]);
   const [originales, setOriginales] = useState<Map<number, Fila>>(new Map());
   const [borrados, setBorrados] = useState<number[]>([]);
+  const [regs, setRegs] = useState<RegFila[]>([]);
+  const [regsOriginales, setRegsOriginales] = useState<Map<number, RegFila>>(new Map());
+  const [borradosReg, setBorradosReg] = useState<number[]>([]);
   const [seleccion, setSeleccion] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
-  function cargar(): void {
+  function cargar(mantener?: number): void {
     setOcupado(true);
     setError(null);
     const filtro = new URLSearchParams();
@@ -159,7 +240,11 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
         setFilas(lista);
         setOriginales(new Map(lista.map((f) => [f.id, f])));
         setBorrados([]);
-        setSeleccion(null);
+        setSeleccion(mantener !== undefined && lista.some((f) => f.id === mantener) ? mantener : null);
+        const listaRegs = r.conductores.flatMap((c) => (c.regulaciones ?? []).map((g) => aRegFila(g, c.id)));
+        setRegs(listaRegs);
+        setRegsOriginales(new Map(listaRegs.map((g) => [g.id, g])));
+        setBorradosReg([]);
       })
       .catch((e) => setError((e as Error).message))
       .finally(() => setOcupado(false));
@@ -225,34 +310,92 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
     setBorrados([]);
   }
 
+  function añadirReg(): void {
+    if (seleccion === null) return;
+    setError(null);
+    contadorNuevas -= 1;
+    const reg: RegFila = {
+      id: contadorNuevas,
+      conductorId: seleccion,
+      tipo: "0",
+      fecha: new Date().toISOString().slice(0, 10),
+      horas: "00:00",
+      dcs: "0",
+      dnds: "0",
+      motivo: "",
+    };
+    setRegs((anterior) => [...anterior, reg]);
+  }
+
+  function borrarReg(idReg: number): void {
+    setError(null);
+    setRegs((anterior) => anterior.filter((g) => g.id !== idReg));
+    if (idReg > 0) setBorradosReg((anterior) => [...anterior, idReg]);
+  }
+
+  function cambiarReg(idReg: number, campo: keyof RegFila, valor: string): void {
+    setRegs((anterior) => anterior.map((g) => (g.id === idReg ? { ...g, [campo]: valor } : g)));
+  }
+
   async function guardar(): Promise<void> {
     setError(null);
+    for (const g of regs) {
+      if (g.fecha === "") {
+        setError("Indica la fecha de cada regulación.");
+        return;
+      }
+    }
     const nuevos = filas.filter((f) => f.id <= 0);
     const cambios = filas.filter((f) => f.id > 0 && esCambio(f, originales.get(f.id)));
-    const fallo = [...nuevos, ...cambios].map(validar).find((m) => m !== null);
+    // Las regulaciones nuevas o cambiadas viajan anidadas a su conductor;
+    // si el conductor no tenía cambios, se envía igualmente como cambio.
+    const anidadas = new Map<number, unknown[]>();
+    for (const g of regs) {
+      if (!esCambioReg(g, regsOriginales.get(g.id))) continue;
+      const grupo = anidadas.get(g.conductorId) ?? [];
+      grupo.push(aCuerpoReg(g));
+      anidadas.set(g.conductorId, grupo);
+    }
+    const listaCambios = filas.filter((f) => f.id > 0 && (cambios.includes(f) || anidadas.has(f.id)));
+    const listaNuevos = filas.filter((f) => f.id <= 0);
+    const fallo = [...listaNuevos, ...listaCambios].map(validar).find((m) => m !== null);
     if (fallo) {
       setError(fallo);
       return;
     }
     setOcupado(true);
     try {
+      if (borradosReg.length > 0) {
+        await api(servidor, token, "regulaciones", { metodo: "DELETE", cuerpo: borradosReg });
+      }
       if (borrados.length > 0) {
         await api(servidor, token, "conductores", { metodo: "DELETE", cuerpo: borrados });
       }
-      if (nuevos.length > 0) {
-        await api(servidor, token, "conductores", { metodo: "POST", cuerpo: nuevos.map(aConductor) });
+      if (listaNuevos.length > 0) {
+        await api(servidor, token, "conductores", {
+          metodo: "POST",
+          cuerpo: listaNuevos.map((f) => ({ ...aConductor(f), id: 0, regulaciones: anidadas.get(f.id) ?? [] })),
+        });
       }
-      if (cambios.length > 0) {
-        await api(servidor, token, "conductores", { metodo: "PUT", cuerpo: cambios.map(aConductor) });
+      if (listaCambios.length > 0) {
+        await api(servidor, token, "conductores", {
+          metodo: "PUT",
+          cuerpo: listaCambios.map((f) => ({ ...aConductor(f), regulaciones: anidadas.get(f.id) ?? [] })),
+        });
       }
-      cargar();
+      cargar(seleccion !== null && seleccion > 0 ? seleccion : undefined);
     } catch (e) {
       setError((e as Error).message);
       setOcupado(false);
     }
   }
 
-  const hayCambios = borrados.length > 0 || filas.some((f) => f.id <= 0 || esCambio(f, originales.get(f.id)));
+  const hayCambios =
+    borrados.length > 0 ||
+    borradosReg.length > 0 ||
+    filas.some((f) => f.id <= 0 || esCambio(f, originales.get(f.id))) ||
+    regs.some((g) => esCambioReg(g, regsOriginales.get(g.id)));
+  const regsSeleccionado = regs.filter((g) => g.conductorId === seleccion);
 
   return (
     <div className="pagina">
@@ -261,11 +404,13 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
         {ocupado ? <span className="cargando">{hayCambios ? "Guardando…" : "Cargando…"}</span> : null}
         {error ? <span className="error" role="alert">{error}</span> : null}
         <span className="hueco" />
-        <button className="boton" onClick={añadir} title="Añadir conductor">＋</button>
-        <button className="boton" onClick={borrar} title="Borrar el conductor seleccionado" disabled={seleccion === null}>－</button>
-        <button className="boton" onClick={guardar} disabled={ocupado || !hayCambios}>Guardar</button>
-        <button className="boton" onClick={deshacer} disabled={borrados.length === 0}>Deshacer</button>
         <button className="boton" onClick={onVolver}>Volver</button>
+        <button className="boton" onClick={() => cargar()} disabled={ocupado}>Recargar</button>
+        <button className="boton" onClick={añadir}>Añadir</button>
+        <button className="boton" onClick={borrar} disabled={seleccion === null}>Borrar</button>
+        <button className="boton" onClick={deshacer} disabled={borrados.length === 0}>Deshacer borrado</button>
+        <button className="boton" disabled title="Disponible con la fase de Calendarios">Ver calendarios</button>
+        <button className="botonPrincipal" onClick={guardar} disabled={ocupado || !hayCambios}>Guardar</button>
       </div>
       <div className="marcoRejilla">
         <table className="rejilla">
@@ -324,7 +469,44 @@ export function PantallaConductores({ servidor, token, centro, onVolver }: {
           </tbody>
         </table>
       </div>
-      <p className="pendiente">La rejilla de Regulaciones del conductor seleccionado entra en la fase siguiente.</p>
+      <div className="seccionRejilla">
+        <h3 className="tituloSeccion">Regulaciones del conductor seleccionado</h3>
+        {ocupado ? <span className="cargando">Guardando…</span> : null}
+        <span className="hueco" />
+        <button className="boton" onClick={añadirReg} disabled={seleccion === null}>Añadir regulación</button>
+      </div>
+      <div className="marcoRejilla">
+        <table className="rejilla">
+          <thead>
+            <tr>
+              <th>Tipo</th><th>Fecha</th><th>Horas</th><th>DCs</th><th>DNDs</th><th>Motivo</th><th />
+            </tr>
+          </thead>
+          <tbody>
+            {regsSeleccionado.map((g) => (
+              <tr key={g.id > 0 ? g.id : `regNueva${g.id}`}>
+                <td>
+                  <select className="celda" value={g.tipo} onChange={(e) => cambiarReg(g.id, "tipo", e.target.value)}>
+                    <option value="0">Manual</option>
+                    <option value="1">HorasCobradas</option>
+                    <option value="2">RegulacionAnual</option>
+                  </select>
+                </td>
+                <td><input type="date" className="celda" value={g.fecha} onChange={(e) => cambiarReg(g.id, "fecha", e.target.value)} /></td>
+                <td><input className="celda num" value={g.horas} onChange={(e) => cambiarReg(g.id, "horas", e.target.value)} /></td>
+                <td><input className="celda num" value={g.dcs} onChange={(e) => cambiarReg(g.id, "dcs", e.target.value)} /></td>
+                <td><input className="celda num" value={g.dnds} onChange={(e) => cambiarReg(g.id, "dnds", e.target.value)} /></td>
+                <td><input className="celda" value={g.motivo} onChange={(e) => cambiarReg(g.id, "motivo", e.target.value)} /></td>
+                <td className="centradoMic"><button className="boton" onClick={() => borrarReg(g.id)}>Borrar</button></td>
+              </tr>
+            ))}
+            {regsSeleccionado.length === 0 ? (
+              <tr><td colSpan={7} className="vacio">{seleccion === null ? "Selecciona un conductor para ver sus regulaciones." : "Sin regulaciones."}</td></tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+      <p className="pendiente">El botón «Ver calendarios» del conductor se activa con la fase de Calendarios.</p>
     </div>
   );
 }

@@ -321,6 +321,28 @@ body {
 
 .hueco { flex: 1; }
 
+.botonPrincipal {
+  background: var(--primario);
+  border-color: var(--primario);
+  color: #fff;
+  font-weight: 600;
+}
+
+.botonPrincipal:hover:not(:disabled) { filter: brightness(1.08); }
+
+.seccionRejilla {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 6px;
+}
+
+.tituloSeccion {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
 .pendiente {
   color: var(--texto-suave);
 }

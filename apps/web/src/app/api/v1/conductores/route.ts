@@ -205,7 +205,32 @@ export async function GET(request: Request): Promise<Response> {
     .where(centro !== null && centro !== "" && centro !== "0" ? eq(conductores.centro, Number(centro)) : undefined)
     .orderBy(conductores.matricula);
 
-  return Response.json({ conductores: filas });
+  const ids = filas.map((f) => f.id);
+  const listaRegs =
+    ids.length > 0
+      ? await db
+          .select({
+            conductorId: regulaciones.conductorId,
+            id: regulaciones.id,
+            tipo: regulaciones.tipo,
+            fecha: regulaciones.fecha,
+            horas: regulaciones.horas,
+            dcs: regulaciones.dcs,
+            dnds: regulaciones.dnds,
+            motivo: regulaciones.motivo,
+          })
+          .from(regulaciones)
+          .where(inArray(regulaciones.conductorId, ids))
+          .orderBy(regulaciones.fecha)
+      : [];
+  const porConductor = new Map<number, typeof listaRegs>();
+  for (const r of listaRegs) {
+    const grupo = porConductor.get(r.conductorId) ?? [];
+    grupo.push(r);
+    porConductor.set(r.conductorId, grupo);
+  }
+
+  return Response.json({ conductores: filas.map((f) => ({ ...f, regulaciones: porConductor.get(f.id) ?? [] })) });
 }
 
 /** Guarda las altas: conductor nuevo (+ regulaciones nuevas anidadas). */
