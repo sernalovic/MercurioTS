@@ -11,7 +11,7 @@ import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { InferSelectModel } from "drizzle-orm";
 import pg from "pg";
 import { calendarios, conductores, diasCalendario, resumenes } from "./schema";
-import type { reclamaciones, conceptosReclamados } from "./schema";
+import type { reclamaciones, conceptosReclamados, nominas, conceptosNomina } from "./schema";
 import * as schema from "./schema";
 
 /** Fila completa de Calendarios / DiasCalendario / Resumenes (modo string). */
@@ -23,6 +23,10 @@ export type Resumenes = InferSelectModel<typeof resumenes>;
 /** Filas de reclamaciones. */
 export type Reclamaciones = InferSelectModel<typeof reclamaciones>;
 export type ConceptosReclamados = InferSelectModel<typeof conceptosReclamados>;
+
+/** Filas de nóminas. */
+export type Nominas = InferSelectModel<typeof nominas>;
+export type ConceptosNomina = InferSelectModel<typeof conceptosNomina>;
 
 export type Db = NodePgDatabase<typeof schema>;
 

@@ -5,7 +5,7 @@
  * configuración en `%APPDATA%\Mercurio\config.json` — mismo lugar que
  * usaba `Servicios\Api.cs\Configuracion` del original.
  */
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from "electron";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -93,6 +93,27 @@ ipcMain.handle("config:guardar", (_evento, nueva: Configuracion) => {
   guardarConfig(nueva);
   return true;
 });
+
+/**
+ * Port de `Pdf.Reclamacion(...)` + `Pdf.Abrir(ruta)` del original: diálogo de
+ * guardar (filtrado PDF, nombre por defecto en Documentos), escritura del
+ * fichero y apertura con la aplicación asociada. Devuelve la ruta o null si
+ * el diálogo se cancela.
+ */
+ipcMain.handle(
+  "pdf:guardar",
+  async (_evento, datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> => {
+    const ventana = BrowserWindow.getAllWindows()[0];
+    const resultado = await dialog.showSaveDialog(ventana, {
+      filters: [{ name: "PDF", extensions: ["pdf"] }],
+      defaultPath: path.join(app.getPath("documents"), nombreDefecto),
+    });
+    if (resultado.canceled || !resultado.filePath) return null;
+    fs.writeFileSync(resultado.filePath, Buffer.from(datos));
+    await shell.openPath(resultado.filePath);
+    return resultado.filePath;
+  },
+);
 
 app.whenReady().then(() => {
   crearVentana();

@@ -10,6 +10,7 @@ declare global {
     mercurio?: {
       leerConfig(): Promise<unknown>;
       guardarConfig(configuracion: unknown): Promise<boolean>;
+      guardarPdf(datos: ArrayBuffer, nombreDefecto: string): Promise<string | null>;
     };
   }
 }

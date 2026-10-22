@@ -13,6 +13,8 @@ import { PantallaCalendarios } from "./pantallas/Calendarios";
 import { PantallaCalendariosConductor, type ConductorContexto } from "./pantallas/CalendariosConductor";
 import { PantallaDetalleCalendario } from "./pantallas/DetalleCalendario";
 import { PantallaGraficos } from "./pantallas/Graficos";
+import { PantallaReclamaciones } from "./pantallas/Reclamaciones";
+import { PantallaNominas } from "./pantallas/Nominas";
 import { Barra } from "./componentes/Barra";
 import { PantallaPendiente } from "./pantallas/Pendiente";
 
@@ -155,6 +157,21 @@ export function App(): ReactNode {
             token={config.Token}
             idCalendario={idCalendarioDetalle}
             onVolver={() => setPantalla("calendariosConductor")}
+          />
+        ) : pantalla === "reclamaciones" ? (
+          <PantallaReclamaciones
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            mes={mes}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "nominas" ? (
+          <PantallaNominas
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            onVolver={() => setPantalla("menu")}
           />
         ) : (
           <PantallaPendiente nombre={pantalla} irA={setPantalla} />

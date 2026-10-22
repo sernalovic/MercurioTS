@@ -10,4 +10,7 @@ contextBridge.exposeInMainWorld("mercurio", {
   /** Guarda la configuración completa. */
   guardarConfig: (configuracion: unknown): Promise<boolean> =>
     ipcRenderer.invoke("config:guardar", configuracion),
+  /** Diálogo de guardar PDF + escritura + apertura (Pdf.Reclamacion + Pdf.Abrir). */
+  guardarPdf: (datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> =>
+    ipcRenderer.invoke("pdf:guardar", datos, nombreDefecto),
 });

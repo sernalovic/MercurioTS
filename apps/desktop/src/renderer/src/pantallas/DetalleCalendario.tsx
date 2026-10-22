@@ -6,7 +6,8 @@
  * saldos arrastrados (`Saldos` del dominio) y «Guardar» que envía el
  * calendario completo (los cambios no persisten hasta pulsarlo, igual que el
  * original). «Regenerar día/calendario» físca los servicios con los gráficos.
- * Los botones «Generar reclamación» y «Generar nómina» entran con la fase M6.
+ * «Generar reclamación» y «Generar nómina» son el port de Reclamar/
+ * GenerarNomina del ViewModel (fase M6).
  */
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
@@ -14,11 +15,11 @@ import { duracionC, duracion as duracionTotal, centimosDe, hora, importe, parseH
 import {
   CalculosHorario, CodigoIncidencia, Incidencia, Turno, ajustarJDs, recalcularResumen,
   restablecerImportesEnNomina, nuevoResumenCalendario, nombreEnum, texto as textoIncidencia,
-  esTrabajo, asignar as asignarIncidencia,
+  esTrabajo, asignar as asignarIncidencia, generarReclamacion, esResuelta, nuevaReclamacion,
   hasErrors, totalDiasTrabajados, totalDescansos, totalDiasVacaciones, totalDiasE, totalImporteDndsCobrados,
   dcsGeneradosHastaMes, dcsPendientesHastaMes, dndsPendientesHastaMes, horasAcumuladasHastaMes,
   type Calendario, type Convenio, type DiaCalendario, type Grafico,
-  type ResumenCalendario, type Servicio,
+  type Reclamacion, type ResumenCalendario, type Servicio, type SaldosEntrada,
 } from "@mercurio/domain";
 
 const INCIDENCIAS: Incidencia[] = Object.values(Incidencia).filter((v): v is Incidencia => typeof v === "number");
@@ -117,35 +118,41 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
 
   useEffect(cargar, [cargar]);
 
-  /** Los cuatro GETs de saldos + reglas del dominio (como CalcularSaldosAsync). */
-  async function calcularSaldos(cal: Calendario): Promise<void> {
-    if (cal.conductor === null) { setSaldos(""); return; }
+  /** La entrada de saldos (los cuatro GETs como EntradaSaldosAsync del original). */  async function entradaSaldos(cal: Calendario): Promise<SaldosEntrada | null> {
+    if (cal.conductor === null) return null;
     const matricula = cal.conductor.matricula;
     const mesAnterior = restarMes(cal.fecha);
-    try {
-      const [hastaMesAnterior, hastaAñoAnterior, dcs, dnds] = await Promise.all([
-        Number(cal.fecha.slice(5, 7)) === 1
-          ? Promise.resolve(nuevoResumenCalendario())
-          : api<{ resumen: ResumenCalendario | null }>(
-            servidor, token, `resumenes/hastaMes?matricula=${matricula}&hasta=${mesAnterior}`,
-          ).then((r) => r.resumen),
-        api<{ resumen: ResumenCalendario | null }>(
-          servidor, token, `resumenes/hastaNoviembreAnoAnterior?matricula=${matricula}&hasta=${cal.fecha}`,
+    const [hastaMesAnterior, hastaAñoAnterior, dcs, dnds] = await Promise.all([
+      Number(cal.fecha.slice(5, 7)) === 1
+        ? Promise.resolve(nuevoResumenCalendario())
+        : api<{ resumen: ResumenCalendario | null }>(
+          servidor, token, `resumenes/hastaMes?matricula=${matricula}&hasta=${mesAnterior}`,
         ).then((r) => r.resumen),
-        api<{ importe: number }>(
-          servidor, token, `reclamaciones/dcsReclamados?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
-        ).then((r) => r.importe),
-        api<{ importe: number }>(
-          servidor, token, `reclamaciones/dndsReclamados?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
-        ).then((r) => r.importe),
-      ]);
-      const e = {
-        calendario: cal,
-        resumenHastaMesAnterior: hastaMesAnterior,
-        resumenHastaAñoAnterior: hastaAñoAnterior,
-        dcsReclamadosEnCursoHastaMesAnterior: dcs,
-        dndsReclamadosEnCursoHastaMesAnterior: dnds,
-      };
+      api<{ resumen: ResumenCalendario | null }>(
+        servidor, token, `resumenes/hastaNoviembreAnoAnterior?matricula=${matricula}&hasta=${cal.fecha}`,
+      ).then((r) => r.resumen),
+      api<{ importe: number }>(
+        servidor, token, `reclamaciones/dcsReclamados?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
+      ).then((r) => r.importe),
+      api<{ importe: number }>(
+        servidor, token, `reclamaciones/dndsReclamados?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
+      ).then((r) => r.importe),
+    ]);
+    return {
+      calendario: cal,
+      resumenHastaMesAnterior: hastaMesAnterior,
+      resumenHastaAñoAnterior: hastaAñoAnterior,
+      dcsReclamadosEnCursoHastaMesAnterior: dcs,
+      dndsReclamadosEnCursoHastaMesAnterior: dnds,
+    };
+  }
+
+  /** Los cuatro GETs de saldos + reglas del dominio (como CalcularSaldosAsync). */
+  async function calcularSaldos(cal: Calendario): Promise<void> {
+    let e: SaldosEntrada | null = null;
+    try {
+      e = await entradaSaldos(cal);
+      if (e === null) { setSaldos(""); return; }
       const horas = duracionTotal(horasAcumuladasHastaMes(e, convenioRef.current));
       setSaldos(
         `Horas acumuladas hasta el mes: ${horas}   ·   ` +
@@ -155,6 +162,100 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
       );
     } catch {
       setSaldos("");
+    }
+  }
+
+  /** «Generar reclamación» (DetalleCalendario.Reclamar del original). */
+  async function reclamar(): Promise<void> {
+    const cal = calendario;
+    const convenio = convenioRef.current;
+    if (cal === null || convenio === null || cal.conductor === null) return;
+    setOcupado(true);
+    setError(null);
+    try {
+      const r = await api<{ reclamacion: Reclamacion | null }>(
+        servidor, token,
+        `reclamaciones/porFecha?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
+      );
+      const rec: Reclamacion = r.reclamacion ?? nuevaReclamacion({
+        conductorId: cal.conductorId,
+        fecha: cal.fecha.slice(0, 10),
+        fechaEfecto: new Date().toISOString().slice(0, 10),
+        cerrada: false,
+        conceptosReclamados: [],
+      });
+      if (esResuelta(rec)) {
+        window.alert("Hay una reclamación para este mes que está resuelta.\n\nNo se puede generar otra.");
+        return;
+      }
+      if (rec.cerrada) {
+        window.alert("Hay una reclamación para este mes que está cerrada.\n\nNo se puede generar otra.");
+        return;
+      }
+      if (rec.conceptosReclamados.length > 0) {
+        await api(servidor, token, "conceptosReclamados/lista", {
+          metodo: "DELETE",
+          cuerpo: rec.conceptosReclamados.filter((c) => (c.id ?? 0) > 0).map((c) => ({ id: c.id })),
+        });
+        rec.conceptosReclamados = [];
+      }
+      const e = await entradaSaldos(cal);
+      const dcs = e === null ? 0 : dcsPendientesHastaMes(e);
+      const dnds = e === null ? 0 : dndsPendientesHastaMes(e);
+      generarReclamacion(rec, cal, convenio.importeDietas, dcs, dnds, new Date().toISOString().slice(0, 10));
+      if (rec.conceptosReclamados.length === 0) {
+        window.alert("No hay diferencias que reclamar en este mes.");
+        return;
+      }
+      if (rec.id === undefined) {
+        await api(servidor, token, "reclamaciones", { metodo: "POST", cuerpo: rec });
+      } else {
+        await api(servidor, token, `reclamaciones/${rec.id}`, { metodo: "PUT", cuerpo: rec });
+      }
+      window.alert(`Reclamación generada con ${rec.conceptosReclamados.length} conceptos.\n\n${rec.notas ?? ""}`);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  /** «Generar nómina» (DetalleCalendario.GenerarNomina del original). */
+  async function generarNomina(): Promise<void> {
+    const cal = calendario;
+    if (cal === null) return;
+    setOcupado(true);
+    setError(null);
+    try {
+      if (hayCambios) {
+        const limpios = cal.dias.map((d) => ({ ...d, isRemoteUpdated: false }));
+        await api(servidor, token, `calendarios/${idCalendario}`, {
+          metodo: "PUT",
+          cuerpo: { ...cal, dias: limpios, resumen },
+        });
+        setHayCambios(false);
+      }
+      const r = await api<{ id: number }>(
+        servidor, token,
+        `nominas/id?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
+      );
+      if (r.id > 0 && !window.confirm("Ya hay una nómina generada. ¿Quieres volver a generarla?")) return;
+      const n = await api<{ nomina: { totalLiquido: number } | null }>(
+        servidor, token,
+        `nominas/generar?fecha=${cal.fecha}&idConductor=${cal.conductorId}`,
+        { metodo: "POST" },
+      );
+      if (n.nomina === null) {
+        window.alert("Falta el calendario del mes o el convenio del año.");
+        return;
+      }
+      const liquido = (Math.round(n.nomina.totalLiquido) / 100)
+        .toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      window.alert(`Nómina generada. Líquido: ${liquido} €`);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setOcupado(false);
     }
   }
 
@@ -364,8 +465,8 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
         <button className="boton" onClick={restablecerImportes} disabled={ocupado} title="Copia los importes calculados a lo cobrado en nómina">
           Cobrado = calculado
         </button>
-        <button className="boton" disabled title="Disponible con la fase M6 (Nóminas)">Generar reclamación</button>
-        <button className="boton" disabled title="Disponible con la fase M6 (Nóminas)">Generar nómina</button>
+        <button className="boton" onClick={() => void reclamar()} disabled={ocupado}>Generar reclamación</button>
+        <button className="boton" onClick={() => void generarNomina()} disabled={ocupado}>Generar nómina</button>
         <span className="hueco" />
         <button className="botonPrincipal" onClick={guardar} disabled={ocupado}>Guardar</button>
       </div>

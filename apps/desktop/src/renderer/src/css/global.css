@@ -554,4 +554,67 @@ body {
 
 .panelResumen .tituloSeccion { margin: 10px 0 4px; }
 
+/* ===== Pantallas Reclamaciones y Nóminas (fase M6) ===== */
+
+/* Cuerpo a dos columnas: lista a la izquierda (DataGrid) + detalle. */
+.reclNominasCuerpo {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.listaReclamaciones { width: 330px; flex: none; overflow: auto; }
+
+.listaNominas { width: 260px; flex: none; overflow: auto; }
+
+.detalleReclamaciones,
+.detalleNominas {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.detalleNominas { align-items: stretch; }
+
+.cabeceraDetalle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cabeceraDetalle .area {
+  flex: 1;
+  min-width: 200px;
+  resize: vertical;
+  font: inherit;
+}
+
+.rejilla .celdaFecha { width: 120px; }
+
+.rejilla .anchoDescripcion { width: 100%; min-width: 260px; }
+
+.rejillaLista td { padding: 4px 8px; }
+
+.rejilla td.centro { text-align: center; }
+
+.marcoNomina { max-height: 55%; overflow: auto; }
+
+.totalesNomina p {
+  margin: 3px 0;
+  font-variant-numeric: tabular-nums;
+  white-space: pre-wrap;
+}
+
+.totalesNomina .liquidoNomina { font-weight: 700; font-size: 14px; }
+
+/* ===== fin pantallas Reclamaciones y Nóminas ===== */
+
 .erroresResumen { color: var(--primario); white-space: pre-wrap; }

@@ -8,7 +8,7 @@
  * de drizzle (los tres spreads `Trabajado*` colisionan y pierden campos).
  */
 import type {
-  Calendario, Conductor, Convenio, DiaCalendario, Grafico, OpcionesCentro, Reclamacion,
+  Calendario, Conductor, Convenio, DiaCalendario, Grafico, Nomina, OpcionesCentro, Reclamacion,
   Regulacion, ResumenCalendario, Servicio, TablaSalarial,
 } from "@mercurio/domain";
 import {
@@ -16,8 +16,8 @@ import {
 } from "@mercurio/domain";
 import type { InferSelectModel } from "drizzle-orm";
 import {
-  calendarios, conceptosReclamados, conductores, convenios, diasCalendario,
-  festivos, graficos, opcionesCentro, regulaciones, resumenes, tablasSalariales,
+  calendarios, conceptosNomina, conceptosReclamados, conductores, convenios, diasCalendario,
+  festivos, graficos, nominas, opcionesCentro, regulaciones, resumenes, tablasSalariales,
 } from "./schema";
 import { aCentimos, aIntervalo, aMinutos, aNumero, aNumerico, aTextoNumerico } from "./convertir";
 
@@ -33,6 +33,8 @@ type FilaResumen = InferSelectModel<typeof resumenes>;
 type FilaTablaSalarial = InferSelectModel<typeof tablasSalariales>;
 type FilaConcepto = InferSelectModel<typeof conceptosReclamados>;
 type FilaGrafico = InferSelectModel<typeof graficos>;
+type FilaNomina = InferSelectModel<typeof nominas>;
+type FilaConceptoNomina = InferSelectModel<typeof conceptosNomina>;
 
 /** Fecha sentinel de los conceptos mensuales (DateTime.MinValue del original). */
 const FECHA_MINIMA = "0001-01-01 00:00:00";
@@ -395,7 +397,8 @@ export function reclamacionDesdeFilas(fila: ReclamacionFila, filas: FilaConcepto
     id: fila.id,
     conductorId: fila.conductorId,
     fecha: fila.fecha.slice(0, 10),
-    fechaEfecto: fila.fechaEfecto.slice(0, 19).replace("T", " "),
+    // Solo la parte de fecha: en pantalla se edita como día (dd/mm/aaaa).
+    fechaEfecto: fila.fechaEfecto.slice(0, 10),
     codigo: fila.codigo,
     notas: fila.notas,
     notaInterna: fila.notaInterna,
@@ -414,7 +417,7 @@ export function reclamacionDesdeFilas(fila: ReclamacionFila, filas: FilaConcepto
       incidenciasReales: c.incidenciasReales,
       incidenciasCobradas: c.incidenciasCobradas,
       importeTotal: aNumero(c.importeTotal),
-      resuelto: false,
+      resuelto: c.resuelto,
     })),
   };
 }
@@ -694,6 +697,88 @@ export function conceptosAFilas(
     incidenciasReales: c.incidenciasReales,
     incidenciasCobradas: c.incidenciasCobradas,
     importeTotal: aTextoNumerico(c.importeTotal),
-    resuelto: false,
+    resuelto: c.resuelto,
+  }));
+}
+
+// ---- Nóminas ----
+
+/** Fila de nómina + sus conceptos filas → Nómina del dominio (importes en céntimos). */
+export function nominaDesdeFilas(fila: FilaNomina, filas: FilaConceptoNomina[]): Nomina {
+  return {
+    id: fila.id,
+    conductorId: fila.conductorId,
+    tipoNomina: fila.tipoNomina,
+    fecha: fila.fecha.slice(0, 10),
+    fechaInicio: fila.fechaInicio.slice(0, 10),
+    fechaFinal: fila.fechaFinal.slice(0, 10),
+    fechaAntiguedad: fila.fechaAntiguedad.slice(0, 10),
+    porcentajeIrpf: aNumero(fila.porcentajeIrpf),
+    porcentajeSeguridadSocial: aNumero(fila.porcentajeSeguridadSocial),
+    porcentajeDesempleo: aNumero(fila.porcentajeDesempleo),
+    baseIrpf: aCentimos(fila.baseIrpf),
+    prorrateoPagas: aCentimos(fila.prorrateoPagas),
+    baseSeguridadSocial: aCentimos(fila.baseSeguridadSocial),
+    descuentoIrpf: aCentimos(fila.descuentoIrpf),
+    descuentoSeguridadSocial: aCentimos(fila.descuentoSeguridadSocial),
+    descuentoDesempleo: aCentimos(fila.descuentoDesempleo),
+    totalDevengado: aCentimos(fila.totalDevengado),
+    totalDeducciones: aCentimos(fila.totalDeducciones),
+    totalLiquido: aCentimos(fila.totalLiquido),
+    conceptos: filas.map((c) => ({
+      id: c.id,
+      nominaId: c.nominaId,
+      tipoConceptoNomina: c.tipoConceptoNomina,
+      codigo: c.codigo,
+      computaParaIrpf: c.computaParaIrpf,
+      textoConcepto: c.textoConcepto,
+      unidades: aNumero(c.unidades),
+      importeBase: aCentimos(c.importeBase),
+      devengado: aCentimos(c.devengado),
+      deduccion: aCentimos(c.deduccion),
+    })),
+  };
+}
+
+/** Columnas de la nómina a guardar (dominio → BD; sin auditoría). */
+export function nominaAFila(
+  n: Nomina,
+): Omit<typeof nominas.$inferInsert, "id" | "modifiedDate" | "modifiedBy"> {
+  return {
+    conductorId: n.conductorId,
+    tipoNomina: n.tipoNomina,
+    fecha: `${n.fecha} 00:00:00`,
+    fechaInicio: `${n.fechaInicio} 00:00:00`,
+    fechaFinal: `${n.fechaFinal} 00:00:00`,
+    fechaAntiguedad: `${n.fechaAntiguedad} 00:00:00`,
+    porcentajeIrpf: aTextoNumerico(n.porcentajeIrpf),
+    porcentajeSeguridadSocial: aTextoNumerico(n.porcentajeSeguridadSocial),
+    porcentajeDesempleo: aTextoNumerico(n.porcentajeDesempleo),
+    baseIrpf: aNumerico(n.baseIrpf),
+    prorrateoPagas: aNumerico(n.prorrateoPagas),
+    baseSeguridadSocial: aNumerico(n.baseSeguridadSocial),
+    descuentoIrpf: aNumerico(n.descuentoIrpf),
+    descuentoSeguridadSocial: aNumerico(n.descuentoSeguridadSocial),
+    descuentoDesempleo: aNumerico(n.descuentoDesempleo),
+    totalDevengado: aNumerico(n.totalDevengado),
+    totalDeducciones: aNumerico(n.totalDeducciones),
+    totalLiquido: aNumerico(n.totalLiquido),
+  };
+}
+
+/** Filas de conceptos de nómina a insertar desde la nómina del dominio. */
+export function conceptosNominaAFilas(
+  n: Nomina,
+): Omit<typeof conceptosNomina.$inferInsert, "id" | "modifiedDate" | "modifiedBy">[] {
+  return n.conceptos.map((c) => ({
+    nominaId: c.nominaId ?? n.id ?? 0,
+    tipoConceptoNomina: c.tipoConceptoNomina,
+    codigo: c.codigo,
+    computaParaIrpf: c.computaParaIrpf,
+    textoConcepto: c.textoConcepto,
+    unidades: aTextoNumerico(c.unidades),
+    importeBase: aNumerico(c.importeBase),
+    devengado: aNumerico(c.devengado),
+    deduccion: aNumerico(c.deduccion),
   }));
 }
