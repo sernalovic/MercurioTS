@@ -56,6 +56,29 @@ $env:DATABASE_URL = 'cadena de Neon'   # o la de la BD local
 node --experimental-transform-types packages/db/scripts/fijarClave.ts usuario "Clave"
 ```
 
+## Programa de escritorio (releases de GitHub)
+
+El repo es **público** y el portal enlaza la descarga desde
+`/portal/administracion/software` a la última release:
+
+```
+https://github.com/sernalovic/MercurioTS/releases/latest/download/Mercurio-Setup.exe
+```
+
+Esa URL exige que el asset se llame **`Mercurio-Setup.exe`** (sin versión, ya
+fijado en `electron-builder.yml`), así cada release nueva sustituye al
+anterior sin tocar la web. Para publicar una versión:
+
+```bash
+pnpm -C apps/desktop empaquetar          # → apps/desktop/release/Mercurio-Setup.exe
+gh release create v0.2.0 apps/desktop/release/Mercurio-Setup.exe \
+  --title "Mercurio 0.2.0" --notes "Cambios de la versión"
+```
+
+(Sin `gh`, la release se crea a mano en la web de GitHub subiendo el `.exe`
+con ese nombre exacto.)
+
 ## Pendiente
 
-- `apps/desktop` (Electron) sobre esta misma BD.
+- Firma de código del instalador (certificate de Windows) para quitar el aviso
+  de SmartScreen.
