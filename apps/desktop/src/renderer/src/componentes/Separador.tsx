@@ -6,7 +6,7 @@
  * por defecto) o el posterior (derecha/abajo), y el controlado pasa a
  * tamaño fijo (px); el otro absorbe el resto (flex: 1).
  */
-import type ReactNode from "react";
+import type { ReactNode } from "react";
 
 /** Separador vertical: ajusta el ancho del panel a un lado. */
 export function SeparadorV({ ancho, onAncho, min = 100, max = 1400, lado = "izq" }: {
