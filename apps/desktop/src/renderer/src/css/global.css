@@ -811,3 +811,11 @@ body {
 }
 .panelEmail .botonPrincipal { margin-top: 10px; }
 /* ===== fin pantallas M8 ===== */
+
+/* ===== Icono en la pantalla de acceso (M9) ===== */
+.logoAcceso {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 6px;
+  display: block;
+}

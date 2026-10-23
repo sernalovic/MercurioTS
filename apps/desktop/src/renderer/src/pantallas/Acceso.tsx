@@ -4,6 +4,8 @@
  */
 import { useState, type ReactNode, type FormEvent } from "react";
 import type { Configuracion } from "../lib/configuracion";
+// El icono del original (`Mercurio.ico`, el mismo del ejecutable) en la cabecera.
+import iconoMercurio from "../assets/mercurio.ico";
 
 interface Propiedades {
   configuracion: Configuracion;
@@ -43,6 +45,7 @@ export function PantallaAcceso({ configuracion, onIniciar, onServidor }: Propied
   return (
     <div className="acceso">
       <form className="tarjeta" onSubmit={enviarCon}>
+        <img className="logoAcceso" src={iconoMercurio} alt="" />
         <h1 className="logotipo">MERCURIO</h1>
         <p className="subtitulo">Portal de gráficos, nóminas y reclamaciones</p>
 

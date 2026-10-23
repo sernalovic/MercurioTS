@@ -3,18 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "description": "Mercurio de escritorio: juego de pantallas de administración sobre la API del portal.",
+  "author": "Mercurio",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "empaquetar": "electron-vite build && electron-builder"
-  },
-  "dependencies": {
-    "@mercurio/domain": "workspace:*",
-    "exceljs": "^4.4.0",
-    "pdf-lib": "^1.17.1",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
   },
   "build": {
     "appId": "org.mercurio.desktop",
@@ -22,17 +16,33 @@
     "directories": {
       "output": "dist"
     },
+    "files": [
+      "out/**"
+    ],
     "win": {
-      "target": "nsis"
+      "target": ["nsis"],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Mercurio ${version} Setup.exe",
+      "uninstallDisplayName": "Mercurio ${version}"
     }
   },
   "devDependencies": {
+    "@mercurio/domain": "workspace:*",
     "@types/react": "~19.3.0",
     "@types/react-dom": "~19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
-    "electron": "^45.0.0",
+    "electron": "45.0.0",
     "electron-builder": "^26.15.3",
     "electron-vite": "^6.0.0",
+    "exceljs": "^4.4.0",
+    "pdf-lib": "^1.17.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "typescript": "^7.0.2"
   }
 }

@@ -64,7 +64,9 @@ function crearVentana(): BrowserWindow {
     title: "Mercurio",
     backgroundColor: "#F4F5F7",
     autoHideMenuBar: true,
-    icon: undefined,
+    // En desarrollo se usa el .ico del repositorio (como el `Icon` del
+    // MainWindow.xaml); empaquetado, la ventana toma el icono del ejecutable.
+    icon: app.isPackaged ? undefined : path.join(app.getAppPath(), "build/icon.ico"),
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       contextIsolation: true,
