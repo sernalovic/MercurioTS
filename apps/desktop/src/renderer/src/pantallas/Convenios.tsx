@@ -1,10 +1,17 @@
 /**
- * Pantalla Convenios — port de `ConveniosViewModel` + `ConveniosView`:
- * lista de años a la izquierda y pestañas «General» (campos del convenio),
- * «Tablas salariales» y «Opciones por centro» (números de gráfico, plus
- * viaje y festivos). Todos los cálculos («Incrementar importes») van en el
- * cliente con `CalculosNomina.IncrementarImportes` y nada persiste hasta
- * «Guardar»: baja de festivos → baja de convenios → altas → cambios → recarga.
+ * Pantalla Convenios — aspecto de Orión 2 (`ConveniosView`): lista de años
+ * a la izquierda (+/−) y a la derecha la banda «CONVENIO: año» con tres
+ * columnas de parámetros (JORNADAS Y DÍAS / PARÁMETROS DIETAS Y PLUSES /
+ * IMPORTES Y PLUSES), los botones «Tablas Salariales» e «Incrementar
+ * importes» y «Opciones específicas de cada centro» con un botón por
+ * centro. Los tres cuadros se abren como ventanas modales: **Tablas
+ * salariales** (dos rejillas por categoría), **Incrementar importes**
+ * (porcentaje pedido con `Dialogos.Pedir`) y **Opciones de {centro}**
+ * (números de gráfico, limpiezas mensuales, plus de viaje y festivos con
+ * +/−/Deshacer/Propagar). Todos los cálculos («Incrementar importes») van
+ * en el cliente con `CalculosNomina.IncrementarImportes` y nada persiste
+ * hasta «Guardar y Actualizar»: baja de festivos → baja de convenios →
+ * altas → cambios → recarga.
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
@@ -26,63 +33,79 @@ const CATEGORIAS = Object.values(CategoriaTrabajador).filter(
   (v): v is CategoriaTrabajador => typeof v === "number",
 );
 
-/** Definición de los campos de la pestaña General (orden del XAML). */
 type TipoCampo = "duracion" | "entero" | "importe" | "unidades" | "porcentaje";
-const CAMPOS: Array<[keyof Convenio, string, TipoCampo]> = [
-  ["jornadaMedia", "Jornada media", "duracion"],
-  ["jornadaAnual", "Jornada anual (h)", "entero"],
-  ["diasTrabajoAnuales", "Días trabajo anuales", "entero"],
-  ["diasDescansoAnuales", "Días descanso anuales", "entero"],
-  ["descansosSueltosAnuales", "Descansos sueltos anuales", "entero"],
-  ["diasVacacionesAnuales", "Días vacaciones anuales", "entero"],
-  ["findesCompletosAnuales", "Findes completos anuales", "entero"],
-  ["diasTrabajadosSeguidos", "Máx. días trabajados seguidos", "entero"],
-  ["descansosSueltosMes", "Descansos sueltos al mes", "entero"],
-  ["minimoDescansosMes", "Mínimo descansos al mes", "entero"],
-  ["maximoDescansosMes", "Máximo descansos al mes", "entero"],
-  ["maximoFindesSeguidos", "Máx. findes trabajados seguidos", "entero"],
-  ["jornadaMaxima", "Jornada máxima", "duracion"],
-  ["jornadaMaximaFindes", "Jornada máxima findes", "duracion"],
-  ["jornadaMaximaPartida", "Jornada máxima partida", "duracion"],
-  ["tiempoPartidoMaximo", "Tiempo partido máximo", "duracion"],
-  ["inicioNocturnas", "Inicio nocturnas", "duracion"],
-  ["finalNocturnas", "Final nocturnas", "duracion"],
-  ["limiteDesayuno", "Límite desayuno", "duracion"],
-  ["inicioComidaContinuo", "Comida continua (inicio)", "duracion"],
-  ["finalComidaContinuo", "Comida continua (final)", "duracion"],
-  ["inicioComidaPartido", "Comida partida (inicio)", "duracion"],
-  ["finalComidaPartido", "Comida partida (final)", "duracion"],
-  ["inicioCena", "Cena (inicio)", "duracion"],
-  ["finalCena", "Cena (final)", "duracion"],
-  ["limitePlusCena", "Límite plus cena", "duracion"],
-  ["porcentajeDesayuno", "% desayuno", "porcentaje"],
-  ["porcentajePlusCena", "% plus cena", "porcentaje"],
-  ["maximoLimpiezas", "Máximo limpiezas", "entero"],
-  ["importeDietas", "Importe dietas", "importe"],
-  ["importePlusFestivos", "Plus festivos", "importe"],
-  ["importePlusSabados", "Plus sábados", "importe"],
-  ["importePlusMenorDescanso", "Plus menor descanso (€/h)", "importe"],
-  ["importePlusLimpieza", "Plus limpieza", "importe"],
-  ["importePlusPaqueteria", "Plus paquetería", "importe"],
-  ["importePlusNocturnidad", "Plus nocturnidad", "importe"],
-  ["importePlusNocturnidadDiario", "Plus nocturnidad (por hora)", "importe"],
-  ["importePlusNavidad", "Plus Navidad", "importe"],
-  ["importeRefuerzos", "Importe refuerzos", "importe"],
+
+/** Las tres columnas de parámetros del original (etiquetas del Orión 2). */
+const GRUPOS: Array<{ titulo: string; campos: Array<[keyof Convenio, string, TipoCampo]> }> = [
+  {
+    titulo: "JORNADAS Y DÍAS",
+    campos: [
+      ["jornadaMedia", "Jornada media", "duracion"],
+      ["jornadaAnual", "Jornada anual", "entero"],
+      ["jornadaMaxima", "Jornada máxima", "duracion"],
+      ["jornadaMaximaFindes", "Jornada máxima findes", "duracion"],
+      ["jornadaMaximaPartida", "Jornada máxima partida", "duracion"],
+      ["tiempoPartidoMaximo", "Tiempo partido máximo", "duracion"],
+      ["diasTrabajoAnuales", "Días de trabajo anuales", "entero"],
+      ["diasDescansoAnuales", "Días de descanso anuales", "entero"],
+      ["diasVacacionesAnuales", "Días de vacaciones anuales", "entero"],
+      ["descansosSueltosAnuales", "Descansos sueltos anuales", "entero"],
+      ["findesCompletosAnuales", "Findes completos anuales", "entero"],
+      ["diasTrabajadosSeguidos", "Días trabajados seguidos máximo", "entero"],
+      ["descansosSueltosMes", "Descansos sueltos en un mes", "entero"],
+      ["minimoDescansosMes", "Mínimo descansos en un mes", "entero"],
+      ["maximoDescansosMes", "Máximo descansos en un mes", "entero"],
+      ["maximoFindesSeguidos", "Máximo findes seguidos en un mes", "entero"],
+    ],
+  },
+  {
+    titulo: "PARÁMETROS DIETAS Y PLUSES",
+    campos: [
+      ["limiteDesayuno", "Hora desayuno", "duracion"],
+      ["porcentajeDesayuno", "Porcentaje desayuno", "porcentaje"],
+      ["inicioComidaContinuo", "Inicio comida jornada continua", "duracion"],
+      ["finalComidaContinuo", "Final comida jornada continua", "duracion"],
+      ["inicioComidaPartido", "Inicio comida jornada partida", "duracion"],
+      ["finalComidaPartido", "Final comida jornada partida", "duracion"],
+      ["inicioCena", "Inicio cena", "duracion"],
+      ["finalCena", "Final cena", "duracion"],
+      ["limitePlusCena", "Hora plus cena", "duracion"],
+      ["porcentajePlusCena", "Porcentaje plus cena", "porcentaje"],
+      ["inicioNocturnas", "Inicio nocturnas", "duracion"],
+      ["finalNocturnas", "Final nocturnas", "duracion"],
+      ["maximoLimpiezas", "Máximo limpiezas a cobrar", "entero"],
+    ],
+  },
+  {
+    titulo: "IMPORTES Y PLUSES",
+    campos: [
+      ["importeDietas", "Importe de las dietas", "importe"],
+      ["importePlusSabados", "Importe plus de sábados", "importe"],
+      ["importePlusFestivos", "Importe plus de festivos", "importe"],
+      ["importePlusMenorDescanso", "Importe plus de menor descanso", "importe"],
+      ["importePlusLimpieza", "Importe plus de limpieza", "importe"],
+      ["importePlusPaqueteria", "Importe plus de paquetería", "importe"],
+      ["importePlusNocturnidad", "Importe plus de nocturnidad", "importe"],
+      ["importePlusNocturnidadDiario", "Importe plus de nocturnidad diario", "importe"],
+      ["importePlusNavidad", "Importe plus de Navidad", "importe"],
+      ["importeRefuerzos", "Importe refuerzos", "importe"],
+    ],
+  },
 ];
 
-/** Columnas de la rejilla de tablas salariales (XAML). */
-const COLUMNAS_TABLA: Array<[keyof TablaSalarial, string, TipoCampo]> = [
-  ["sueldoBaseDiario", "Sueldo diario", "importe"],
-  ["sueldoBaseMensual", "Sueldo mensual", "importe"],
-  ["sueldoBaseAnual", "Sueldo anual", "importe"],
-  ["complementoSalarial", "Complemento", "importe"],
-  ["baseAntiguedad", "Base antigüedad", "importe"],
+/** Columnas de las dos rejillas de tablas salariales (XAML). */
+const TABLA_MENSUAL: Array<[keyof TablaSalarial, string, TipoCampo]> = [
+  ["sueldoBaseMensual", "Salario base (mes)", "importe"],
+  ["complementoSalarial", "C. salarial (mes)", "importe"],
+  ["baseAntiguedad", "Antigüedad (mes)", "importe"],
+  ["precioQuebrantoMoneda", "Quebranto m.", "importe"],
   ["precioHoraExtra", "Hora extra", "importe"],
-  ["precioQuebrantoMoneda", "Quebranto", "importe"],
-  ["pagaSeptiembre", "Paga sept.", "importe"],
-  ["importeDndCobrado", "DND cobrado", "importe"],
-  ["seguroAccidentes", "Seguro acc.", "importe"],
-  ["porcentajeSeguridadSocial", "% S.S.", "unidades"],
+];
+const TABLA_OTROS: Array<[keyof TablaSalarial, string, TipoCampo]> = [
+  ["pagaSeptiembre", "Paga septiembre", "importe"],
+  ["importeDndCobrado", "Importe DND", "importe"],
+  ["seguroAccidentes", "Seguro accidentes", "importe"],
+  ["porcentajeSeguridadSocial", "% SS.SS.", "unidades"],
   ["porcentajeDesempleo", "% desempleo", "unidades"],
 ];
 
@@ -94,7 +117,7 @@ function fechaLarga(fecha: string): string {
   return `${dias[d.getDay()]} ${fecha.slice(8, 10)}/${fecha.slice(5, 7)}/${fecha.slice(0, 4)}`;
 }
 
-/**texto de un campo según su tipo (la edición de vuelta la hace `valorDe`). */
+/** Texto de un campo según su tipo (la edición de vuelta la hace `valorDe`). */
 function textoDe(campo: keyof Convenio | keyof TablaSalarial, valor: unknown, tipo: TipoCampo): string {
   switch (tipo) {
     case "duracion": return duracion(valor as number | null);
@@ -115,6 +138,188 @@ function valorDe(texto: string, tipo: TipoCampo): unknown {
   }
 }
 
+// ---- VENTANA «TABLAS SALARIALES {año}» (modal) ----
+
+/** Importe de tabla salarial con 4 decimales ("1950,0800"), sin € (captura). */
+function importeTabla(cent: number | null): string {
+  const v = Math.round((cent ?? 0)) / 100;
+  return v.toLocaleString("es-ES", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+}
+
+function VentanaTablas({ conv, onCambiarTabla, onCerrar }: {
+  conv: Convenio;
+  onCambiarTabla: (t: TablaSalarial, cambios: Partial<TablaSalarial>) => void;
+  onCerrar: () => void;
+}): ReactNode {
+  function rejilla(columnas: Array<[keyof TablaSalarial, string, TipoCampo]>): ReactNode {
+    return (
+      <div className="marcoRejilla marcoTablas">
+        <table className="rejilla">
+          <thead>
+            <tr><th>Categoría trabajador</th>{columnas.map(([, et]) => <th key={et}>{et}</th>)}</tr>
+          </thead>
+          <tbody>
+            {conv.tablasSalariales.map((t) => (
+              <tr key={t.id ?? `n${t.categoria}`}>
+                <td className="centradoNombre">{nombreEnum(CategoriaTrabajador, t.categoria)}</td>
+                {columnas.map(([campo, , tipo]) => (
+                  <td key={campo} className="num">
+                    <input
+                      className="celda num"
+                      value={tipo === "importe" ? importeTabla(t[campo] as number) : textoDe(campo, t[campo], tipo)}
+                      onChange={(e) => {
+                        const v = valorDe(e.target.value, tipo);
+                        if (v !== null) onCambiarTabla(t, { [campo]: v } as Partial<TablaSalarial>);
+                      }}
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  return (
+    <div className="veloDetalle" onClick={onCerrar}>
+      <div className="ventanaDetalle ventanaTablas" onClick={(e) => e.stopPropagation()}>
+        <div className="cabeceraVentana">
+          <span>Tablas salariales {conv.año}</span>
+          <button className="cerrarVentana" onClick={onCerrar} aria-label="Cerrar">✕</button>
+        </div>
+        <div className="tablasCuerpo">
+          {rejilla(TABLA_MENSUAL)}
+          {rejilla(TABLA_OTROS)}
+        </div>
+        <div className="pieVentana">
+          <button className="boton" onClick={onCerrar}>Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- VENTANA «OPCIONES DE {CENTRO}» (modal) ----
+
+function VentanaOpciones({ conv, ops, bajaFestivos, onCambiarOpciones, onCambiar, onAñadirFestivo, onBorrarFestivo, onDeshacerFestivo, onPropagar, onCerrar }: {
+  conv: Convenio;
+  ops: OpcionesCentro;
+  bajaFestivos: Array<{ id: number; fecha: string }>;
+  onCambiarOpciones: (cambios: Partial<OpcionesCentro>) => void;
+  onCambiar: (cambios: Partial<Convenio>) => void;
+  onAñadirFestivo: () => void;
+  onBorrarFestivo: (f: Festivo) => void;
+  onDeshacerFestivo: () => void;
+  onPropagar: () => void;
+  onCerrar: () => void;
+}): ReactNode {
+  const [festivoSel, setFestivoSel] = useState<Festivo | null>(null);
+  const festivos = [...ops.festivos].sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  return (
+    <div className="veloDetalle" onClick={onCerrar}>
+      <div className="ventanaDetalle ventanaOpciones" onClick={(e) => e.stopPropagation()}>
+        <div className="cabeceraVentana">
+          <span>Opciones de {NOMBRES_CENTRO[ops.centro] ?? ""}</span>
+          <button className="cerrarVentana" onClick={onCerrar} aria-label="Cerrar">✕</button>
+        </div>
+        <div className="opcionesCuerpo">
+          <div className="columnaOpciones">
+            <h3 className="tituloColumna">Números de gráfico</h3>
+            <p className="explicacion">
+              Se pondrán los diferentes números o rangos separados por comas. Los rangos van separados
+              por un guión.<br />Por ejemplo, 3001,3100-3150 equivaldría al gráfico 3001 y a todos los
+              gráficos entre 3100 y 3150.
+            </p>
+            {([["numerosL", "Lunes a jueves"], ["numerosV", "Viernes"], ["numerosS", "Sábados"], ["numerosF", "Festivos"], ["numerosR", "Gráficos de reserva"]] as const).map(([campo, et]) => (
+              <label key={campo} className="campoTrabajador">
+                <span className="etiquetaCampo">{et}</span>
+                <input
+                  className="campoEntrada"
+                  value={ops[campo] ?? ""}
+                  onChange={(e) => onCambiarOpciones({ [campo]: e.target.value === "" ? null : e.target.value } as Partial<OpcionesCentro>)}
+                />
+              </label>
+            ))}
+          </div>
+          <div className="columnaOpciones">
+            <h3 className="tituloColumna">Limpiezas mensuales</h3>
+            <p className="explicacion">
+              Si el valor es cero, se pagan las limpiezas que vayan implícitas en el gráfico. Si el valor
+              es mayor que cero, se pagará el número de limpiezas fijo al mes, sin tener en cuenta los
+              gráficos realizados.
+            </p>
+            <label className="campoTrabajador">
+              <span className="etiquetaCampo">Número de limpiezas al mes</span>
+              <input
+                className="campoEntrada"
+                value={String(ops.limpiezasMes)}
+                onChange={(e) => {
+                  const v = Number.parseInt(e.target.value, 10);
+                  if (Number.isInteger(v)) onCambiarOpciones({ limpiezasMes: v });
+                }}
+              />
+            </label>
+            <h3 className="tituloColumna">Plus de viaje</h3>
+            <p className="explicacion">
+              Si está activo, se pagará el importe indicado por cada día trabajado, como plus de viaje.
+            </p>
+            <div className="formDuo">
+              <button
+                className={`botonFicha${ops.pagarPlusViaje ? " pulsado" : ""}`}
+                onClick={() => onCambiarOpciones({ pagarPlusViaje: !ops.pagarPlusViaje })}
+              >
+                Pagar Plus Viaje
+              </button>
+              <label className="campoTrabajador">
+                <span className="etiquetaCampo">Importe plus viaje</span>
+                <input
+                  className="campoEntrada"
+                  value={importe(ops.importePlusViaje)}
+                  onChange={(e) => onCambiarOpciones({ importePlusViaje: centimosDe(e.target.value) })}
+                />
+              </label>
+            </div>
+          </div>
+          <div className="columnaOpciones columnaFestivos">
+            <h3 className="tituloColumna">Festivos</h3>
+            <div className="barraPanel barraFestivos">
+              <button className="boton" onClick={onAñadirFestivo}>＋</button>
+              <button className="boton" onClick={() => festivoSel !== null && onBorrarFestivo(festivoSel)} disabled={festivoSel === null}>－</button>
+              <button className="boton" onClick={onDeshacerFestivo} disabled={bajaFestivos.length === 0}>↺ Deshacer borrar</button>
+              <button className="boton" onClick={onPropagar} title="Copia los festivos de este centro al resto">⇉ Propagar</button>
+            </div>
+            <div className="marcoRejilla marcoFestivos">
+              <table className="rejilla">
+                <thead><tr><th>Fecha</th></tr></thead>
+                <tbody>
+                  {festivos.map((f) => (
+                    <tr
+                      key={f.id ?? f.fecha}
+                      className={f === festivoSel ? "sel" : undefined}
+                      onClick={() => setFestivoSel(f)}
+                    >
+                      <td>{fechaLarga(f.fecha)}</td>
+                    </tr>
+                  ))}
+                  {festivos.length === 0 ? <tr><td className="vacio">Sin festivos.</td></tr> : null}
+                </tbody>
+              </table>
+            </div>
+            <div className="pieVentana">
+              <button className="boton" onClick={onCerrar}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---- PANTALLA CONVENIOS ----
+
 export function PantallaConvenios({ servidor, token, onVolver }: {
   servidor: string;
   token: string;
@@ -122,10 +327,10 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
 }): ReactNode {
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [bajaConvenios, setBajaConvenios] = useState<number[]>([]);
-  const [bajaFestivos, setBajaFestivos] = useState<Array<{ id: number }>>([]);
+  const [bajaFestivos, setBajaFestivos] = useState<Array<{ id: number; fecha: string }>>([]);
   const [seleccionado, setSeleccionado] = useState(-1);
-  const [indiceOpciones, setIndiceOpciones] = useState(0);
-  const [pestana, setPestana] = useState<"general" | "tablas" | "opciones">("general");
+  const [mostrarTablas, setMostrarTablas] = useState(false);
+  const [centroOpciones, setCentroOpciones] = useState<number>(-1);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -138,8 +343,8 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
       .then((r) => {
         setConvenios(r.convenios);
         setSeleccionado(r.convenios.length > 0 ? r.convenios.length - 1 : -1);
-        setIndiceOpciones(0);
-        setPestana("general");
+        setMostrarTablas(false);
+        setCentroOpciones(-1);
         setBajaConvenios([]);
         setBajaFestivos([]);
       })
@@ -153,14 +358,28 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
     ? convenios[seleccionado] as Convenio
     : null;
   const opciones: OpcionesCentro[] = conv?.opcionesCentro ?? [];
-  const ops = indiceOpciones >= 0 && indiceOpciones < opciones.length
-    ? opciones[indiceOpciones] as OpcionesCentro
+  const ops = centroOpciones >= 0 && centroOpciones < opciones.length
+    ? opciones[centroOpciones] as OpcionesCentro
     : null;
 
   /** Cambia un campo del convenio seleccionado (copia directa de estado). */
   function cambiar(cambios: Partial<Convenio>): void {
     if (seleccionado < 0) return;
     setConvenios(convenios.map((c, i) => (i === seleccionado ? { ...c, ...cambios } : c)));
+  }
+
+  function cambiarOpciones(cambios: Partial<OpcionesCentro>): void {
+    if (conv === null || ops === null) return;
+    cambiar({
+      opcionesCentro: conv.opcionesCentro.map((o) => (o === ops ? { ...o, ...cambios } : o)),
+    });
+  }
+
+  function cambiarTabla(t: TablaSalarial, cambios: Partial<TablaSalarial>): void {
+    if (conv === null) return;
+    cambiar({
+      tablasSalariales: conv.tablasSalariales.map((x) => (x === t ? { ...x, ...cambios } : x)),
+    });
   }
 
   // ---- comandos ----
@@ -202,7 +421,6 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
     }
     setConvenios([...convenios, nuevo]);
     setSeleccionado(convenios.length);
-    setIndiceOpciones(0);
   }
 
   function borrar(): void {
@@ -250,9 +468,17 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
   function borrarFestivo(f: Festivo): void {
     if (ops === null) return;
     if ((f.id ?? 0) > 0 && !bajaFestivos.some((x) => x.id === f.id)) {
-      setBajaFestivos([...bajaFestivos, { id: f.id as number }]);
+      setBajaFestivos([...bajaFestivos, { id: f.id as number, fecha: f.fecha }]);
     }
     cambiarOpciones({ festivos: ops.festivos.filter((x) => x !== f) });
+  }
+
+  /** «Deshacer borrar»: devuelve el último festivo borrado del centro. */
+  function deshacerFestivo(): void {
+    if (ops === null || bajaFestivos.length === 0) return;
+    const ultimo = bajaFestivos[bajaFestivos.length - 1] as { id: number; fecha: string };
+    setBajaFestivos(bajaFestivos.slice(0, -1));
+    cambiarOpciones({ festivos: [...ops.festivos, { id: ultimo.id, fecha: ultimo.fecha }] });
   }
 
   /** Copia los festivos del centro actual al resto, sustituyendo los suyos. */
@@ -265,25 +491,11 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
       .flatMap((o) => o.festivos)
       .filter((f) => (f.id ?? 0) > 0)
       .filter((f) => !bajaFestivos.some((x) => x.id === f.id))
-      .map((f) => ({ id: f.id as number }));
+      .map((f) => ({ id: f.id as number, fecha: f.fecha }));
     setBajaFestivos([...bajaFestivos, ...bajasNuevas]);
     cambiar({
       opcionesCentro: conv.opcionesCentro.map((o) =>
         o === ops ? o : { ...o, festivos: ops.festivos.map((f) => ({ fecha: f.fecha })) }),
-    });
-  }
-
-  function cambiarOpciones(cambios: Partial<OpcionesCentro>): void {
-    if (conv === null || ops === null) return;
-    cambiar({
-      opcionesCentro: conv.opcionesCentro.map((o) => (o === ops ? { ...o, ...cambios } : o)),
-    });
-  }
-
-  function cambiarTabla(t: TablaSalarial, cambios: Partial<TablaSalarial>): void {
-    if (conv === null) return;
-    cambiar({
-      tablasSalariales: conv.tablasSalariales.map((x) => (x === t ? { ...x, ...cambios } : x)),
     });
   }
 
@@ -293,7 +505,10 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
     setError(null);
     try {
       if (bajaFestivos.length > 0) {
-        await api(servidor, token, "convenios/festivos/lista", { metodo: "DELETE", cuerpo: bajaFestivos });
+        await api(servidor, token, "convenios/festivos/lista", {
+          metodo: "DELETE",
+          cuerpo: bajaFestivos.map((f) => ({ id: f.id })),
+        });
       }
       for (const id of bajaConvenios) {
         await api(servidor, token, `convenios/${id}`, { metodo: "DELETE" });
@@ -318,174 +533,104 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
   // ---- render ----
 
   return (
-    <div className="pagina">
-      <div className="cabeceraPagina">
-        <h2 className="tituloPagina">Convenios</h2>
+    <div className="pagina paginaConveniosO2">
+      <div className="opcionesPagina">
+        <button className="boton" onClick={onVolver} disabled={ocupado}>← Volver</button>
         {ocupado ? <span className="cargando">Trabajando…</span> : null}
         {error ? <span className="error" role="alert">{error}</span> : null}
+        <span className="hueco" />
+        <button className="boton" onClick={() => void guardar()} disabled={ocupado || convenios.length === 0}>💾 Guardar y Actualizar</button>
+        <button className="boton" onClick={cargar} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
-      <div className="opcionesPagina">
-        <button className="boton" onClick={onVolver} disabled={ocupado}>Volver</button>
-        <button className="boton" onClick={cargar} disabled={ocupado}>Recargar</button>
-        <button className="boton" onClick={añadir} disabled={ocupado}>Nuevo convenio</button>
-        <button className="boton" onClick={borrar} disabled={ocupado || conv === null}>Borrar</button>
-        <button className="boton" onClick={incrementar} disabled={ocupado || conv === null}>Incrementar importes</button>
-        <button className="boton principal" onClick={guardar} disabled={ocupado || convenios.length === 0}>Guardar</button>
-      </div>
-      <div className="conveniosCuerpo">
-        <div className="conveniosLista">
-          {convenios.map((c, i) => (
-            <button
-              key={c.id ?? `nuevo${c.año}`}
-              className={`filaLista${i === seleccionado ? " sel" : ""}`}
-              onClick={() => { setSeleccionado(i); setIndiceOpciones(0); }}
-            >
-              {c.año}
-            </button>
-          ))}
-        </div>
-        {conv === null ? (
-          <p className="pendiente">Selecciona un convenio.</p>
-        ) : (
-          <div className="conveniosDetalle">
-            <div className="pestañas">
-              <button className={pestana === "general" ? "sel" : ""} onClick={() => setPestana("general")}>General</button>
-              <button className={pestana === "tablas" ? "sel" : ""} onClick={() => setPestana("tablas")}>Tablas salariales</button>
-              <button className={pestana === "opciones" ? "sel" : ""} onClick={() => setPestana("opciones")}>Opciones por centro</button>
-            </div>
-            {pestana === "general" ? (
-              <div className="conveniosGeneral">
-                {CAMPOS.map(([campo, etiqueta, tipo]) => (
-                  <div key={campo} className="campoEtiqueta">
-                    <span>{etiqueta}</span>
-                    <input
-                      className="celda"
-                      value={textoDe(campo, conv[campo], tipo)}
-                      onChange={(e) => {
-                        const v = valorDe(e.target.value, tipo);
-                        if (v !== null) cambiar({ [campo]: v } as Partial<Convenio>);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : pestana === "tablas" ? (
-              <table className="rejilla tablasSalariales">
-                <thead>
-                  <tr>
-                    <th>Categoría</th>
-                    {COLUMNAS_TABLA.map(([, et]) => <th key={et}>{et}</th>)}
+      <div className="conveniosCuerpo conveniosCuerpoO2">
+        <div className="panelPrincipalGraficos panelConvenios">
+          <div className="bandaTitulo">Convenios</div>
+          <div className="barraPanel">
+            <button className="boton" onClick={() => void añadir()} disabled={ocupado}>＋</button>
+            <button className="boton" onClick={borrar} disabled={ocupado || conv === null}>－</button>
+          </div>
+          <div className="marcoRejilla">
+            <table className="rejilla rejillaConvenios">
+              <tbody>
+                {[...convenios].sort((a, b) => b.año - a.año).map((c) => (
+                  <tr
+                    key={c.id ?? `nuevo${c.año}`}
+                    className={c === conv ? "sel" : undefined}
+                    onClick={() => { setSeleccionado(convenios.indexOf(c)); setCentroOpciones(-1); }}
+                  >
+                    <td className="num">{c.año}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {conv.tablasSalariales.map((t) => (
-                    <tr key={t.id ?? `n${t.categoria}`}>
-                      <td>
-                        <select
-                          className="celda"
-                          value={String(t.categoria)}
-                          onChange={(e) => cambiarTabla(t, { categoria: Number(e.target.value) as CategoriaTrabajador })}
-                        >
-                          {CATEGORIAS.map((v) => <option key={v} value={String(v)}>{nombreEnum(CategoriaTrabajador, v)}</option>)}
-                        </select>
-                      </td>
-                      {COLUMNAS_TABLA.map(([campo, , tipo]) => (
-                        <td key={campo}>
+                ))}
+                {convenios.length === 0 ? <tr><td className="vacio">Sin convenios.</td></tr> : null}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div className="panelPrincipalGraficos panelDetalleConvenio">
+          <div className="bandaTitulo">CONVENIO: {conv?.año ?? "-"}</div>
+          {conv === null ? (
+            <p className="vacio conMargen">Selecciona un convenio.</p>
+          ) : (
+            <>
+              <div className="parametrosCuerpo">
+                {GRUPOS.map((grupo) => (
+                  <div key={grupo.titulo} className="panelParametros">
+                    <div className="bandaTituloGris">{grupo.titulo}</div>
+                    <div className="filasParametros">
+                      {grupo.campos.map(([campo, etiqueta, tipo]) => (
+                        <div key={campo} className="filaParametro">
+                          <span className="nombreParametro">{etiqueta}</span>
                           <input
-                            className="celda"
-                            value={textoDe(campo, t[campo], tipo)}
+                            className="valorParametro"
+                            value={textoDe(campo, conv[campo], tipo)}
                             onChange={(e) => {
                               const v = valorDe(e.target.value, tipo);
-                              if (v !== null) cambiarTabla(t, { [campo]: v } as Partial<TablaSalarial>);
+                              if (v !== null) cambiar({ [campo]: v } as Partial<Convenio>);
                             }}
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="conveniosOpciones">
-                <div className="campoEtiqueta">
-                  <span>Centro:</span>
-                  <select
-                    className="celda"
-                    value={String(indiceOpciones)}
-                    onChange={(e) => setIndiceOpciones(Number(e.target.value))}
-                  >
-                    {opciones.map((o, i) => (
-                      <option key={o.id ?? i} value={String(i)}>{nombreEnum(CentroTrabajo, o.centro)}</option>
-                    ))}
-                  </select>
-                </div>
-                {ops === null ? (
-                  <p className="pendiente">El convenio no tiene opciones para este centro.</p>
-                ) : (
-                  <>
-                    <div className="conveniosOpcionesDatos">
-                      <h3 className="tituloSeccion">Números de gráfico por tipo de día (p. ej. 1-50, 60)</h3>
-                      {([["numerosL", "Lunes a jueves"], ["numerosV", "Viernes"], ["numerosS", "Sábados"], ["numerosF", "Festivos"], ["numerosR", "Reserva"]] as const).map(([campo, et]) => (
-                        <div key={campo} className="campoEtiqueta corto">
-                          <span>{et}</span>
-                          <input
-                            className="celda ancho"
-                            value={ops[campo] ?? ""}
-                            onChange={(e) => cambiarOpciones({ [campo]: e.target.value === "" ? null : e.target.value } as Partial<OpcionesCentro>)}
                           />
                         </div>
                       ))}
-                      <div className="campoEtiqueta corto"><span>Limpiezas al mes</span>
-                        <input
-                          className="celda"
-                          value={String(ops.limpiezasMes)}
-                          onChange={(e) => {
-                            const v = Number.parseInt(e.target.value, 10);
-                            if (Number.isInteger(v)) cambiarOpciones({ limpiezasMes: v });
-                          }}
-                        />
-                      </div>
-                      <label className="casilla">
-                        <input
-                          type="checkbox"
-                          checked={ops.pagarPlusViaje}
-                          onChange={(e) => cambiarOpciones({ pagarPlusViaje: e.target.checked })}
-                        />
-                        Pagar plus viaje
-                      </label>
-                      <div className="campoEtiqueta corto"><span>Importe plus viaje</span>
-                        <input
-                          className="celda"
-                          value={importe(ops.importePlusViaje)}
-                          onChange={(e) => cambiarOpciones({ importePlusViaje: centimosDe(e.target.value) })}
-                        />
-                      </div>
                     </div>
-                    <div className="conveniosFestivos">
-                      <div className="cabeceraFestivos">
-                        <h3 className="tituloSeccion">Festivos</h3>
-                        <button className="boton" onClick={añadirFestivo}>Añadir festivo</button>
-                        <button className="boton" onClick={propagarFestivos}>Copiar a otros centros</button>
-                      </div>
-                      <table className="rejilla rejillaFestivos">
-                        <thead><tr><th>Fecha</th><th /></tr></thead>
-                        <tbody>
-                          {[...ops.festivos].sort((a, b) => a.fecha.localeCompare(b.fecha)).map((f) => (
-                            <tr key={f.id ?? f.fecha}>
-                              <td>{fechaLarga(f.fecha)}</td>
-                              <td><button className="boton" onClick={() => borrarFestivo(f)}>Borrar</button></td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </>
-                )}
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        )}
+              <div className="botonesConvenio">
+                <button className="botonAccion" onClick={() => setMostrarTablas(true)}>Tablas Salariales</button>
+                <button className="botonAccion" onClick={() => void incrementar()} disabled={ocupado}>Incrementar importes</button>
+              </div>
+              <p className="tituloCentros">Opciones específicas de cada centro:</p>
+              <div className="botonesCentros">
+                {opciones.map((o, i) => (
+                  <button
+                    key={o.id ?? o.centro}
+                    className="botonAccion"
+                    onClick={() => setCentroOpciones(i)}
+                  >
+                    {NOMBRES_CENTRO[o.centro] ?? ""}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
+      {mostrarTablas && conv !== null ? (
+        <VentanaTablas conv={conv} onCambiarTabla={cambiarTabla} onCerrar={() => setMostrarTablas(false)} />
+      ) : null}
+      {centroOpciones >= 0 && ops !== null && conv !== null ? (
+        <VentanaOpciones
+          conv={conv}
+          ops={ops}
+          bajaFestivos={bajaFestivos}
+          onCambiarOpciones={cambiarOpciones}
+          onCambiar={cambiar}
+          onAñadirFestivo={() => void añadirFestivo()}
+          onBorrarFestivo={borrarFestivo}
+          onDeshacerFestivo={deshacerFestivo}
+          onPropagar={propagarFestivos}
+          onCerrar={() => setCentroOpciones(-1)}
+        />
+      ) : null}
     </div>
   );
 }

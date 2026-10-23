@@ -1309,3 +1309,137 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .liquidoCaja td { background: #eef2f7; }
 .nominaDerecha .pieVentana { justify-content: flex-end; }
 /* ===== fin Nómina Orión 2 ===== */
+
+/* --- Pantalla Convenios Orión 2 --- */
+.paginaConveniosO2 { display: flex; flex-direction: column; }
+.conveniosCuerpoO2 {
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+  padding: 0 10px 8px;
+  align-items: stretch;
+}
+.panelConvenios {
+  flex: 0 0 190px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.rejillaConvenios td { padding: 5px 10px; font-size: 15px; cursor: pointer; }
+.panelDetalleConvenio { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: auto; }
+.parametrosCuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px;
+  overflow: auto;
+}
+.panelParametros {
+  flex: 1;
+  min-width: 240px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+.bandaTituloGris {
+  background: #dcdcdc;
+  color: #222;
+  font-weight: 700;
+  text-align: center;
+  padding: 4px 6px;
+  font-size: 13px;
+}
+.filasParametros { display: flex; flex-direction: column; }
+.filaParametro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 10px;
+  font-size: 13px;
+}
+.filaParametro:nth-child(even) { background: #f3f3f3; }
+.nombreParametro { color: #333; }
+.valorParametro {
+  border: none;
+  background: none;
+  text-align: right;
+  font: inherit;
+  color: #1a4d80;
+  font-weight: 600;
+  width: 90px;
+  min-width: 70px;
+  padding: 1px 2px;
+}
+.valorParametro:focus { outline: 1px solid var(--primario); background: #fff; }
+.botonesConvenio {
+  display: flex;
+  gap: 24px;
+  padding: 4px 12px 10px;
+}
+.botonAccion {
+  flex: 1;
+  max-width: 420px;
+  border: 1px solid #b8b8b8;
+  background: #fdfdfd;
+  padding: 10px 16px;
+  font-size: 16px;
+  color: #555;
+  cursor: pointer;
+  border-radius: 3px;
+  font: inherit;
+}
+.botonAccion:hover { border-color: var(--primario); color: var(--primario); }
+.tituloCentros { color: var(--primario); font-size: 14px; margin: 0 12px; }
+.botonesCentros {
+  display: flex;
+  gap: 16px;
+  padding: 8px 12px 12px;
+  flex-wrap: wrap;
+}
+.botonesCentros .botonAccion { flex: none; min-width: 130px; }
+/* Ventana «Tablas salariales». */
+.ventanaTablas { width: min(1160px, 94vw); height: min(760px, 92vh); }
+.tablasCuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 12px 14px;
+}
+.marcoTablas { flex: 1; border: 1px solid #d9d9d9; }
+.tablasCuerpo td { padding: 4px 10px; }
+.centradoNombre { text-align: center; color: #333; }
+/* Ventana «Opciones de {centro}». */
+.ventanaOpciones { width: min(1340px, 96vw); height: min(800px, 92vh); }
+.opcionesCuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 24px;
+  padding: 14px 16px;
+  overflow: auto;
+}
+.columnaOpciones {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.columnaFestivos { flex: 0 0 32%; }
+.tituloColumna {
+  color: #16365c;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+.explicacion { color: #16365c; font-size: 13px; margin: 0; }
+.barraFestivos { padding: 0; }
+.marcoFestivos { flex: 1; min-height: 0; border: 1px solid #d9d9d9; }
+.columnaOpciones .pieVentana { padding: 8px 0; }
+/* ===== fin Convenios Orión 2 ===== */
