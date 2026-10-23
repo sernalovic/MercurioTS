@@ -24,6 +24,7 @@ export function PantallaLineas({ servidor, token, onVolver }: {
   const [bajaParadas, setBajaParadas] = useState<number[]>([]);
   const [indiceLinea, setIndiceLinea] = useState(-1);
   const [indiceItinerario, setIndiceItinerario] = useState(-1);
+  const [indiceParada, setIndiceParada] = useState(-1);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const entradaJson = useRef<HTMLInputElement>(null);
@@ -54,6 +55,7 @@ export function PantallaLineas({ servidor, token, onVolver }: {
     ? itinerarios[indiceItinerario] as Itinerario
     : null;
   const paradas: Parada[] = itinerario?.paradas ?? [];
+  const parada = indiceParada >= 0 && indiceParada < paradas.length ? paradas[indiceParada] as Parada : null;
 
   function cambiarLinea(l: Linea, cambios: Partial<Linea>): void {
     setLineas(lineas.map((x) => (x === l ? { ...x, ...cambios } : x)));
@@ -249,7 +251,7 @@ export function PantallaLineas({ servidor, token, onVolver }: {
                   <tr
                     key={l.id ?? l.nombre}
                     className={l === linea ? "sel" : undefined}
-                    onClick={() => { setIndiceLinea(lineas.indexOf(l)); setIndiceItinerario(-1); }}
+                    onClick={() => { setIndiceLinea(lineas.indexOf(l)); setIndiceItinerario(-1); setIndiceParada(-1); }}
                   >
                     <td className="num"><input className="celda num" value={l.nombre} onChange={(e) => cambiarLinea(l, { nombre: e.target.value })} /></td>
                     <td className="centro"><input className="celda centro" value={l.descripcion ?? ""} onChange={(e) => cambiarLinea(l, { descripcion: e.target.value })} /></td>
@@ -277,7 +279,7 @@ export function PantallaLineas({ servidor, token, onVolver }: {
                     <tr
                       key={i.id ?? i.nombre}
                       className={i === itinerario ? "sel" : undefined}
-                      onClick={() => setIndiceItinerario(itinerarios.indexOf(i))}
+                      onClick={() => { setIndiceItinerario(itinerarios.indexOf(i)); setIndiceParada(-1); }}
                     >
                       <td className="num"><input className="celda num" value={i.nombre} onChange={(e) => cambiarItinerario(i, { nombre: e.target.value })} /></td>
                       <td className="centro"><input className="celda centro" value={i.descripcion ?? ""} onChange={(e) => cambiarItinerario(i, { descripcion: e.target.value })} /></td>
@@ -302,14 +304,14 @@ export function PantallaLineas({ servidor, token, onVolver }: {
               <span className="pistaDoble">Paradas del itinerario seleccionado</span>
               <span className="hueco" />
               <button className="boton" onClick={añadirParada} disabled={itinerario === null}>＋</button>
-              <button className="boton" onClick={() => itinerario !== null && borrarParada(itinerario.paradas[itinerario.paradas.length - 1] as Parada)} disabled={itinerario === null || paradas.length === 0}>－</button>
+              <button className="boton" onClick={() => parada !== null && borrarParada(parada)} disabled={parada === null} title="Borra la parada seleccionada">－</button>
             </div>
             <div className="marcoRejilla">
               <table className="rejilla rejillaLineas">
                 <thead><tr><th>Orden</th><th>Parada</th><th>Tiempo</th></tr></thead>
                 <tbody>
                   {paradas.map((p, n) => (
-                    <tr key={p.id ?? n}>
+                    <tr key={p.id ?? n} className={p === parada ? "sel" : undefined} onClick={() => setIndiceParada(n)}>
                       <td className="num"><input className="celda num" value={p.orden === 0 ? "" : String(p.orden)} onChange={(e) => {
                         const v = Number.parseInt(e.target.value, 10);
                         if (Number.isInteger(v)) cambiarParada(p, { orden: v });
