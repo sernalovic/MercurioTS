@@ -1211,3 +1211,38 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .rejillaLineas .celda.centro { text-align: center; }
 .rejillaLineas td.num { text-align: right; }
 /* ===== fin Líneas Orión 2 ===== */
+
+/* --- Pantalla Reclamaciones Orión 2 --- */
+.paginaReclamacionesO2 { display: flex; flex-direction: column; }
+.reclNominasCuerpoO2 {
+  flex: 1;
+  min-height: 0;
+  gap: 10px;
+  padding: 0 10px 8px;
+  align-items: stretch;
+}
+.panelConductoresRecl {
+  flex: 0 0 300px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.rejillaConductoresRecl td { padding: 4px 6px; cursor: pointer; }
+.rejillaConductoresRecl td.num { text-align: right; width: 60px; }
+.rejillaConductoresRecl td.centro { text-align: left; }
+.rejillaListaRecl td.num { text-align: right; padding: 3px 8px; }
+.rejillaListaRecl tr.sel td { background-color: var(--aviso); }
+.filaResuelta td { color: #8a8a8a; }
+.separadorPanel {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background: #d9d9d9;
+}
+/* Ventana «Detalle de reclamación». */
+.ventanaReclamacion {
+  width: min(1500px, 96vw);
+  height: min(940px, 92vh);
+}
+.pieReclamacion { justify-content: space-between; }
+/* ===== fin Reclamaciones Orión 2 ===== */
