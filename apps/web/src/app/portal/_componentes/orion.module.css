@@ -77,6 +77,12 @@
   padding-bottom: 0.4rem;
 }
 
+/* `display: flex` anularía el `display: none` del atributo `hidden`; sin esta
+   regla el cajón oculto seguiría pintándose. */
+.cajon[hidden] {
+  display: none;
+}
+
 .menuEnlace {
   padding: 0.7rem 1.1rem;
   color: #23527c;

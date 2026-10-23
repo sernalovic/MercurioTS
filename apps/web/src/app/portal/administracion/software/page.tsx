@@ -13,9 +13,6 @@ import styles from "../../_componentes/orion.module.css";
 const URL_DESCARGA =
   "https://github.com/sernalovic/MercurioTS/releases/latest/download/Mercurio-Setup.exe";
 
-/** Página de releases (versiones anteriores). */
-const URL_RELEASES = "https://github.com/sernalovic/MercurioTS/releases";
-
 export const metadata: Metadata = {
   title: "Software Mercurio · Mercurio",
 };
@@ -24,11 +21,7 @@ export default function Pagina() {
   return (
     <Seccion titulo="Software Mercurio" requiereAdmin>
       <div className={styles.descarga}>
-        <p className={styles.descargaTexto}>
-          Instala Mercurio en tu equipo Windows: el mismo juego de pantallas
-          (trabajadores, calendarios, informes, reclamaciones, nóminas…) que el
-          programa antiguo, conectado a este servidor.
-        </p>
+        <p className={styles.descargaTexto}>Instala Mercurio en tu equipo Windows.</p>
         <p>
           <a className={styles.descargaBoton} href={URL_DESCARGA} download>
             Descargar Mercurio para Windows
@@ -36,11 +29,7 @@ export default function Pagina() {
         </p>
         <p className={styles.descargaNota}>
           Instalador de 64 bits (≈110 MB). Se instala solo para tu usuario, sin
-          necesidad de administrador.{" "}
-          <a href={URL_RELEASES} target="_blank" rel="noreferrer">
-            Versiones anteriores
-          </a>
-          .
+          necesidad de administrador.
         </p>
       </div>
     </Seccion>
