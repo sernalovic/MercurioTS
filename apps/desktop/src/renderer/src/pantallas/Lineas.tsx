@@ -221,105 +221,123 @@ export function PantallaLineas({ servidor, token, onVolver }: {
   // ---- render ----
 
   return (
-    <div className="pagina">
-      <div className="cabeceraPagina">
-        <h2 className="tituloPagina">Líneas e itinerarios</h2>
+    <div className="pagina paginaLineasO2">
+      <div className="opcionesPagina">
+        <button className="boton" onClick={onVolver} disabled={ocupado}>← Volver</button>
         {ocupado ? <span className="cargando">Trabajando…</span> : null}
         {error ? <span className="error" role="alert">{error}</span> : null}
-      </div>
-      <div className="opcionesPagina">
-        <button className="boton" onClick={onVolver} disabled={ocupado}>Volver</button>
-        <button className="boton" onClick={cargar} disabled={ocupado}>Recargar</button>
-        <button className="boton" onClick={() => entradaJson.current?.click()} disabled={ocupado}>Importar</button>
-        <button className="boton" onClick={exportar} disabled={ocupado}>Exportar</button>
-        <button className="boton principal" onClick={guardar} disabled={ocupado}>Guardar</button>
+        <span className="hueco" />
+        <button className="boton" onClick={() => void guardar()} disabled={ocupado}>💾 Guardar y Actualizar</button>
+        <button className="boton" onClick={cargar} disabled={ocupado}>↺ Descartar Cambios</button>
         <input ref={entradaJson} type="file" accept=".json,application/json" hidden onChange={(e) => importarFichero(e.target.files)} />
       </div>
-      <div className="lineasCuerpo">
-        <div className="lineasColumna">
-          <div className="cabeceraSeccion">
-            <h3 className="tituloSeccion">Líneas</h3>
-            <button className="botonMini" onClick={añadirLinea}>+</button>
-            <button className="botonMini" onClick={borrarLinea}>−</button>
+      <div className="lineasCuerpo lineasCuerpoO2">
+        <div className="panelPrincipalGraficos panelLineas">
+          <div className="bandaTitulo">LÍNEAS</div>
+          <div className="barraPanel">
+            <button className="boton" onClick={() => entradaJson.current?.click()} disabled={ocupado}>⬆ Importar</button>
+            <button className="boton" onClick={exportar} disabled={ocupado}>⬇ Exportar</button>
+            <span className="hueco" />
+            <button className="boton" onClick={añadirLinea} disabled={ocupado}>＋</button>
+            <button className="boton" onClick={borrarLinea} disabled={ocupado || linea === null}>－</button>
           </div>
-          <table className="rejilla">
-            <thead><tr><th>Nombre</th><th>Descripción</th></tr></thead>
-            <tbody>
-              {lineas.map((l) => (
-                <tr
-                  key={l.id ?? l.nombre}
-                  className={l === linea ? "sel" : undefined}
-                  onClick={() => { setIndiceLinea(lineas.indexOf(l)); setIndiceItinerario(-1); }}
-                >
-                  <td><input className="celda" value={l.nombre} onChange={(e) => cambiarLinea(l, { nombre: e.target.value })} /></td>
-                  <td><input className="celda" value={l.descripcion ?? ""} onChange={(e) => cambiarLinea(l, { descripcion: e.target.value })} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="marcoRejilla">
+            <table className="rejilla rejillaLineas">
+              <thead><tr><th>Línea</th><th>Descripción</th></tr></thead>
+              <tbody>
+                {lineas.map((l) => (
+                  <tr
+                    key={l.id ?? l.nombre}
+                    className={l === linea ? "sel" : undefined}
+                    onClick={() => { setIndiceLinea(lineas.indexOf(l)); setIndiceItinerario(-1); }}
+                  >
+                    <td className="num"><input className="celda num" value={l.nombre} onChange={(e) => cambiarLinea(l, { nombre: e.target.value })} /></td>
+                    <td className="centro"><input className="celda centro" value={l.descripcion ?? ""} onChange={(e) => cambiarLinea(l, { descripcion: e.target.value })} /></td>
+                  </tr>
+                ))}
+                {lineas.length === 0 ? <tr><td colSpan={2} className="vacio">No hay líneas.</td></tr> : null}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="lineasColumna">
-          <div className="cabeceraSeccion">
-            <h3 className="tituloSeccion">Itinerarios</h3>
-            <button className="botonMini" onClick={añadirItinerario} disabled={linea === null}>+</button>
-            <button className="botonMini" onClick={borrarItinerario} disabled={linea === null || itinerario === null}>−</button>
+        <div className="lineasDerecha">
+          <div className="panelPrincipalGraficos panelItinerarios">
+            <div className="bandaTitulo">ITINERARIOS</div>
+            <div className="barraPanel">
+              <span className="pistaDoble">Itinerarios de la línea seleccionada</span>
+              <span className="hueco" />
+              <button className="boton" onClick={añadirItinerario} disabled={linea === null}>＋</button>
+              <button className="boton" onClick={borrarItinerario} disabled={linea === null || itinerario === null}>－</button>
+            </div>
+            <div className="marcoRejilla">
+              <table className="rejilla rejillaLineas">
+                <thead><tr><th>Itinerario</th><th>Descripción</th><th>T.Real</th><th>T.Pago</th></tr></thead>
+                <tbody>
+                  {itinerarios.map((i) => (
+                    <tr
+                      key={i.id ?? i.nombre}
+                      className={i === itinerario ? "sel" : undefined}
+                      onClick={() => setIndiceItinerario(itinerarios.indexOf(i))}
+                    >
+                      <td className="num"><input className="celda num" value={i.nombre} onChange={(e) => cambiarItinerario(i, { nombre: e.target.value })} /></td>
+                      <td className="centro"><input className="celda centro" value={i.descripcion ?? ""} onChange={(e) => cambiarItinerario(i, { descripcion: e.target.value })} /></td>
+                      <td><input className="celda num" value={i.tiempoReal === 0 ? "" : String(i.tiempoReal)} onChange={(e) => {
+                        const v = Number.parseInt(e.target.value, 10);
+                        if (Number.isInteger(v)) cambiarItinerario(i, { tiempoReal: v });
+                      }} /></td>
+                      <td><input className="celda num" value={i.tiempoPago === 0 ? "" : String(i.tiempoPago)} onChange={(e) => {
+                        const v = Number.parseInt(e.target.value, 10);
+                        if (Number.isInteger(v)) cambiarItinerario(i, { tiempoPago: v });
+                      }} /></td>
+                    </tr>
+                  ))}
+                  {itinerarios.length === 0 ? <tr><td colSpan={4} className="vacio">Sin itinerarios.</td></tr> : null}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <table className="rejilla">
-            <thead><tr><th>Nombre</th><th>Descripción</th><th>T. real (min)</th><th>T. pago (min)</th></tr></thead>
-            <tbody>
-              {itinerarios.map((i) => (
-                <tr
-                  key={i.id ?? i.nombre}
-                  className={i === itinerario ? "sel" : undefined}
-                  onClick={() => setIndiceItinerario(itinerarios.indexOf(i))}
-                >
-                  <td><input className="celda" value={i.nombre} onChange={(e) => cambiarItinerario(i, { nombre: e.target.value })} /></td>
-                  <td><input className="celda" value={i.descripcion ?? ""} onChange={(e) => cambiarItinerario(i, { descripcion: e.target.value })} /></td>
-                  <td><input className="celda num" value={i.tiempoReal === 0 ? "" : String(i.tiempoReal)} onChange={(e) => {
-                    const v = Number.parseInt(e.target.value, 10);
-                    if (Number.isInteger(v)) cambiarItinerario(i, { tiempoReal: v });
-                  }} /></td>
-                  <td><input className="celda num" value={i.tiempoPago === 0 ? "" : String(i.tiempoPago)} onChange={(e) => {
-                    const v = Number.parseInt(e.target.value, 10);
-                    if (Number.isInteger(v)) cambiarItinerario(i, { tiempoPago: v });
-                  }} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="lineasColumna">
-          <div className="cabeceraSeccion">
-            <h3 className="tituloSeccion">Paradas</h3>
-            <button className="botonMini" onClick={añadirParada} disabled={itinerario === null}>+</button>
+          <div className="panelPrincipalGraficos panelParadas">
+            <div className="bandaTitulo">PARADAS</div>
+            <div className="barraPanel">
+              <span className="pistaDoble">Paradas del itinerario seleccionado</span>
+              <span className="hueco" />
+              <button className="boton" onClick={añadirParada} disabled={itinerario === null}>＋</button>
+              <button className="boton" onClick={() => itinerario !== null && borrarParada(itinerario.paradas[itinerario.paradas.length - 1] as Parada)} disabled={itinerario === null || paradas.length === 0}>－</button>
+            </div>
+            <div className="marcoRejilla">
+              <table className="rejilla rejillaLineas">
+                <thead><tr><th>Orden</th><th>Parada</th><th>Tiempo</th></tr></thead>
+                <tbody>
+                  {paradas.map((p, n) => (
+                    <tr key={p.id ?? n}>
+                      <td className="num"><input className="celda num" value={p.orden === 0 ? "" : String(p.orden)} onChange={(e) => {
+                        const v = Number.parseInt(e.target.value, 10);
+                        if (Number.isInteger(v)) cambiarParada(p, { orden: v });
+                      }} /></td>
+                      <td className="centro"><input className="celda centro" value={p.descripcion ?? ""} onChange={(e) => cambiarParada(p, { descripcion: e.target.value })} /></td>
+                      <td className="num">
+                        <input
+                          className="celda num"
+                          value={duracion(p.tiempo)}
+                          onChange={(e) => {
+                            const v = minutosDeHora(e.target.value) ?? parseHora(e.target.value);
+                            if (v !== null) cambiarParada(p, { tiempo: v });
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                  {paradas.length === 0 ? <tr><td colSpan={3} className="vacio">Sin paradas.</td></tr> : null}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <table className="rejilla">
-            <thead><tr><th>Orden</th><th>Descripción</th><th>Tiempo</th><th /></tr></thead>
-            <tbody>
-              {paradas.map((p, n) => (
-                <tr key={p.id ?? n}>
-                  <td><input className="celda num" value={p.orden === 0 ? "" : String(p.orden)} onChange={(e) => {
-                    const v = Number.parseInt(e.target.value, 10);
-                    if (Number.isInteger(v)) cambiarParada(p, { orden: v });
-                  }} /></td>
-                  <td><input className="celda" value={p.descripcion ?? ""} onChange={(e) => cambiarParada(p, { descripcion: e.target.value })} /></td>
-                  <td>
-                    <input
-                      className="celda"
-                      value={duracion(p.tiempo)}
-                      onChange={(e) => {
-                        const v = minutosDeHora(e.target.value) ?? parseHora(e.target.value);
-                        if (v !== null) cambiarParada(p, { tiempo: v });
-                      }}
-                    />
-                  </td>
-                  <td><button className="botonMini" onClick={() => borrarParada(p)}>−</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
+      <p className="barraEstado">
+        Líneas: {lineas.length} · Itinerarios: {itinerarios.length} · Paradas: {paradas.length}
+        {" · Las bajas y altas se guardan con «Guardar y Actualizar»."}
+      </p>
     </div>
   );
 }
