@@ -1047,3 +1047,41 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
   padding: 10px 16px;
 }
 /* ===== fin aspecto Orión 2 ===== */
+
+/* --- Pantalla Gráficos Orión 2 --- */
+.paginaGraficosO2 { display: flex; flex-direction: column; }
+.paginaGraficosO2 .graficosCuerpo { padding: 0 10px 8px; }
+.panelGrupos {
+  flex: none;
+  width: 170px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+}
+.panelPrincipalGraficos { flex: 1; min-width: 0; display: flex; flex-direction: column; border: 1px solid #d9d9d9; background: #fff; }
+.listaGrupos { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; align-items: stretch; padding: 2px; }
+.rejillaGraficos .celdaHora { width: 62px; }
+.errorCelda { color: #d81b60; font-weight: 700; }
+.barraEstado {
+  margin: 0;
+  padding: 4px 14px;
+  background: #eef2f7;
+  border-top: 1px solid var(--borde);
+  color: #444;
+  font-size: 12px;
+}
+.encabezadoGrafico {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 18px 2px;
+}
+.encabezadoGrafico h2 { color: #16365c; font-size: 30px; margin: 0; }
+.encabezadoGrafico h2.derecha { color: var(--orion-cab); }
+.formTrabajador.ancho { flex: 0 0 640px; }
+.formCuatro { display: flex; gap: 12px; }
+.formCuatro .campoTrabajador { flex: 1; }
+.botonFicha.ancho { flex: 1; color: #777; }
+.totalItinerarios { color: #333; font-size: 13px; }
+/* ===== fin Gráficos Orión 2 ===== */
