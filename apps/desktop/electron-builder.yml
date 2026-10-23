@@ -25,4 +25,4 @@ nsis:
   createDesktopShortcut: true
   shortcutName: Mercurio
   uninstallDisplayName: Mercurio
-  artifactName: Mercurio ${version} Setup.${ext}
+  artifactName: Mercurio-Setup.${ext}

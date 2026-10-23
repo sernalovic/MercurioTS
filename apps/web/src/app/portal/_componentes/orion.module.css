@@ -926,6 +926,42 @@
   font-size: 0.9rem;
 }
 
+/* ---- Descarga del programa (administración → Software) ---- */
+
+.descarga {
+  max-width: 42rem;
+}
+
+.descargaTexto {
+  margin: 0 0 1.1rem;
+  line-height: 1.55;
+}
+
+.descargaBoton {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: #2a7de1;
+  border-radius: 6px;
+  padding: 0.7rem 1.4rem;
+  text-decoration: none;
+}
+
+.descargaBoton:hover {
+  background: #2168c0;
+}
+
+.descargaNota {
+  margin-top: 0.9rem;
+  color: #6b6b6b;
+  font-size: 0.85rem;
+}
+
+.descargaNota a {
+  color: #2a7de1;
+}
+
 /* ---- Pie ---- */
 
 .pie {
