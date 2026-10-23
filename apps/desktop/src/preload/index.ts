@@ -23,4 +23,7 @@ contextBridge.exposeInMainWorld("mercurio", {
   dialogoCarpeta: (): Promise<string | null> => ipcRenderer.invoke("dialogo:carpeta"),
   /** Diálogo nativo de selección de imagen (Opciones → Rutas). */
   dialogoImagen: (): Promise<string | null> => ipcRenderer.invoke("dialogo:imagen"),
+  /** Lee los bytes de una imagen del disco (logo / marca de agua de los PDFs). */
+  leerImagen: (ruta: string): Promise<ArrayBuffer | null> =>
+    ipcRenderer.invoke("imagen:leer", ruta),
 });

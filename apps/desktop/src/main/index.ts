@@ -152,9 +152,24 @@ ipcMain.handle("dialogo:imagen", async (): Promise<string | null> => {
   const ventana = BrowserWindow.getAllWindows()[0];
   const resultado = await dialog.showOpenDialog(ventana, {
     properties: ["openFile"],
-    filters: [{ name: "Imágenes", extensions: ["png", "jpg", "jpeg", "bmp"] }],
+    // pdf-lib solo sabe incrustar PNG y JPG en los PDF.
+    filters: [{ name: "Imágenes", extensions: ["png", "jpg", "jpeg"] }],
   });
   return resultado.canceled || resultado.filePaths.length === 0 ? null : resultado.filePaths[0];
+});
+
+/**
+ * Lee una imagen del disco para incrustarla en los PDFs (logotipo de
+ * informes/reclamaciones y marca de agua de las reclamaciones, según
+ * Opciones → Rutas). Devuelve los bytes o null si el fichero no existe.
+ */
+ipcMain.handle("imagen:leer", async (_evento, ruta: string): Promise<ArrayBuffer | null> => {
+  try {
+    const bytes = fs.readFileSync(ruta);
+    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  } catch {
+    return null;
+  }
 });
 
 /**

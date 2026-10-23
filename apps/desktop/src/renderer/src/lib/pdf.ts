@@ -1,13 +1,20 @@
 /**
  * Port de `Servicios/Pdf.Reclamacion` (QuestPDF) del original, con pdf-lib:
  * A4, margen 30, título 16 negrita, tabla de conceptos (Fecha / Concepto /
- * Real / Cobrado / Total €) y notas con los totales. El fichero se guarda con
- * el diálogo del proceso principal (`window.mercurio.guardarPdf`) y se abre
- * con la aplicación asociada, igual que hacía `Pdf.Abrir`.
+ * Real / Cobrado / Total €) y notas con los totales. Según Opciones → Rutas
+ * se dibuja el logotipo arriba a la derecha (reclamaciones e informes) y la
+ * marca de agua centrada y diagonal traslúcida (solo reclamaciones). El
+ * fichero se guarda con el diálogo del proceso principal
+ * (`window.mercurio.guardarPdf`) y se abre con la aplicación asociada,
+ * igual que hacía `Pdf.Abrir`.
  */
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import {
+  PDFDocument, StandardFonts, rgb, degrees,
+  type PDFImage, type PDFFont, type PDFPage,
+} from "pdf-lib";
 import { TipoReclamacion, nombreEnum, TiposDieta, CentroTrabajo,
   type ConceptoReclamado, type Conductor, type Reclamacion } from "@mercurio/domain";
+import { leerConfig } from "./configuracion";
 
 const MESES = [
   "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -83,6 +90,65 @@ function escribir(
   return y - l.tamaño - 3;
 }
 
+/**
+ * Incrusta en el documento la imagen de `ruta` (logotipo o marca de agua,
+ * según Opciones → Rutas). Devuelve null si no hay ruta, la extensión no es
+ * PNG/JPG, no hay puente (navegador) o el fichero no se puede leer: en ese
+ * caso el PDF se genera igual, simplemente sin la imagen.
+ */
+async function incrustarImagen(doc: PDFDocument, ruta: string | undefined): Promise<PDFImage | null> {
+  const limpia = (ruta ?? "").trim();
+  const extension = limpia.toLowerCase().split(".").pop();
+  const esPng = extension === "png";
+  const esJpg = extension === "jpg" || extension === "jpeg";
+  if (limpia === "" || (!esPng && !esJpg) || !window.mercurio) return null;
+  try {
+    const bytes = await window.mercurio.leerImagen(limpia);
+    if (!bytes) return null;
+    return esPng ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+  } catch {
+    return null;
+  }
+}
+
+/** Dibuja el logotipo arriba a la derecha; su cima queda en `yTope`. */
+function dibujarLogo(
+  pagina: PDFPage, logo: PDFImage, xDcha: number, yTope: number, altoMax = 44,
+): void {
+  const escala = Math.min(altoMax / logo.height, 150 / logo.width);
+  const w = logo.width * escala;
+  const h = logo.height * escala;
+  pagina.drawImage(logo, { x: xDcha - w, y: yTope - h, width: w, height: h });
+}
+
+/**
+ * Marca de agua centrada en la página y girada 45°, muy traslúcida, dibujada
+ * antes que el texto para que quede por detrás del contenido.
+ */
+function dibujarMarca(
+  pagina: PDFPage, marca: PDFImage, anchoPagina: number, altoPagina: number,
+): void {
+  const escala = Math.min(
+    (anchoPagina * 0.5) / marca.width,
+    (altoPagina * 0.45) / marca.height,
+  );
+  const w = marca.width * escala;
+  const h = marca.height * escala;
+  // pdf-lib gira antihorario alrededor del punto (x, y): se coloca el ancla
+  // desplazada para que el centro rotado de la imagen caiga en el centro.
+  const g = Math.PI / 4;
+  const cos = Math.cos(g);
+  const sin = Math.sin(g);
+  pagina.drawImage(marca, {
+    x: anchoPagina / 2 - ((w / 2) * cos - (h / 2) * sin),
+    y: altoPagina / 2 - ((w / 2) * sin + (h / 2) * cos),
+    width: w,
+    height: h,
+    rotate: degrees(45),
+    opacity: 0.12,
+  });
+}
+
 /** Genera el PDF de la reclamación (A4) y lo devuelve en bytes. */
 export async function pdfReclamacion(
   r: Reclamacion,
@@ -93,12 +159,26 @@ export async function pdfReclamacion(
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontNegrita = await doc.embedFont(StandardFonts.HelveticaBold);
 
+  // Logotipo (Opciones → Rutas) y marca de agua (solo reclamaciones).
+  const config = await leerConfig();
+  const [logo, marca] = await Promise.all([
+    incrustarImagen(doc, config.LogoRuta),
+    incrustarImagen(doc, config.MarcaAguaRuta),
+  ]);
+
   const ancho = 595.28;
   const alto = 841.89;
   const margen = 30;
   const contenido = ancho - 2 * margen; // 535.28
   const abi = (contenido - 60) / 7; // ancho de las 4 columnas relativas (60 fija + 4:1:1:1)
   const base = { tamaño: 10, negrita: false, x: 0 };
+
+  /** Página nueva con la marca de agua por detrás del contenido. */
+  function nuevaPagina(): PDFPage {
+    const p = doc.addPage([ancho, alto]);
+    if (marca) dibujarMarca(p, marca, ancho, alto);
+    return p;
+  }
 
   // Columnas de la tabla (línea base izquierda).
   const colFecha = margen;
@@ -107,7 +187,7 @@ export async function pdfReclamacion(
   const colCobrado = colReal + abi;
   const colTotal = colCobrado + abi;
 
-  let pagina = doc.addPage([ancho, alto]);
+  let pagina = nuevaPagina();
   let y = alto - margen;
 
   const esMes = r.fecha !== "" ? Number(r.fecha.slice(5, 7)) : 1;
@@ -116,6 +196,7 @@ export async function pdfReclamacion(
   // Cabecera (la repite el original en cada página: la replicamos al saltar).
   function cabecera(): void {
     y = alto - margen;
+    if (logo) dibujarLogo(pagina, logo, ancho - margen, y + 14);
     y = escribir(pagina, font, fontNegrita, { ...base, texto: "RECLAMACIÓN DE CONCEPTOS", tamaño: 16, negrita: true, x: margen }, y);
     y = escribir(pagina, font, fontNegrita, {
       ...base,
@@ -151,7 +232,7 @@ export async function pdfReclamacion(
   const conceptos = [...r.conceptosReclamados].sort((a, b) => a.fecha.localeCompare(b.fecha));
   for (const c of conceptos) {
     if (y < margen + 90) {
-      pagina = doc.addPage([ancho, alto]);
+      pagina = nuevaPagina();
       cabecera();
     }
     pagina.drawText(fechaCorta(c.fecha), { x: colFecha, y, size: 10, font });
@@ -171,7 +252,7 @@ export async function pdfReclamacion(
   y -= 4;
   for (const linea of (r.notas ?? "").split("\n")) {
     if (y < margen + 60) {
-      pagina = doc.addPage([ancho, alto]);
+      pagina = nuevaPagina();
       cabecera();
     }
     pagina.drawText(linea, { x: margen, y, size: 10, font });
@@ -208,6 +289,11 @@ export async function pdfInforme(
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const fontNegrita = await doc.embedFont(StandardFonts.HelveticaBold);
   const fontOblicua = await doc.embedFont(StandardFonts.HelveticaOblique);
+
+  // Logotipo de Opciones → Rutas (los informes no llevan marca de agua).
+  const config = await leerConfig();
+  const logo = await incrustarImagen(doc, config.LogoRuta);
+
   const ancho = apaisado ? 841.89 : 595.28;
   const alto = apaisado ? 595.28 : 841.89;
   const margen = 25;
@@ -219,6 +305,7 @@ export async function pdfInforme(
   // Cabecera de QuestPDF: se repite en cada página.
   function cabecera(): void {
     y = alto - margen;
+    if (logo) dibujarLogo(pagina, logo, ancho - margen, y + 12, 34);
     pagina.drawText(titulo, { x: margen, y, size: 14, font: fontNegrita });
     y -= 18;
     if (descripcion !== "") {

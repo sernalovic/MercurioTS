@@ -15,6 +15,7 @@ declare global {
       guardarExcel(datos: ArrayBuffer, nombreDefecto: string): Promise<string | null>;
       dialogoCarpeta(): Promise<string | null>;
       dialogoImagen(): Promise<string | null>;
+      leerImagen(ruta: string): Promise<ArrayBuffer | null>;
     };
   }
 }
