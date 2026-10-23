@@ -283,6 +283,7 @@ export function conductorDesdeFila(fila: FilaConductor, regulaciones: FilaRegula
     acumuladasIniciales: aMinutos(fila.acumuladasIniciales),
     dcsIniciales: aNumero(fila.dcsIniciales),
     dndsIniciales: aNumero(fila.dndsIniciales),
+    isReduccionJornada: fila.isReduccionJornada,
     regulaciones: regulaciones.map((r): Regulacion => ({
       id: r.id,
       conductorId: r.conductorId,

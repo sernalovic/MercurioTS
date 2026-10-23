@@ -156,6 +156,8 @@ export interface Conductor {
   acumuladasIniciales: number;
   dcsIniciales: number;
   dndsIniciales: number;
+  /** Trabajador con jornada reducida (dato de la ficha, para el Excel crudo). */
+  isReduccionJornada?: boolean;
   regulaciones: Regulacion[];
 }
 

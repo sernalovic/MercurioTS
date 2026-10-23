@@ -11,13 +11,16 @@
   "dependencies": {
     "@mercurio/db": "workspace:*",
     "@mercurio/domain": "workspace:*",
+    "exceljs": "^4.4.0",
     "jose": "^6.2.13",
     "next": "16.4.2",
+    "nodemailer": "^7.0.13",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

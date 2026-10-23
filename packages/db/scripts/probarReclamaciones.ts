@@ -146,8 +146,10 @@ async function main(): Promise<void> {
     return;
   }
   r = await pedir(t, `nominas?idConductor=${ID_CONDUCTOR}`, "GET");
-  if (((r.datos["nominas"] as unknown[]) ?? []).length !== 0) {
-    console.log("La BD ya tiene nóminas del conductor (no debería en dev limpio). Se detiene.");
+  const nominasIniciales = ((r.datos["nominas"] as Record<string, unknown>[]) ?? [])
+    .filter((x) => String(x["fecha"]).slice(0, 10) === FECHA_OCT);
+  if (nominasIniciales.length !== 0) {
+    console.log("La BD ya tiene nómina de octubre del conductor (no debería en dev limpio). Se detiene.");
     await pool.end();
     return;
   }
@@ -196,20 +198,25 @@ async function main(): Promise<void> {
     comprobar("la lista está en desc por fecha (dic > oct > sep):", fechas[0] === FECHA_DIC, fechas.join(", "));
 
     // ---- DCs/DNDs reclamados en curso (agosto abierta con pendientes) ----
+    // (baseline: reclamaciones abiertas anteriores del conductor ya cuentan)
+    r = await pedir(t, `reclamaciones/dcsReclamados?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
+    const baseDcs = Number(r.datos["importe"]);
+    r = await pedir(t, `reclamaciones/dndsReclamados?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
+    const baseDnds = Number(r.datos["importe"]);
     r = await pedir(t, "reclamaciones", "POST", cuerpoAgo());
     const idAgo = Number(r.datos["id"] ?? 0);
     idsCreados.push(idAgo);
     r = await pedir(t, `reclamaciones/dcsReclamados?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
-    comprobar("dcsReclamados suma la de agosto en curso", Number(r.datos["importe"]) === 2, String(r.datos["importe"]));
+    comprobar("dcsReclamados suma la de agosto en curso", Number(r.datos["importe"]) === baseDcs + 2, `${baseDcs} → ${r.datos["importe"]}`);
     r = await pedir(t, `reclamaciones/dndsReclamados?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
-    comprobar("dndsReclamados idem para DNDs", Number(r.datos["importe"]) === 1, String(r.datos["importe"]));
+    comprobar("dndsReclamados idem para DNDs", Number(r.datos["importe"]) === baseDnds + 1, `${baseDnds} → ${r.datos["importe"]}`);
 
     // ---- cerrar la de agosto: deja de contar como en curso ----
     r = await pedir(t, `reclamaciones/${idAgo}`, "GET");
     const datosAgo = r.datos["reclamacion"] as Record<string, unknown>;
     r = await pedir(t, `reclamaciones/${idAgo}`, "PUT", { ...datosAgo, cerrada: true });
     r = await pedir(t, `reclamaciones/dcsReclamados?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
-    comprobar("al marcar cerrada deja de contar", Number(r.datos["importe"]) === 0, String(r.datos["importe"]));
+    comprobar("al marcar cerrada deja de contar", Number(r.datos["importe"]) === baseDcs, String(r.datos["importe"]));
 
     // ---- PUT que deja fuera un concepto: baja del que no viene ----
     const sinConceptos = { ...datosAgo, cerrada: false, conceptosReclamados: [] };
@@ -244,7 +251,7 @@ async function main(): Promise<void> {
     // ---- GET lista + nominas/id ----
     r = await pedir(t, `nominas?idConductor=${ID_CONDUCTOR}`, "GET");
     const listasNom = (r.datos["nominas"] as Record<string, unknown>[]) ?? [];
-    comprobar("GET nominas la devuelve", listasNom.length === 1 && Number(listasNom[0]?.["id"]) === nominaId);
+    comprobar("GET nominas la devuelve", listasNom.some((n) => Number(n["id"]) === nominaId));
     r = await pedir(t, `nominas/id?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
     comprobar("nominas/id ahora devuelve el id", Number(r.datos["id"]) === nominaId);
 
@@ -286,7 +293,8 @@ async function main(): Promise<void> {
     const id2 = Number(nomina2?.["id"] ?? 0);
     comprobar("regenerar devuelve una nómina", r.estado === 200 && id2 > 0);
     r = await pedir(t, `nominas?idConductor=${ID_CONDUCTOR}`, "GET");
-    const trasRegen = (r.datos["nominas"] as Record<string, unknown>[]) ?? [];
+    const trasRegen = ((r.datos["nominas"] as Record<string, unknown>[]) ?? [])
+      .filter((n) => String(n["fecha"]).slice(0, 10) === FECHA_OCT);
     comprobar("regenerada sustituye a la previa (solo una)", trasRegen.length === 1 && Number(trasRegen[0]?.["id"]) === id2);
     if (nominaId !== id2) idsNominasCreados = idsNominasCreados.filter((x) => x !== nominaId);
     idsNominasCreados.push(id2);
@@ -300,10 +308,10 @@ async function main(): Promise<void> {
     await limpiar(t, idsCreados, []);
     r = await pedir(t, `reclamaciones?idConductor=${ID_CONDUCTOR}`, "GET");
     const final = (r.datos["reclamaciones"] as Record<string, unknown>[]) ?? [];
-    comprobar("la BD queda como estaba (solo las 2 reales)", final.length === iniciales.length &&
+    comprobar("la BD queda como estaba (solo las de antes del test)", final.length === iniciales.length &&
       final.every((x) => iniciales.some((y) => y["id"] === x["id"])), `${final.length} reclamaciones`);
-    r = await pedir(t, `nominas?idConductor=${ID_CONDUCTOR}`, "GET");
-    comprobar("sin nóminas al terminar", ((r.datos["nominas"] as unknown[]) ?? []).length === 0);
+    r = await pedir(t, `nominas/id?fecha=${FECHA_OCT}&idConductor=${ID_CONDUCTOR}`, "GET");
+    comprobar("sin nómina de octubre al terminar", Number(r.datos["id"]) === 0);
   } finally {
     await limpiar(t, idsCreados, idsNominasCreados);
     await pool.end();

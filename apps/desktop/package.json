@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@mercurio/domain": "workspace:*",
+    "exceljs": "^4.4.0",
     "pdf-lib": "^1.17.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"

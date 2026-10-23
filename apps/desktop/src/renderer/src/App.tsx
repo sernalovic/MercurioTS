@@ -17,6 +17,10 @@ import { PantallaReclamaciones } from "./pantallas/Reclamaciones";
 import { PantallaNominas } from "./pantallas/Nominas";
 import { PantallaConvenios } from "./pantallas/Convenios";
 import { PantallaLineas } from "./pantallas/Lineas";
+import { PantallaInformes } from "./pantallas/Informes";
+import { PantallaHerramientas } from "./pantallas/Herramientas";
+import { PantallaExtraerGraficos } from "./pantallas/ExtraerGraficos";
+import { PantallaUsuarios } from "./pantallas/Usuarios";
 import { Barra } from "./componentes/Barra";
 import { PedirHost } from "./lib/dialogos";
 import { PantallaPendiente } from "./pantallas/Pendiente";
@@ -35,6 +39,7 @@ export type NombrePantalla =
   | "lineas"
   | "informes"
   | "herramientas"
+  | "extraerGraficos"
   | "usuarios";
 
 export function App(): ReactNode {
@@ -184,6 +189,36 @@ export function App(): ReactNode {
           />
         ) : pantalla === "lineas" ? (
           <PantallaLineas
+            servidor={config.Servidor}
+            token={config.Token}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "informes" ? (
+          <PantallaInformes
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            mes={mes}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "herramientas" ? (
+          <PantallaHerramientas
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            mes={mes}
+            onVolver={() => setPantalla("menu")}
+            onExtraer={() => setPantalla("extraerGraficos")}
+          />
+        ) : pantalla === "extraerGraficos" ? (
+          <PantallaExtraerGraficos
+            servidor={config.Servidor}
+            token={config.Token}
+            centro={centro}
+            onVolver={() => setPantalla("herramientas")}
+          />
+        ) : pantalla === "usuarios" ? (
+          <PantallaUsuarios
             servidor={config.Servidor}
             token={config.Token}
             onVolver={() => setPantalla("menu")}

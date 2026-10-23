@@ -748,3 +748,66 @@ body {
   margin-top: 12px;
 }
 /* ===== fin dilogo pedir ===== */
+
+/* ===== Pantallas Informes / Herramientas / Extraer grficos / Usuarios (M8) ===== */
+.comboInformes { width: 260px; }
+.cabeceraInforme h3 { margin: 4px 16px 0; font-size: 15px; }
+.cabeceraInforme p { margin: 2px 16px 8px; font-style: italic; }
+.tablaInforme { flex: 1; min-height: 0; overflow: auto; margin: 0 16px 16px; }
+.herramientasPaneles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 16px 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.panel {
+  background: #fff;
+  border: 1px solid var(--borde);
+  padding: 12px;
+  width: 520px;
+  max-width: 100%;
+}
+.panel p { margin: 0 0 4px; }
+.panel .botonPrincipal { margin-top: 8px; }
+.paginaExtraer { display: flex; flex-direction: column; }
+.ayudaExtraer { margin: 0 16px; color: gray; }
+.extraerCuerpo {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  padding: 6px 16px;
+}
+.textoExtraer {
+  flex: 2;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  border: 1px solid var(--borde);
+  resize: none;
+  white-space: pre;
+  overflow: auto;
+}
+.extraerDerecha { flex: 3; min-width: 0; display: flex; flex-direction: column; overflow: auto; }
+.itinerariosExtraer { margin-top: 8px; }
+.avisosExtraer p { margin: 2px 0; color: darkorange; }
+.resumenExtraer { margin: 0 16px 12px; font-family: Consolas, monospace; }
+.paginaUsuarios { display: flex; flex-direction: column; }
+.usuariosCuerpo { display: flex; gap: 10px; flex: 1; min-height: 0; padding: 8px 16px 16px; }
+.usuariosRejilla { flex: 1; min-width: 0; overflow: auto; }
+.panelEmail { flex: none; width: 380px; }
+.panelEmail .campoEtiqueta span { width: 70px; }
+.panelEmail .campoEtiqueta .celda.ancho { width: 260px; }
+.panelEmail .campoEtiqueta.arriba { align-items: flex-start; }
+.cuerpoEmail {
+  width: 280px;
+  height: 260px;
+  border: 1px solid var(--borde);
+  font: inherit;
+  resize: none;
+  box-sizing: border-box;
+}
+.panelEmail .botonPrincipal { margin-top: 10px; }
+/* ===== fin pantallas M8 ===== */

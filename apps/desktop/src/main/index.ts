@@ -117,18 +117,40 @@ ipcMain.handle(
 
 /**
  * Port de `LineasViewModel.Exportar`: diálogo de guardar JSON (nombre por
- * defecto en Documentos) y escritura del fichero. Devuelve la ruta o null.
+ * defecto en Documentos) y escritura del fichero. Con `filtro` se reutiliza
+ * para otros ficheros de texto ("*.txt" en «Guardar texto» de Extraer
+ * gráficos). Devuelve la ruta o null si se cancela.
  */
 ipcMain.handle(
   "json:guardar",
-  async (_evento, datos: string, nombreDefecto: string): Promise<string | null> => {
+  async (_evento, datos: string, nombreDefecto: string, filtro?: { name: string; extensions: string[] }): Promise<string | null> => {
     const ventana = BrowserWindow.getAllWindows()[0];
     const resultado = await dialog.showSaveDialog(ventana, {
-      filters: [{ name: "Archivos JSON", extensions: ["json"] }],
+      filters: [filtro ?? { name: "Archivos JSON", extensions: ["json"] }],
       defaultPath: path.join(app.getPath("documents"), nombreDefecto),
     });
     if (resultado.canceled || !resultado.filePath) return null;
     fs.writeFileSync(resultado.filePath, datos, "utf-8");
+    return resultado.filePath;
+  },
+);
+
+/**
+ * Port del `Excel.Tabla(ruta)` + `Pdf.Abrir(ruta)` de `HerramientasViewModel`:
+ * diálogo de guardar Excel, escritura del fichero y apertura con la
+ * aplicación asociada.
+ */
+ipcMain.handle(
+  "excel:guardar",
+  async (_evento, datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> => {
+    const ventana = BrowserWindow.getAllWindows()[0];
+    const resultado = await dialog.showSaveDialog(ventana, {
+      filters: [{ name: "Archivo de Excel", extensions: ["xlsx"] }],
+      defaultPath: path.join(app.getPath("documents"), nombreDefecto),
+    });
+    if (resultado.canceled || !resultado.filePath) return null;
+    fs.writeFileSync(resultado.filePath, Buffer.from(datos));
+    await shell.openPath(resultado.filePath);
     return resultado.filePath;
   },
 );

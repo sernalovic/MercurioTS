@@ -191,3 +191,76 @@ export async function pdfReclamacion(
 
   return doc.save();
 }
+
+/**
+ * Port de `Servicios/Pdf.Informe` (QuestPDF): informe genérico con título,
+ * descripción y tabla (cabecera repetida en cada página, como el Header de
+ * QuestPDF). El pie del original es "Página N" centrado.
+ */
+export async function pdfInforme(
+  titulo: string,
+  descripcion: string,
+  cabeceras: readonly string[],
+  filas: readonly string[][],
+  apaisado = false,
+): Promise<Uint8Array> {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const fontNegrita = await doc.embedFont(StandardFonts.HelveticaBold);
+  const fontOblicua = await doc.embedFont(StandardFonts.HelveticaOblique);
+  const ancho = apaisado ? 841.89 : 595.28;
+  const alto = apaisado ? 595.28 : 841.89;
+  const margen = 25;
+  const contenido = ancho - 2 * margen;
+  const abi = contenido / Math.max(cabeceras.length, 1);
+  let pagina = doc.addPage([ancho, alto]);
+  let y = alto - margen;
+
+  // Cabecera de QuestPDF: se repite en cada página.
+  function cabecera(): void {
+    y = alto - margen;
+    pagina.drawText(titulo, { x: margen, y, size: 14, font: fontNegrita });
+    y -= 18;
+    if (descripcion !== "") {
+      pagina.drawText(descripcion, { x: margen, y, size: 9, font: fontOblicua, maxWidth: contenido });
+      y -= 14;
+    }
+    y -= 4;
+    // Fila de cabeceras de la tabla (fondo gris del original).
+    pagina.drawRectangle({ x: margen, y: y - 2, width: contenido, height: 13, color: rgb(0.87, 0.87, 0.87) });
+    for (let i = 0; i < cabeceras.length; i++) {
+      pagina.drawText(cabeceras[i] ?? "", { x: margen + 2 + i * abi, y, size: 9, font: fontNegrita, maxWidth: abi - 4 });
+    }
+    y -= 17;
+  }
+
+  cabecera();
+
+  for (const fila of filas) {
+    if (y < margen + 20) {
+      pagina = doc.addPage([ancho, alto]);
+      cabecera();
+    }
+    for (let i = 0; i < Math.max(fila.length, cabeceras.length); i++) {
+      pagina.drawText(fila[i] ?? "", { x: margen + 2 + i * abi, y, size: 9, font, maxWidth: abi - 4 });
+    }
+    // Borde inferior de la celda (BorderBottom 0.5 del original).
+    pagina.drawLine({
+      start: { x: margen, y: y - 3 },
+      end: { x: ancho - margen, y: y - 3 },
+      thickness: 0.5,
+      color: rgb(0.93, 0.93, 0.93),
+    });
+    y -= 13;
+  }
+
+  // Pie: "Página N" centrado en cada página.
+  const paginas = doc.getPages();
+  for (let i = 0; i < paginas.length; i++) {
+    const texto = `Página ${i + 1}`;
+    const w = font.widthOfTextAtSize(texto, 9);
+    paginas[i].drawText(texto, { x: (ancho - w) / 2, y: 16, size: 9, font });
+  }
+
+  return doc.save();
+}

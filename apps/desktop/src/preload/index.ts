@@ -14,6 +14,9 @@ contextBridge.exposeInMainWorld("mercurio", {
   guardarPdf: (datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> =>
     ipcRenderer.invoke("pdf:guardar", datos, nombreDefecto),
   /** Diálogo de guardar JSON + escritura (LineasViewModel.Exportar). */
-  guardarJson: (datos: string, nombreDefecto: string): Promise<string | null> =>
-    ipcRenderer.invoke("json:guardar", datos, nombreDefecto),
+  guardarJson: (datos: string, nombreDefecto: string, filtro?: { name: string; extensions: string[] }): Promise<string | null> =>
+    ipcRenderer.invoke("json:guardar", datos, nombreDefecto, filtro),
+  /** Diálogo de guardar Excel + escritura + apertura (Herramientas). */
+  guardarExcel: (datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> =>
+    ipcRenderer.invoke("excel:guardar", datos, nombreDefecto),
 });
