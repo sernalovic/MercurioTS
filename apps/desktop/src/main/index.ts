@@ -16,6 +16,16 @@ export interface Configuracion {
   UltimoCentro: string;
   Token: string;
   Expira: number; // instante de expiración del token (ms Unix); 0 si no hay
+  /** Ventana Opciones → General: no reutilizar la sesión al abrir. */
+  PedirSesion?: boolean;
+  /** Ventana Opciones → General: abrir el PDF tras generarlo. */
+  AbrirPdf?: boolean;
+  /** Ventana Opciones → Rutas: carpeta por defecto de los PDFs de informes. */
+  CarpetaInformes?: string;
+  /** Ventana Opciones → Rutas: logotipo para informes y reclamaciones. */
+  LogoRuta?: string;
+  /** Ventana Opciones → Rutas: marca de agua para las reclamaciones. */
+  MarcaAguaRuta?: string;
   /** Tamaños arrastrados de los separadores de paneles, por pantalla. */
   Medidas?: Record<string, number>;
 }
@@ -33,6 +43,11 @@ function configuracionPorDefecto(): Configuracion {
     UltimoCentro: "Bilbao",
     Token: "",
     Expira: 0,
+    PedirSesion: true,
+    AbrirPdf: true,
+    CarpetaInformes: "",
+    LogoRuta: "",
+    MarcaAguaRuta: "",
   };
 }
 
@@ -100,24 +115,47 @@ ipcMain.handle("config:guardar", (_evento, nueva: Configuracion) => {
 
 /**
  * Port de `Pdf.Reclamacion(...)` + `Pdf.Abrir(ruta)` del original: diálogo de
- * guardar (filtrado PDF, nombre por defecto en Documentos), escritura del
- * fichero y apertura con la aplicación asociada. Devuelve la ruta o null si
- * el diálogo se cancela.
+ * guardar (filtrado PDF, carpeta por defecto de Opciones → Rutas o
+ * Documentos/Mercurio/Informes, escritura del fichero y apertura con la
+ * aplicación asociada si Opciones → General lo permite). Devuelve la ruta o
+ * null si el diálogo se cancela.
  */
 ipcMain.handle(
   "pdf:guardar",
   async (_evento, datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> => {
     const ventana = BrowserWindow.getAllWindows()[0];
+    const conf = leerConfig();
+    const carpeta = (conf.CarpetaInformes ?? "").trim() !== ""
+      ? (conf.CarpetaInformes as string).trim()
+      : path.join(app.getPath("documents"), "Mercurio", "Informes");
     const resultado = await dialog.showSaveDialog(ventana, {
       filters: [{ name: "PDF", extensions: ["pdf"] }],
-      defaultPath: path.join(app.getPath("documents"), nombreDefecto),
+      defaultPath: path.join(carpeta, nombreDefecto),
     });
     if (resultado.canceled || !resultado.filePath) return null;
+    fs.mkdirSync(path.dirname(resultado.filePath), { recursive: true });
     fs.writeFileSync(resultado.filePath, Buffer.from(datos));
-    await shell.openPath(resultado.filePath);
+    if (conf.AbrirPdf !== false) await shell.openPath(resultado.filePath);
     return resultado.filePath;
   },
 );
+
+/** Diálogo nativo de selección de carpeta (Opciones → Rutas). */
+ipcMain.handle("dialogo:carpeta", async (): Promise<string | null> => {
+  const ventana = BrowserWindow.getAllWindows()[0];
+  const resultado = await dialog.showOpenDialog(ventana, { properties: ["openDirectory"] });
+  return resultado.canceled || resultado.filePaths.length === 0 ? null : resultado.filePaths[0];
+});
+
+/** Diálogo nativo de selección de imagen (Opciones → Rutas: logo / marca de agua). */
+ipcMain.handle("dialogo:imagen", async (): Promise<string | null> => {
+  const ventana = BrowserWindow.getAllWindows()[0];
+  const resultado = await dialog.showOpenDialog(ventana, {
+    properties: ["openFile"],
+    filters: [{ name: "Imágenes", extensions: ["png", "jpg", "jpeg", "bmp"] }],
+  });
+  return resultado.canceled || resultado.filePaths.length === 0 ? null : resultado.filePaths[0];
+});
 
 /**
  * Port de `LineasViewModel.Exportar`: diálogo de guardar JSON (nombre por

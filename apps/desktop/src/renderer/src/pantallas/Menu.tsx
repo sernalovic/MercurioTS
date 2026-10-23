@@ -20,6 +20,7 @@ const TILES: { destino: NombrePantalla; titulo: string; icono: string }[] = [
   { destino: "reclamaciones", titulo: "Reclamaciones", icono: "⚖️" },
   { destino: "convenios", titulo: "Convenios", icono: "🤝" },
   { destino: "herramientas", titulo: "Herramientas", icono: "🛠️" },
+  { destino: "opciones", titulo: "Opciones", icono: "⚙️" },
 ];
 
 export function PantallaMenu({ sesion, servidor, centro, onCentro, irA }: {

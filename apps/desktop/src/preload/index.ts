@@ -19,4 +19,8 @@ contextBridge.exposeInMainWorld("mercurio", {
   /** Diálogo de guardar Excel + escritura + apertura (Herramientas). */
   guardarExcel: (datos: ArrayBuffer, nombreDefecto: string): Promise<string | null> =>
     ipcRenderer.invoke("excel:guardar", datos, nombreDefecto),
+  /** Diálogo nativo de selección de carpeta (Opciones → Rutas). */
+  dialogoCarpeta: (): Promise<string | null> => ipcRenderer.invoke("dialogo:carpeta"),
+  /** Diálogo nativo de selección de imagen (Opciones → Rutas). */
+  dialogoImagen: (): Promise<string | null> => ipcRenderer.invoke("dialogo:imagen"),
 });

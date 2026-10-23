@@ -855,6 +855,85 @@ body {
 .emailPie { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-top: 1px solid var(--borde); }
 /* ===== fin Usuarios Orión 2 ===== */
 
+/* --- Pantalla Opciones (ventana Orión 2 con pestañas) --- */
+.paginaOpciones {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px;
+}
+.ventanaOpciones {
+  width: min(1400px, 98%);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #9c9c9c;
+  background: #fdfdfd;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.opcionesCuerpo { flex: 1; min-height: 0; display: flex; }
+.tabsOpciones {
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #f2f5fa;
+}
+.tabOpcion {
+  border: none;
+  background: none;
+  padding: 18px 12px;
+  font: inherit;
+  font-size: 19px;
+  color: #333;
+  cursor: pointer;
+  text-align: center;
+}
+.tabOpcion:hover { background: #e7edf6; }
+.tabOpcion.sel { background: var(--orion-banda); color: #16365c; }
+.opcionContenido {
+  flex: 1;
+  min-width: 0;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  overflow: auto;
+}
+.filaOpcion { display: flex; align-items: center; gap: 16px; }
+.etiquetaOpcion { font-size: 16px; color: #333; }
+.interruptor {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 5px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  min-width: 70px;
+}
+.interruptor.si { color: #1a7a1a; }
+.interruptor.no { color: #c62828; }
+.campoRuta { display: flex; flex-direction: column; gap: 6px; }
+.rutaEtiqueta { color: #16365c; font-size: 13px; }
+.rutaEntrada { display: flex; gap: 8px; }
+.rutaEntrada input, .campoRuta > input {
+  flex: 1;
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 7px 10px;
+  font: inherit;
+  border-radius: 3px;
+  min-width: 0;
+}
+.avisoRojo { color: #c62828; font-size: 13px; }
+.opcionesPie {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 14px;
+  border-top: 1px solid var(--borde);
+}
+
 /* ===== Icono en la pantalla de acceso (M9) ===== */
 .logoAcceso {
   width: 64px;

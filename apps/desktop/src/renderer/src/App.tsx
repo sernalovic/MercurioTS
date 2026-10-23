@@ -21,6 +21,7 @@ import { PantallaInformes } from "./pantallas/Informes";
 import { PantallaHerramientas } from "./pantallas/Herramientas";
 import { PantallaExtraerGraficos } from "./pantallas/ExtraerGraficos";
 import { PantallaUsuarios } from "./pantallas/Usuarios";
+import { PantallaOpciones } from "./pantallas/Opciones";
 import { Barra } from "./componentes/Barra";
 import { PedirHost } from "./lib/dialogos";
 import { PantallaPendiente } from "./pantallas/Pendiente";
@@ -40,7 +41,8 @@ export type NombrePantalla =
   | "informes"
   | "herramientas"
   | "extraerGraficos"
-  | "usuarios";
+  | "usuarios"
+  | "opciones";
 
 export function App(): ReactNode {
   const [config, setConfig] = useState<Configuracion | null>(null);
@@ -53,14 +55,15 @@ export function App(): ReactNode {
   /** Pantalla desde la que se abrió el detalle (para volver a la correcta). */
   const [origenDetalle, setOrigenDetalle] = useState<NombrePantalla>("calendariosConductor");
 
-  // Al abrir: si hay token guardado aún válido se recupera la sesión.
+  // Al abrir: si hay token guardado aún válido se recupera la sesión,
+  // salvo que Opciones → General pida siempre inicio de sesión.
   useEffect(() => {
     void (async () => {
       const guardada = await leerConfig();
       setConfig(guardada);
       setCentro(guardada.UltimoCentro);
       setPantalla("menu");
-      if (guardada.Token && guardada.Expira > Date.now()) {
+      if (guardada.Token && guardada.Expira > Date.now() && guardada.PedirSesion === false) {
         try {
           const resultado = await verificar(guardada.Servidor, guardada.Token);
           setSesion(resultado.sesion);
@@ -241,6 +244,12 @@ export function App(): ReactNode {
           <PantallaUsuarios
             servidor={config.Servidor}
             token={config.Token}
+            onVolver={() => setPantalla("menu")}
+          />
+        ) : pantalla === "opciones" ? (
+          <PantallaOpciones
+            configuracion={config}
+            onGuardar={guardar}
             onVolver={() => setPantalla("menu")}
           />
         ) : (

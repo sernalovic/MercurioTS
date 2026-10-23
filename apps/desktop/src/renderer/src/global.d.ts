@@ -13,6 +13,8 @@ declare global {
       guardarPdf(datos: ArrayBuffer, nombreDefecto: string): Promise<string | null>;
       guardarJson(datos: string, nombreDefecto: string, filtro?: { name: string; extensions: string[] }): Promise<string | null>;
       guardarExcel(datos: ArrayBuffer, nombreDefecto: string): Promise<string | null>;
+      dialogoCarpeta(): Promise<string | null>;
+      dialogoImagen(): Promise<string | null>;
     };
   }
 }

@@ -13,6 +13,16 @@ export interface Configuracion {
   UltimoCentro: string;
   Token: string;
   Expira: number;
+  /** Ventana Opciones → General: no reutilizar la sesión al abrir. */
+  PedirSesion: boolean;
+  /** Ventana Opciones → General: abrir el PDF tras generarlo. */
+  AbrirPdf: boolean;
+  /** Ventana Opciones → Rutas: carpeta por defecto de los PDFs de informes. */
+  CarpetaInformes: string;
+  /** Ventana Opciones → Rutas: logotipo para informes y reclamaciones. */
+  LogoRuta: string;
+  /** Ventana Opciones → Rutas: marca de agua para las reclamaciones. */
+  MarcaAguaRuta: string;
   /** Tamaños arrastrados de los separadores de paneles, por pantalla. */
   Medidas?: Record<string, number>;
 }
@@ -24,6 +34,11 @@ export function configuracionPorDefecto(): Configuracion {
     UltimoCentro: "Bilbao",
     Token: "",
     Expira: 0,
+    PedirSesion: true,
+    AbrirPdf: true,
+    CarpetaInformes: "",
+    LogoRuta: "",
+    MarcaAguaRuta: "",
   };
 }
 
