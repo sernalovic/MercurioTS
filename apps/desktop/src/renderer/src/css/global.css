@@ -1540,3 +1540,52 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .tarjeta2 { border-color: #e8b57c; color: #b26a00; }
 .tarjeta3 { border-color: #e87c7c; color: #b41a1a; }
 /* ===== fin Informes Orión 2 ===== */
+
+/* ===== Separadores arrastrables entre paneles (GridSplitter del
+   original): barra fina con agarre en el centro; al pasar el ratón
+   (o mientras se arrastra) se ilumina en azul Orión. ===== */
+.separadorV {
+  position: relative;
+  flex: 0 0 6px;
+  align-self: stretch;
+  cursor: col-resize;
+  background: transparent;
+  touch-action: none;
+}
+.separadorH {
+  position: relative;
+  flex: 0 0 6px;
+  cursor: row-resize;
+  background: transparent;
+  touch-action: none;
+}
+.separadorV::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 28px;
+  background: #c2c2c2;
+}
+.separadorH::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 2px;
+  background: #c2c2c2;
+}
+.separadorV:hover::before,
+.separadorH:hover::before,
+body.arrastrando .separadorV::before,
+body.arrastrando .separadorH::before {
+  background: #1a4d80;
+}
+body.arrastrando {
+  cursor: default;
+  user-select: none;
+}

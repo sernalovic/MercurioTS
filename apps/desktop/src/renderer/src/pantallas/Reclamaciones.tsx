@@ -17,6 +17,7 @@ import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
 import { duracion, importe, minutosDeHora, parseHora } from "../lib/horas";
 import { pdfReclamacion } from "../lib/pdf";
+import { SeparadorV } from "../componentes/Separador";
 import {
   TipoReclamacion, esResuelta, notas as notasDe, nuevoConceptoReclamado,
   nombreEnum, TiposDieta,
@@ -304,6 +305,7 @@ export function PantallaReclamaciones({ servidor, token, centro, mes, onVolver }
 }): ReactNode {
   const [conductores, setConductores] = useState<ConductorCombo[]>([]);
   const [idConductor, setIdConductor] = useState<number | null>(null);
+  const [anchoCond, setAnchoCond] = useState(300);
   const [reclamaciones, setReclamaciones] = useState<Reclamacion[]>([]);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const [borrados, setBorrados] = useState<ConceptoReclamado[]>([]);
@@ -557,7 +559,7 @@ export function PantallaReclamaciones({ servidor, token, centro, mes, onVolver }
         <button className="boton" onClick={cargarConductores} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
       <div className="reclNominasCuerpo reclNominasCuerpoO2">
-        <div className="panelPrincipalGraficos panelConductoresRecl">
+        <div className="panelPrincipalGraficos panelConductoresRecl" style={{ flex: `0 0 ${anchoCond}px` }}>
           <div className="bandaTitulo">CONDUCTORES - {centro}</div>
           <div className="marcoRejilla">
             <table className="rejilla rejillaConductoresRecl">
@@ -579,6 +581,7 @@ export function PantallaReclamaciones({ servidor, token, centro, mes, onVolver }
             </table>
           </div>
         </div>
+        <SeparadorV ancho={anchoCond} onAncho={setAnchoCond} min={200} max={700} />
         <div className="panelPrincipalGraficos">
           <div className="bandaTitulo">RECLAMACIONES - {conductor?.matricula ?? "-"}</div>
           <div className="barraPanel">

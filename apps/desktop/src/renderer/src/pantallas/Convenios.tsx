@@ -16,6 +16,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
+import { SeparadorV } from "../componentes/Separador";
 import { centimosDe, duracion, importe, minutosDeHora, parseHora } from "../lib/horas";
 import { nombreEnum, nuevoConvenio, nuevaTablaSalarial, incrementarImportes,
   CentroTrabajo, CategoriaTrabajador,
@@ -326,6 +327,7 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
   onVolver: () => void;
 }): ReactNode {
   const [convenios, setConvenios] = useState<Convenio[]>([]);
+  const [anchoConv, setAnchoConv] = useState(190);
   const [bajaConvenios, setBajaConvenios] = useState<number[]>([]);
   const [bajaFestivos, setBajaFestivos] = useState<Array<{ id: number; fecha: string }>>([]);
   const [seleccionado, setSeleccionado] = useState(-1);
@@ -543,7 +545,7 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
         <button className="boton" onClick={cargar} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
       <div className="conveniosCuerpo conveniosCuerpoO2">
-        <div className="panelPrincipalGraficos panelConvenios">
+        <div className="panelPrincipalGraficos panelConvenios" style={{ flex: `0 0 ${anchoConv}px` }}>
           <div className="bandaTitulo">Convenios</div>
           <div className="barraPanel">
             <button className="boton" onClick={() => void añadir()} disabled={ocupado}>＋</button>
@@ -566,6 +568,7 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
             </table>
           </div>
         </div>
+        <SeparadorV ancho={anchoConv} onAncho={setAnchoConv} min={120} max={600} />
         <div className="panelPrincipalGraficos panelDetalleConvenio">
           <div className="bandaTitulo">CONVENIO: {conv?.año ?? "-"}</div>
           {conv === null ? (

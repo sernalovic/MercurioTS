@@ -21,6 +21,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pdfInforme } from "../lib/pdf";
+import { SeparadorV } from "../componentes/Separador";
 import { duracion } from "../lib/horas";
 import {
   CentroTrabajo, CategoriaTrabajador, SituacionTrabajador, TipoReclamacion, TiposDieta, nombreEnum,
@@ -170,6 +171,7 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
   onVolver: () => void;
 }): ReactNode {
   const [informe, setInforme] = useState("comparar");
+  const [anchoInf, setAnchoInf] = useState(230);
   const [resultado, setResultado] = useState<TablaInforme | null>(null);
   const [tarjetas, setTarjetas] = useState<Array<[string, string]>>([]);
   const [ocupado, setOcupado] = useState(false);
@@ -482,7 +484,7 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
   return (
     <div className="pagina paginaInformesO2">
       <div className="informesCuerpo">
-        <div className="sidebarInformes">
+        <div className="sidebarInformes" style={{ flex: `0 0 ${anchoInf}px` }}>
           <button className="boton botonVolverInf" onClick={onVolver} disabled={ocupado}>← Volver</button>
           {GRUPOS_SIDEBAR.map((grupo) => (
             <div key={grupo.titulo} className="grupoSidebar">
@@ -499,6 +501,7 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
             </div>
           ))}
         </div>
+        <SeparadorV ancho={anchoInf} onAncho={setAnchoInf} min={140} max={520} />
         <div className="informesPrincipal">
           <div className="cabeceraInformeO2">
             <h2>{TITULOS[informe]}</h2>

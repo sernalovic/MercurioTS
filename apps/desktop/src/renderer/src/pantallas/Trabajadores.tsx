@@ -17,6 +17,7 @@ import {
   type Reclamacion,
 } from "@mercurio/domain";
 import type { ConductorContexto } from "./CalendariosConductor";
+import { SeparadorV } from "../componentes/Separador";
 
 // ---- formas de datos ----
 
@@ -527,6 +528,7 @@ export function PantallaTrabajadores({ servidor, token, centro, onVolver, onVerC
   const [filas, setFilas] = useState<Fila[]>([]);
   const [originales, setOriginales] = useState<Map<number, Fila>>(new Map());
   const [borradas, setBorradas] = useState<Fila[]>([]);
+  const [anchoTrab, setAnchoTrab] = useState(() => Math.max(620, Math.round(window.innerWidth * 0.62)));
   const [regs, setRegs] = useState<RegFila[]>([]);
   const [regsOriginales, setRegsOriginales] = useState<Map<number, RegFila>>(new Map());
   const [borradasReg, setBorradasReg] = useState<RegFila[]>([]);
@@ -745,7 +747,7 @@ export function PantallaTrabajadores({ servidor, token, centro, onVolver, onVerC
         <button className="boton" onClick={() => cargar()} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
       <div className="trabajadoresCuerpo">
-        <div className="panelTrabajadores">
+        <div className="panelTrabajadores" style={{ flex: `0 0 ${anchoTrab}px` }}>
           <div className="bandaTitulo">TRABAJADORES - {centro}</div>
           <div className="barraPanel">
             <button className="boton" onClick={añadir}>＋ Añadir</button>
@@ -828,6 +830,7 @@ export function PantallaTrabajadores({ servidor, token, centro, onVolver, onVerC
             <p className="pistaDoble">Doble clic sobre un trabajador para abrir su detalle.</p>
           </div>
         </div>
+        <SeparadorV ancho={anchoTrab} onAncho={setAnchoTrab} min={420} max={1400} />
         <div className="panelRegulaciones">
           <div className="bandaTitulo">REGULACIONES</div>
           <div className="barraPanel">

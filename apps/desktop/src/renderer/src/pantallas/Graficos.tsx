@@ -12,6 +12,7 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
+import { SeparadorV } from "../componentes/Separador";
 import { duracion, hora, minutosDeHora } from "../lib/horas";
 import {
   CalculosHorario, TipoDia, Turno, CategoriaGrafico, CentroTrabajo, nombreEnum, Duracion,
@@ -276,6 +277,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
 }): ReactNode {
   const [grupos, setGrupos] = useState<string[]>([]);
   const [grupo, setGrupo] = useState<string | null>(null);
+  const [anchoGrupos, setAnchoGrupos] = useState(170);
   const [filas, setFilas] = useState<Grafico[]>([]);
   const [seleccion, setSeleccion] = useState<number | null>(null);
   const [borradas, setBorradas] = useState<Grafico[]>([]);
@@ -628,7 +630,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
         <button className="boton" onClick={cargarGrupos} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
       <div className="graficosCuerpo">
-        <div className="panelGrupos">
+        <div className="panelGrupos" style={{ flex: `0 0 ${anchoGrupos}px` }}>
           <div className="bandaTitulo">GRUPOS</div>
           <div className="barraPanel">
             <button className="boton" onClick={nuevoGrupo} disabled={ocupado || todos}>＋</button>
@@ -645,6 +647,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
             {grupos.length === 0 ? <span className="vacio">Sin grupos.</span> : null}
           </div>
         </div>
+        <SeparadorV ancho={anchoGrupos} onAncho={setAnchoGrupos} min={120} max={600} />
         <div className="panelPrincipalGraficos">
           <div className="bandaTitulo">GRÁFICOS - {centro}{grupo !== null ? ` (${grupo.slice(8, 10)}-${grupo.slice(5, 7)}-${grupo.slice(0, 4)})` : ""}</div>
           <div className="barraPanel">

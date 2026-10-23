@@ -11,6 +11,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
+import { SeparadorV } from "../componentes/Separador";
 import { duracionC, duracion as duracionTotal, centimosDe, hora, importe, parseHora, unidades } from "../lib/horas";
 import {
   CalculosHorario, CodigoIncidencia, Incidencia, Turno, ajustarJDs, recalcularResumen,
@@ -53,6 +54,7 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
   const [dias, setDias] = useState<DiaCalendario[]>([]);
   const [resumen, setResumen] = useState<ResumenCalendario | null>(null);
   const [seleccion, setSeleccion] = useState<number | null>(null);
+  const [anchoLat, setAnchoLat] = useState(340);
   const [saldos, setSaldos] = useState("");
   const [hayCambios, setHayCambios] = useState(false);
   const [ocupado, setOcupado] = useState(false);
@@ -502,7 +504,8 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
             </tbody>
           </table>
         </div>
-        <div className="detalleLateral">
+        <SeparadorV ancho={anchoLat} onAncho={setAnchoLat} lado="der" min={220} max={640} />
+        <div className="detalleLateral" style={{ width: anchoLat, flex: `0 0 ${anchoLat}px` }}>
           {resumen === null ? null : <PanelResumen r={resumen} />}
         </div>
       </div>

@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { duracion, minutosDeHora, parseHora } from "../lib/horas";
+import { SeparadorV, SeparadorH } from "../componentes/Separador";
 import { nuevaLinea, nuevoItinerario, nuevaParada,
   type Linea, type Itinerario, type Parada,
 } from "@mercurio/domain";
@@ -23,6 +24,8 @@ export function PantallaLineas({ servidor, token, onVolver }: {
   const [bajaItinerarios, setBajaItinerarios] = useState<number[]>([]);
   const [bajaParadas, setBajaParadas] = useState<number[]>([]);
   const [indiceLinea, setIndiceLinea] = useState(-1);
+  const [anchoLineas, setAnchoLineas] = useState(() => Math.round(window.innerWidth * 0.45));
+  const [altoIti, setAltoIti] = useState(() => Math.round(window.innerHeight * 0.36));
   const [indiceItinerario, setIndiceItinerario] = useState(-1);
   const [indiceParada, setIndiceParada] = useState(-1);
   const [ocupado, setOcupado] = useState(false);
@@ -234,7 +237,7 @@ export function PantallaLineas({ servidor, token, onVolver }: {
         <input ref={entradaJson} type="file" accept=".json,application/json" hidden onChange={(e) => importarFichero(e.target.files)} />
       </div>
       <div className="lineasCuerpo lineasCuerpoO2">
-        <div className="panelPrincipalGraficos panelLineas">
+        <div className="panelPrincipalGraficos panelLineas" style={{ flex: `0 0 ${anchoLineas}px` }}>
           <div className="bandaTitulo">LÍNEAS</div>
           <div className="barraPanel">
             <button className="boton" onClick={() => entradaJson.current?.click()} disabled={ocupado}>⬆ Importar</button>
@@ -262,9 +265,10 @@ export function PantallaLineas({ servidor, token, onVolver }: {
             </table>
           </div>
         </div>
+        <SeparadorV ancho={anchoLineas} onAncho={setAnchoLineas} min={260} max={1000} />
         <div className="lineasDerecha">
           {linea === null ? null : (
-          <div className="panelPrincipalGraficos panelItinerarios">
+          <div className="panelPrincipalGraficos panelItinerarios" style={itinerario === null ? undefined : { flex: `0 0 ${altoIti}px` }}>
             <div className="bandaTitulo">ITINERARIOS</div>
             <div className="barraPanel">
               <span className="pistaDoble">Itinerarios de la línea seleccionada</span>
@@ -299,6 +303,9 @@ export function PantallaLineas({ servidor, token, onVolver }: {
               </table>
             </div>
           </div>
+          )}
+          {itinerario === null ? null : (
+          <SeparadorH alto={altoIti} onAlto={setAltoIti} min={140} max={800} lado="sup" />
           )}
           {itinerario === null ? null : (
           <div className="panelPrincipalGraficos panelParadas">

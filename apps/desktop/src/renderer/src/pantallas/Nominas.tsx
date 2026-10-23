@@ -15,6 +15,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
+import { SeparadorV } from "../componentes/Separador";
 import { TipoNomina, nombreEnum, recalcularNomina,
   type Convenio, type Nomina, type TablaSalarial,
 } from "@mercurio/domain";
@@ -225,6 +226,7 @@ export function PantallaNominas({ servidor, token, centro, mes, onVolver }: {
 }): ReactNode {
   const [conductores, setConductores] = useState<ConductorCombo[]>([]);
   const [idConductor, setIdConductor] = useState<number | null>(null);
+  const [anchoCond, setAnchoCond] = useState(300);
   const [nominas, setNominas] = useState<Nomina[]>([]);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const [convenios, setConvenios] = useState<Convenio[]>([]);
@@ -421,7 +423,7 @@ export function PantallaNominas({ servidor, token, centro, mes, onVolver }: {
         <button className="boton" onClick={cargarConductores} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
       <div className="reclNominasCuerpo reclNominasCuerpoO2">
-        <div className="panelPrincipalGraficos panelConductoresRecl">
+        <div className="panelPrincipalGraficos panelConductoresRecl" style={{ flex: `0 0 ${anchoCond}px` }}>
           <div className="bandaTitulo">CONDUCTORES - {centro}</div>
           <div className="marcoRejilla">
             <table className="rejilla rejillaConductoresRecl">
@@ -443,6 +445,7 @@ export function PantallaNominas({ servidor, token, centro, mes, onVolver }: {
             </table>
           </div>
         </div>
+        <SeparadorV ancho={anchoCond} onAncho={setAnchoCond} min={200} max={700} />
         <div className="panelPrincipalGraficos">
           <div className="bandaTitulo">NÓMINAS - {conductor?.matricula ?? "-"}</div>
           <div className="barraPanel">
