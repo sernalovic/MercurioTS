@@ -263,13 +263,14 @@ export function PantallaLineas({ servidor, token, onVolver }: {
           </div>
         </div>
         <div className="lineasDerecha">
+          {linea === null ? null : (
           <div className="panelPrincipalGraficos panelItinerarios">
             <div className="bandaTitulo">ITINERARIOS</div>
             <div className="barraPanel">
               <span className="pistaDoble">Itinerarios de la línea seleccionada</span>
               <span className="hueco" />
-              <button className="boton" onClick={añadirItinerario} disabled={linea === null}>＋</button>
-              <button className="boton" onClick={borrarItinerario} disabled={linea === null || itinerario === null}>－</button>
+              <button className="boton" onClick={añadirItinerario}>＋</button>
+              <button className="boton" onClick={borrarItinerario} disabled={itinerario === null}>－</button>
             </div>
             <div className="marcoRejilla">
               <table className="rejilla rejillaLineas">
@@ -298,12 +299,14 @@ export function PantallaLineas({ servidor, token, onVolver }: {
               </table>
             </div>
           </div>
+          )}
+          {itinerario === null ? null : (
           <div className="panelPrincipalGraficos panelParadas">
             <div className="bandaTitulo">PARADAS</div>
             <div className="barraPanel">
               <span className="pistaDoble">Paradas del itinerario seleccionado</span>
               <span className="hueco" />
-              <button className="boton" onClick={añadirParada} disabled={itinerario === null}>＋</button>
+              <button className="boton" onClick={añadirParada}>＋</button>
               <button className="boton" onClick={() => parada !== null && borrarParada(parada)} disabled={parada === null} title="Borra la parada seleccionada">－</button>
             </div>
             <div className="marcoRejilla">
@@ -334,11 +337,13 @@ export function PantallaLineas({ servidor, token, onVolver }: {
               </table>
             </div>
           </div>
+          )}
         </div>
       </div>
       <p className="barraEstado">
         Líneas: {lineas.length} · Itinerarios: {itinerarios.length} · Paradas: {paradas.length}
-        {" · Las bajas y altas se guardan con «Guardar y Actualizar»."}
+        {linea === null ? " · Selecciona una línea para ver sus itinerarios." : itinerario === null ? " · Selecciona un itinerario para ver sus paradas." : ""}
+        {" Las bajas y altas se guardan con «Guardar y Actualizar»."}
       </p>
     </div>
   );
