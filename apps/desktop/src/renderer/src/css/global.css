@@ -1443,3 +1443,100 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .marcoFestivos { flex: 1; min-height: 0; border: 1px solid #d9d9d9; }
 .columnaOpciones .pieVentana { padding: 8px 0; }
 /* ===== fin Convenios Orión 2 ===== */
+
+/* --- Pantalla Informes Orión 2 --- */
+.paginaInformesO2 { display: flex; flex-direction: column; }
+.informesCuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 0;
+  padding: 0 0 8px;
+  align-items: stretch;
+}
+.sidebarInformes {
+  flex: 0 0 230px;
+  border: 1px solid #9c9c9c;
+  border-right: none;
+  background: #fdfdfd;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  overflow: auto;
+}
+.botonVolverInf { margin: 0 0 8px; }
+.grupoSidebar { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+.tituloGrupoSidebar {
+  background: #dcdcdc;
+  color: #222;
+  font-weight: 700;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+.botonSidebar {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  text-align: center;
+  padding: 5px 8px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+.botonSidebar:hover { border-color: var(--primario); color: var(--primario); }
+.botonSidebar.sel { border-color: var(--orion-cab); color: var(--orion-cab); font-weight: 600; }
+.informesPrincipal {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #9c9c9c;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.cabeceraInformeO2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 6px;
+  border-bottom: 1px solid var(--borde);
+}
+.cabeceraInformeO2 h2 { color: #16365c; font-size: 20px; font-weight: 600; margin: 0; }
+.controlesInforme {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  flex-wrap: wrap;
+}
+.tituloPeriodo {
+  color: #222;
+  font-weight: 700;
+  min-width: 180px;
+  text-align: center;
+  font-size: 15px;
+}
+.tablaInforme { flex: 1; min-height: 0; margin: 0 14px; overflow: auto; }
+.tarjetasTotales {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 10px 14px 12px;
+}
+.tarjetaTotal {
+  border: 1px solid;
+  border-radius: 6px;
+  background: #fff;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+.tituloTarjeta { font-weight: 600; }
+.valorTarjeta { align-self: flex-end; font-size: 22px; }
+.tarjeta0 { border-color: #7bc47b; color: #1a6a1a; }
+.tarjeta1 { border-color: #7cb4e8; color: #0b5bd3; }
+.tarjeta2 { border-color: #e8b57c; color: #b26a00; }
+.tarjeta3 { border-color: #e87c7c; color: #b41a1a; }
+/* ===== fin Informes Orión 2 ===== */

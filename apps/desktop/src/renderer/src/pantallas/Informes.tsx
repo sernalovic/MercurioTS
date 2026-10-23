@@ -1,16 +1,31 @@
 /**
- * Pantalla Informes — port de `InformesViewModel` + `InformesView`: combo con
- * los cinco informes, combos de grupos para comparar, «Generar» monta la
- * tabla en el cliente a partir de los datos del servidor y «Crear PDF» la
- * vuelca con `Pdf.Informe` (pdf-lib, guardado por IPC).
+ * Pantalla Informes — aspecto de Orión 2: barra lateral con tres grupos
+ * (GRÁFICOS: Comparar grupos de gráficos / Realización de gráficos ·
+ * CALENDARIOS: Estadísticas / Asignación de gráficos / Errores ·
+ * RECLAMACIONES: Estadísticas) y a la derecha el informe elegido con su
+ * título, controles propios, «Generar informe» y «Crear PDF»
+ * (`Pdf.Informe` portado a pdf-lib por IPC). Funcionalidad:
+ *  - Comparar grupos: dos grupos del centro → `graficos/diferencias/simples`.
+ *  - Realización de gráficos: por cada gráfico del grupo elegido, cuántos
+ *    días del mes aparece en los calendarios del centro (nuevo).
+ *  - Estadísticas de calendarios: matriz por matrícula con el recuento de
+ *    situaciones del mes o del año (Mensual/Anual, nuevo).
+ *  - Asignación de gráficos: por día, descansos/gráficos/asignados/no
+ *    asignados/inexistentes (`asignacionGraficos`), con mes o año completo
+ *    y filtro «Lun-Vie» (oculta los sábados).
+ *  - Errores: matrícula + errores del mes o del año completo.
+ *  - Estadísticas de reclamaciones: conceptos del mes o del año con
+ *    filtros Cat./Sit., columnas Real/En pijama/Diferencia/Importe y las
+ *    cuatro tarjetas de totales (conceptos, horas, dietas, importe).
  */
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
-import { pedirTexto } from "../lib/dialogos";
 import { pdfInforme } from "../lib/pdf";
-interface DiferenciaInforme { numeroGrafico: number; diferencias: string; }
-
-import { CentroTrabajo, TipoReclamacion, nombreEnum, type ConceptoReclamado } from "@mercurio/domain";
+import { duracion } from "../lib/horas";
+import {
+  CentroTrabajo, CategoriaTrabajador, SituacionTrabajador, TipoReclamacion, TiposDieta, nombreEnum,
+  type ConceptoReclamado,
+} from "@mercurio/domain";
 
 /** `TablaInforme` del original. */
 interface TablaInforme {
@@ -21,27 +36,7 @@ interface TablaInforme {
   apaisado: boolean;
 }
 
-const INFORMES = [
-  "Errores en calendarios",
-  "Asignación de gráficos",
-  "Comparar grupos de gráficos",
-  "Estadísticas de reclamaciones (mes)",
-  "Estadísticas de reclamaciones (año)",
-] as const;
-
-const NOMBRES_CENTRO = ["Todos", "Donosti", "Bilbao", "Arrasate", "Vitoria", "Pruebas"];
-
-/** es-ES "N2": "1.234,56" (formato `D()` del original). */
-function d(v: number): string {
-  return v.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-/** `Utilidades.DiaConSemana`: "L-05". */
-function diaConSemana(fecha: string): string {
-  const dias = ["D", "L", "M", "X", "J", "V", "S"];
-  const n = new Date(`${fecha}T12:00:00`).getUTCDay();
-  return `${dias[n]}-${fecha.slice(8, 10)}`;
-}
+interface DiferenciaInforme { numeroGrafico: number; diferencias: string; }
 
 interface CalendarioResumen {
   conductor: { matricula: number } | null;
@@ -61,6 +56,112 @@ interface Asignacion {
 
 interface ConceptoExtendido { matricula: number; concepto: ConceptoReclamado; }
 
+interface CabBasica {
+  matricula: number;
+  dias: Array<{ fecha: string; situacion: string; esFestivo: boolean }>;
+}
+
+const NOMBRES_CENTRO = ["Todos", "Donosti", "Bilbao", "Arrasate", "Vitoria", "Pruebas"];
+
+const MESES = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+  "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+
+/** Grupos de la barra lateral (ids internos + etiqueta visible). */
+const GRUPOS_SIDEBAR: Array<{ titulo: string; informes: Array<[string, string]> }> = [
+  {
+    titulo: "Gráficos",
+    informes: [
+      ["comparar", "Comparar grupos de gráficos"],
+      ["realizacion", "Realización de gráficos"],
+    ],
+  },
+  {
+    titulo: "Calendarios",
+    informes: [
+      ["estadisticasCal", "Estadísticas"],
+      ["asignacion", "Asignación de gráficos"],
+      ["errores", "Errores"],
+    ],
+  },
+  {
+    titulo: "Reclamaciones",
+    informes: [
+      ["estadisticasRecl", "Estadísticas"],
+    ],
+  },
+];
+
+const TITULOS: Record<string, string> = {
+  comparar: "Comparar grupos de gráficos",
+  realizacion: "Realización de los gráficos",
+  estadisticasCal: "Estadísticas de calendarios",
+  asignacion: "Asignación de gráficos en calendarios",
+  errores: "Errores en calendarios",
+  estadisticasRecl: "Estadísticas de reclamaciones",
+};
+
+const AYUDA: Record<string, string> = {
+  comparar: "Gráficos que no existen en uno de los grupos y diferencias en los que existen en ambos.",
+  realizacion: "Por cada gráfico del grupo elegido, en cuántos días del mes aparece en los calendarios del centro.",
+  estadisticasCal: "Recuento de situaciones (JD, DS, FN, DC, OV…) por matrícula del centro, para el mes o el año.",
+  asignacion: "Descansos por día, gráficos que se deben realizar según el grupo vigente, cuántos están asignados, los no asignados y los que se realizan sin estar en el grupo.",
+  errores: "Este informe lista todos los errores detectados en los calendarios del período.",
+  estadisticasRecl: "Conceptos reclamados en el período para el centro indicado y totales reclamados.",
+};
+
+/** es-ES "N2": "1.234,56" (formato `D()` del original). */
+function d(v: number): string {
+  return v.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/** `Utilidades.DiaConSemana`: "L-05". */
+function diaConSemana(fecha: string): string {
+  const dias = ["D", "L", "M", "X", "J", "V", "S"];
+  const n = new Date(`${fecha}T12:00:00`).getUTCDay();
+  return `${dias[n]}-${fecha.slice(8, 10)}`;
+}
+
+/** "dd-mm-aaaa" del concepto (como la columna Fecha de la captura). */
+function fechaCorta(fecha: string): string {
+  return fecha === "" ? "" : `${fecha.slice(8, 10)}-${fecha.slice(5, 7)}-${fecha.slice(0, 4)}`;
+}
+
+/** Unidades de dieta/pendiente → "0,##" (es-ES). */
+function unidades(v: number): string {
+  return String(Math.round(v * 100) / 100).replace(".", ",");
+}
+
+/** Suma o resta un mes a "YYYY-MM". */
+function desplazarMes(fecha: string, n: number): string {
+  const [a, m] = fecha.split("-").map(Number) as [number, number];
+  const dd = new Date(a, m - 1 + n, 1);
+  return `${dd.getFullYear()}-${String(dd.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/** Recuento de situaciones por matrícula (Estadísticas de calendarios). */
+function matrizSituaciones(basicos: CabBasica[]): { cabeceras: string[]; filas: string[][] } {
+  const etiquetas = new Set<string>();
+  const porMatricula = new Map<number, Map<string, number>>();
+  for (const c of basicos) {
+    const fila = porMatricula.get(c.matricula) ?? new Map<string, number>();
+    for (const dia of c.dias) {
+      const s = dia.situacion.trim();
+      if (s === "") continue;
+      const clave = /^[0-9]+\*?$/.test(s) ? "Trabajados" : s.replace(/\*$/, "");
+      etiquetas.add(clave);
+      fila.set(clave, (fila.get(clave) ?? 0) + 1);
+    }
+    porMatricula.set(c.matricula, fila);
+  }
+  const orden = Array.from(etiquetas).sort((a, b) =>
+    a === "Trabajados" ? 1 : b === "Trabajados" ? -1 : a.localeCompare(b));
+  const filas = [...porMatricula.keys()].sort((a, b) => a - b).map((mat) => {
+    const f = porMatricula.get(mat) as Map<string, number>;
+    return [String(mat), ...orden.map((e) => String(f.get(e) ?? 0))];
+  });
+  return { cabeceras: ["Matrícula", ...orden], filas };
+}
+
 export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
   servidor: string;
   token: string;
@@ -68,112 +169,224 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
   mes: string;
   onVolver: () => void;
 }): ReactNode {
-  const [informe, setInforme] = useState<string>(INFORMES[0]);
-  const [grupos, setGrupos] = useState<string[]>([]);
-  const [fechaGrupo1, setFechaGrupo1] = useState("");
-  const [fechaGrupo2, setFechaGrupo2] = useState("");
+  const [informe, setInforme] = useState("comparar");
   const [resultado, setResultado] = useState<TablaInforme | null>(null);
+  const [tarjetas, setTarjetas] = useState<Array<[string, string]>>([]);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** `CargarAsync`: los grupos de gráficos del centro (para comparar). */
-  function cargar(): void {
-    setOcupado(true);
-    setError(null);
-    if (centro === "Todos") {
-      setGrupos([]);
-      setOcupado(false);
-      return;
-    }
-    api<{ grupos: string[] }>(servidor, token, `graficos/grupos?centro=${NOMBRES_CENTRO.indexOf(centro)}`)
+  // controles por informe
+  const [centroInforme, setCentroInforme] = useState(centro === "" ? "Todos" : centro);
+  const [grupos, setGrupos] = useState<string[]>([]);
+  const [grupo1, setGrupo1] = useState("");
+  const [grupo2, setGrupo2] = useState("");
+  const [grupoReal, setGrupoReal] = useState("");
+  const [mesInforme, setMesInforme] = useState(mes === "" ? new Date().toISOString().slice(0, 7) : mes);
+  const [añoCompleto, setAñoCompleto] = useState(false);
+  const [lunVie, setLunVie] = useState(true);
+  const [tipoEstad, setTipoEstad] = useState("Mensual");
+  const [catFiltro, setCatFiltro] = useState("Todos");
+  const [sitFiltro, setSitFiltro] = useState("Todos");
+
+  /** Los grupos de gráficos del centro del informe (para comparar y realizar). */
+  function cargarGrupos(c: string): void {
+    setGrupos([]);
+    setGrupo1("");
+    setGrupo2("");
+    setGrupoReal("");
+    api<{ grupos: string[] }>(servidor, token, `graficos/grupos?centro=${NOMBRES_CENTRO.indexOf(c)}`)
       .then((r) => setGrupos(r.grupos))
-      .catch((e) => setError((e as Error).message))
-      .finally(() => setOcupado(false));
+      .catch(() => setGrupos([]));
   }
 
-  useEffect(cargar, [servidor, token, centro]);
+  useEffect(() => { cargarGrupos(centroInforme); }, [servidor, token, centroInforme]);
 
-  // ---- comandos ----
+  // ---- helpers de generación ----
+
+  function cerrarGeneracion(): void {
+    setOcupado(false);
+  }
+
+  /** Meses del período: el mes solo o los 12 del año («Año completo»). */
+  function mesesPeriodo(): string[] {
+    if (!añoCompleto) return [mesInforme];
+    const año = mesInforme.slice(0, 4);
+    return Array.from({ length: 12 }, (_, i) => `${año}-${String(i + 1).padStart(2, "0")}`);
+  }
+
+  /** Descarga los básicos de cada mes del período (en paralelo). */
+  async function basicosDe(meses: string[]): Promise<Array<{ fechaMes: string; filas: CabBasica[] }>> {
+    const centroNum = NOMBRES_CENTRO.indexOf(centroInforme);
+    return Promise.all(meses.map(async (m) => {
+      const filtro = new URLSearchParams({ fecha: m });
+      if (centroNum > 0) filtro.set("centro", String(centroNum));
+      const r = await api<{ calendarios: CabBasica[] }>(servidor, token, `calendarios/basicos?${filtro}`);
+      return { fechaMes: m, filas: r.calendarios };
+    }));
+  }
 
   async function generar(): Promise<void> {
     setOcupado(true);
     setError(null);
-    const centroTitulo = centro;
-    const mesTitulo = `${mes.slice(5, 7)}/${mes.slice(0, 4)}`;
+    const centroTitulo = centroInforme;
+    const mesTitulo = `${mesInforme.slice(5, 7)}/${mesInforme.slice(0, 4)}`;
     try {
-      if (informe === "Errores en calendarios") {
-        const r = await api<{ calendarios: CalendarioResumen[] }>(
-          servidor, token, `calendarios?fecha=${mes}&centro=${NOMBRES_CENTRO.indexOf(centro)}`);
-        setResultado({
-          titulo: `Errores de calendario · ${centroTitulo} · ${mesTitulo}`,
-          descripcion: "Este informe lista todos los errores detectados en los calendarios del mes.",
-          cabeceras: ["Matrícula", "Errores"],
-          filas: r.calendarios
-            .filter((c) => c.resumen !== null && c.resumen.errores !== "")
-            .map((c) => [String(c.conductor?.matricula ?? 0), c.resumen?.errores ?? ""]),
-          apaisado: false,
-        });
-      } else if (informe === "Asignación de gráficos") {
-        const r = await api<{ asignacion: Asignacion[] }>(
-          servidor, token, `calendarios/estadisticas/asignacionGraficos?fecha=${mes}&centro=${NOMBRES_CENTRO.indexOf(centro)}`);
-        setResultado({
-          titulo: `Asignación de gráficos · ${centroTitulo} · ${mesTitulo}`,
-          descripcion: "Descansos por día, gráficos que se deben realizar según el grupo vigente, cuántos están asignados, los no asignados y los que se realizan sin estar en el grupo.",
-          cabeceras: ["Día", "Gráficos", "Descansos", "Asignados", "No asignados", "Inexistentes"],
-          filas: r.asignacion.map((a) => [
-            diaConSemana(a.fecha), String(a.graficosParaDia), String(a.descansosParaDia),
-            String(a.graficosAsignados), a.noAsignados, a.inexistentes,
-          ]),
-          apaisado: true,
-        });
-      } else if (informe === "Comparar grupos de gráficos") {
-        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(fechaGrupo1.trim()) || !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaGrupo2.trim())) {
-          window.alert("Indica las fechas de los dos grupos a comparar (dd/mm/aaaa).");
+      if (informe === "comparar") {
+        if (grupo1 === "" || grupo2 === "") {
+          window.alert("Indica los dos grupos a comparar.");
           return;
         }
-        const iso = (texto: string): string => {
-          const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(texto.trim());
-          return m === null ? "" : `${m[3]}-${m[2]}-${m[1]}`;
-        };
-        const f1 = iso(fechaGrupo1);
-        const f2 = iso(fechaGrupo2);
         const r = await api<{ diferencias: DiferenciaInforme[] }>(
-          servidor, token, `graficos/diferencias/simples?fecha1=${f1}&fecha2=${f2}&centro=${NOMBRES_CENTRO.indexOf(centro)}`);
+          servidor, token,
+          `graficos/diferencias/simples?fecha1=${grupo1}&fecha2=${grupo2}&centro=${NOMBRES_CENTRO.indexOf(centroInforme)}`);
         setResultado({
-          titulo: `Comparación de grupos de gráficos · ${fechaGrupo1.replace(/\//g, "-")} / ${fechaGrupo2.replace(/\//g, "-")}`,
-          descripcion: "Gráficos que no existen en uno de los grupos y diferencias en los que existen en ambos.",
+          titulo: `Comparación de grupos de gráficos · ${centroTitulo} · ` +
+            `${grupo1.slice(8, 10)}-${grupo1.slice(5, 7)}-${grupo1.slice(0, 4)} / ` +
+            `${grupo2.slice(8, 10)}-${grupo2.slice(5, 7)}-${grupo2.slice(0, 4)}`,
+          descripcion: AYUDA.comparar,
           cabeceras: ["Gráfico", "Diferencias"],
           filas: r.diferencias.map((x) => [String(x.numeroGrafico), x.diferencias]),
           apaisado: false,
         });
-      } else {
-        const año = informe.endsWith("(año)");
-        const url = año
-          ? `reclamaciones/estadisticas/conceptosAno?año=${mes.slice(0, 4)}&centro=${NOMBRES_CENTRO.indexOf(centro)}`
-          : `reclamaciones/estadisticas/conceptosMes?fecha=${mes}&centro=${NOMBRES_CENTRO.indexOf(centro)}`;
-        const r = await api<{ conceptos: ConceptoExtendido[] }>(servidor, token, url);
-        const filas = r.conceptos.map((c) => [
-          String(c.matricula),
-          c.concepto.fecha === "" ? "" : `${c.concepto.fecha.slice(8, 10)}-${c.concepto.fecha.slice(5, 7)}-${c.concepto.fecha.slice(0, 4)}`,
-          nombreEnum(TipoReclamacion, c.concepto.tipo),
-          c.concepto.descripcion ?? "",
-          d(Math.round(c.concepto.importeTotal) / 100),
-          c.concepto.resuelto ? "Sí" : "No",
+      } else if (informe === "realizacion") {
+        if (grupoReal === "") {
+          window.alert("Indica el grupo de gráficos a comprobar.");
+          return;
+        }
+        const [g, meses] = await Promise.all([
+          api<{ graficos: Array<{ numero: number; turno: number }> }>(
+            servidor, token,
+            `graficos/entreFechas?desde=${grupoReal}&hasta=${grupoReal}&centro=${NOMBRES_CENTRO.indexOf(centroInforme)}`),
+          basicosDe(mesesPeriodo()),
         ]);
-        const total = r.conceptos.reduce((s, c) => s + Math.round(c.concepto.importeTotal), 0);
-        filas.push(["", "", "", "TOTAL", d(total / 100), ""]);
+        // Veces que aparece cada número del grupo en los calendarios del período.
+        const veces = new Map<number, number>();
+        for (const { filas } of meses) {
+          for (const c of filas) {
+            for (const dia of c.dias) {
+              const n = Number.parseInt(dia.situacion.trim().replace(/\*$/, ""), 10);
+              if (Number.isInteger(n) && n > 0) veces.set(n, (veces.get(n) ?? 0) + 1);
+            }
+          }
+        }
         setResultado({
-          titulo: `Estadísticas de reclamaciones · ${centroTitulo} · ${año ? mes.slice(0, 4) : mesTitulo}`,
-          descripcion: "Conceptos reclamados en el período para el centro indicado y totales reclamados.",
-          cabeceras: ["Matrícula", "Fecha", "Tipo", "Concepto", "Importe", "Resuelto"],
+          titulo: `Realización de los gráficos · ${centroTitulo} · ${mesTitulo} · grupo del ` +
+            `${grupoReal.slice(8, 10)}-${grupoReal.slice(5, 7)}-${grupoReal.slice(0, 4)}`,
+          descripcion: AYUDA.realizacion,
+          cabeceras: ["Gráfico", "Turno", "Días realizado"],
+          filas: g.graficos.map((gr) => [
+            String(gr.numero), String(gr.turno === 0 ? "" : gr.turno), String(veces.get(gr.numero) ?? 0),
+          ]),
+          apaisado: false,
+        });
+      } else if (informe === "estadisticasCal") {
+        const meses = tipoEstad === "Anual"
+          ? Array.from({ length: 12 }, (_, i) => `${mesInforme.slice(0, 4)}-${String(i + 1).padStart(2, "0")}`)
+          : [mesInforme];
+        const mesesDatos = await basicosDe(meses);
+        const { cabeceras, filas } = matrizSituaciones(mesesDatos.flatMap((m) => m.filas));
+        setResultado({
+          titulo: `Estadísticas de calendarios · ${centroTitulo} · ` +
+            (tipoEstad === "Anual" ? mesInforme.slice(0, 4) : mesTitulo),
+          descripcion: AYUDA.estadisticasCal,
+          cabeceras,
           filas,
           apaisado: true,
         });
+      } else if (informe === "asignacion") {
+        const meses = mesesPeriodo();
+        const centroNum = NOMBRES_CENTRO.indexOf(centroInforme);
+        const partes = await Promise.all(meses.map((m) =>
+          api<{ asignacion: Asignacion[] }>(servidor, token,
+            `calendarios/estadisticas/asignacionGraficos?fecha=${m}&centro=${centroNum}`)));
+        const filas: string[][] = [];
+        for (const p of partes) {
+          for (const a of p.asignacion) {
+            if (lunVie && a.esSabado) continue;
+            filas.push([
+              diaConSemana(a.fecha), String(a.descansosParaDia), String(a.graficosParaDia),
+              String(a.graficosAsignados), a.noAsignados, a.inexistentes,
+            ]);
+          }
+        }
+        setResultado({
+          titulo: `Asignación de gráficos · ${centroTitulo} · ` +
+            (añoCompleto ? mesInforme.slice(0, 4) : mesTitulo),
+          descripcion: AYUDA.asignacion,
+          cabeceras: ["Día", "Descansos", "Gráficos", "Asignados", "No asignados", "Inexistentes"],
+          filas,
+          apaisado: true,
+        });
+      } else if (informe === "errores") {
+        const meses = mesesPeriodo();
+        const centroNum = NOMBRES_CENTRO.indexOf(centroInforme);
+        const partes = await Promise.all(meses.map((m) =>
+          api<{ calendarios: CalendarioResumen[] }>(servidor, token, `calendarios?fecha=${m}&centro=${centroNum}`)));
+        setResultado({
+          titulo: `Errores de calendario · ${centroTitulo} · ` +
+            (añoCompleto ? mesInforme.slice(0, 4) : mesTitulo),
+          descripcion: AYUDA.errores,
+          cabeceras: ["Matrícula", "Errores"],
+          filas: partes.flatMap((p) => p.calendarios)
+            .filter((c) => c.resumen !== null && c.resumen.errores !== "")
+            .map((c) => [String(c.conductor?.matricula ?? 0), c.resumen?.errores ?? ""]),
+          apaisado: false,
+        });
+      } else {
+        // Estadísticas de reclamaciones: mes o año + filtros Cat./Sit.
+        const año = añoCompleto;
+        const url = año
+          ? `reclamaciones/estadisticas/conceptosAno?año=${mesInforme.slice(0, 4)}&centro=${NOMBRES_CENTRO.indexOf(centroInforme)}`
+          : `reclamaciones/estadisticas/conceptosMes?fecha=${mesInforme}&centro=${NOMBRES_CENTRO.indexOf(centroInforme)}`;
+        const [r, cnd] = await Promise.all([
+          api<{ conceptos: ConceptoExtendido[] }>(servidor, token, url),
+          api<{ conductores: Array<{ matricula: number; categoria: number; situacion: number }> }>(
+            servidor, token, "conductores?centro=0"),
+        ]);
+        const porMatricula = new Map(cnd.conductores.map((c) => [c.matricula, c]));
+        const conceptos = r.conceptos.filter((x) => {
+          const c = porMatricula.get(x.matricula);
+          if (c === undefined) return catFiltro === "Todos" && sitFiltro === "Todos";
+          return (catFiltro === "Todos" || Number(catFiltro) === c.categoria)
+            && (sitFiltro === "Todos" || Number(sitFiltro) === c.situacion);
+        });
+        const filas = conceptos.map((x) => {
+          const dif = x.concepto.horasReales - x.concepto.horasCobradas;
+          return [
+            String(x.matricula),
+            fechaCorta(x.concepto.fecha),
+            x.concepto.descripcion ?? "",
+            String(x.concepto.graficoTrabajado),
+            duracion(x.concepto.horasReales),
+            duracion(x.concepto.horasCobradas),
+            (dif < 0 ? "-" : "") + duracion(Math.abs(dif)),
+            unidades(Math.round(x.concepto.importeTotal) / 100),
+          ];
+        });
+        const totalImporte = conceptos.reduce((s, x) => s + Math.round(x.concepto.importeTotal), 0);
+        const totalHoras = conceptos.reduce((s, x) => s + x.concepto.horasReales, 0);
+        const totalDietas = conceptos
+          .filter((x) => TiposDieta.includes(x.concepto.tipo))
+          .reduce((s, x) => s + x.concepto.importeReal, 0);
+        setResultado({
+          titulo: `Estadísticas de reclamaciones · ${centroTitulo} · ` +
+            (año ? mesInforme.slice(0, 4) : mesTitulo),
+          descripcion: AYUDA.estadisticasRecl,
+          cabeceras: ["Matrícula", "Fecha", "Descripción", "Gráfico", "Real", "En pijama", "Diferencia", "Importe"],
+          filas,
+          apaisado: true,
+        });
+        setTarjetas([
+          ["Total conceptos reclamados", String(conceptos.length)],
+          ["Total horas reclamadas", duracion(totalHoras)],
+          ["Total dietas reclamadas", unidades(totalDietas)],
+          ["Total importe reclamado", `${d(Math.round(totalImporte) / 100)} €`],
+        ]);
       }
     } catch (e) {
       setError((e as Error).message);
     } finally {
-      setOcupado(false);
+      cerrarGeneracion();
     }
   }
 
@@ -204,59 +417,165 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
     }
   }
 
-  return (
-    <div className="pagina">
-      <div className="cabeceraPagina">
-        <h2 className="tituloPagina">Informes</h2>
-        {ocupado ? <span className="cargando">Trabajando…</span> : null}
-        {error ? <span className="error" role="alert">{error}</span> : null}
-      </div>
-      <div className="opcionesPagina">
-        <button className="boton" onClick={onVolver} disabled={ocupado}>Volver</button>
-        <select className="celda comboInformes" value={informe} onChange={(e) => setInforme(e.target.value)}>
-          {INFORMES.map((i) => <option key={i} value={i}>{i}</option>)}
+  // ---- render ----
+
+  const cambiaMes = informe === "comparar" || informe === "estadisticasCal" ? null : (
+    informe === "asignacion" ? (
+      // Asignación navega por año.
+      <>
+        <button className="botonFlecha" onClick={() => setMesInforme(desplazarMes(mesInforme, -12))} disabled={ocupado} aria-label="Año anterior">←</button>
+        <span className="tituloPeriodo">{mesInforme.slice(0, 4)}</span>
+        <button className="botonFlecha" onClick={() => setMesInforme(desplazarMes(mesInforme, 12))} disabled={ocupado} aria-label="Año siguiente">→</button>
+        <button className={`botonLote${añoCompleto ? " pulsado" : ""}`} onClick={() => setAñoCompleto(!añoCompleto)}>Año completo</button>
+        <span className="etiquetaMini">Centro:</span>
+        <select className="celda" value={centroInforme} onChange={(e) => { setCentroInforme(e.target.value); }}>
+          {NOMBRES_CENTRO.map((c) => <option key={c}>{c}</option>)}
         </select>
-        <span className="etiqueta">Grupos (comparar):</span>
-        <input
-          className="celda"
-          list="gruposInformes"
-          value={fechaGrupo1}
-          placeholder={grupos[0] ?? ""}
-          onChange={(e) => setFechaGrupo1(e.target.value)}
-        />
-        <input
-          className="celda"
-          list="gruposInformes"
-          value={fechaGrupo2}
-          placeholder={grupos[0] ?? ""}
-          onChange={(e) => setFechaGrupo2(e.target.value)}
-        />
-        <datalist id="gruposInformes">
-          {grupos.map((g) => <option key={g} value={g.split("-").reverse().join("/")} />)}
-        </datalist>
-        <button className="botonPrincipal" onClick={generar} disabled={ocupado}>Generar</button>
-        <button className="boton" onClick={crearPdf} disabled={ocupado || resultado === null}>Crear PDF</button>
+      </>
+    ) : (
+      // Errores, Realización y Estadísticas de reclamaciones navegan por mes.
+      <>
+        <button className="botonFlecha" onClick={() => setMesInforme(desplazarMes(mesInforme, -1))} disabled={ocupado} aria-label="Mes anterior">←</button>
+        <span className="tituloPeriodo">{MESES[Number(mesInforme.slice(5, 7)) - 1]} {mesInforme.slice(0, 4)}</span>
+        <button className="botonFlecha" onClick={() => setMesInforme(desplazarMes(mesInforme, 1))} disabled={ocupado} aria-label="Mes siguiente">→</button>
+        <button className={`botonLote${añoCompleto ? " pulsado" : ""}`} onClick={() => setAñoCompleto(!añoCompleto)}>Año completo</button>
+        {informe === "estadisticasRecl" ? (
+          <>
+            <span className="etiquetaMini">Centro:</span>
+            <select className="celda" value={centroInforme} onChange={(e) => { setCentroInforme(e.target.value); }}>
+              {NOMBRES_CENTRO.map((c) => <option key={c}>{c}</option>)}
+            </select>
+            <span className="etiquetaMini">Cat:</span>
+            <select className="celda" value={catFiltro} onChange={(e) => setCatFiltro(e.target.value)}>
+              <option value="Todos">Todos</option>
+              {Object.values(CategoriaTrabajador).filter((v) => typeof v === "number").map((v) => (
+                <option key={String(v)} value={String(v)}>{nombreEnum(CategoriaTrabajador, v as CategoriaTrabajador)}</option>
+              ))}
+            </select>
+            <span className="etiquetaMini">Sit:</span>
+            <select className="celda" value={sitFiltro} onChange={(e) => setSitFiltro(e.target.value)}>
+              <option value="Todos">Todos</option>
+              {Object.values(SituacionTrabajador).filter((v) => typeof v === "number").map((v) => (
+                <option key={String(v)} value={String(v)}>{nombreEnum(SituacionTrabajador, v as SituacionTrabajador)}</option>
+              ))}
+            </select>
+          </>
+        ) : informe === "realizacion" ? (
+          <>
+            <span className="etiquetaMini">Centro:</span>
+            <select className="celda" value={centroInforme} onChange={(e) => setCentroInforme(e.target.value)}>
+              {NOMBRES_CENTRO.map((c) => <option key={c}>{c}</option>)}
+            </select>
+          </>
+        ) : (
+          <>
+            <span className="etiquetaMini">Centro:</span>
+            <select className="celda" value={centroInforme} onChange={(e) => setCentroInforme(e.target.value)}>
+              {NOMBRES_CENTRO.map((c) => <option key={c}>{c}</option>)}
+            </select>
+          </>
+        )}
+      </>
+    )
+  );
+
+  return (
+    <div className="pagina paginaInformesO2">
+      <div className="informesCuerpo">
+        <div className="sidebarInformes">
+          <button className="boton botonVolverInf" onClick={onVolver} disabled={ocupado}>← Volver</button>
+          {GRUPOS_SIDEBAR.map((grupo) => (
+            <div key={grupo.titulo} className="grupoSidebar">
+              <div className="tituloGrupoSidebar">{grupo.titulo}</div>
+              {grupo.informes.map(([id, etiqueta]) => (
+                <button
+                  key={id}
+                  className={`botonSidebar${informe === id ? " sel" : ""}`}
+                  onClick={() => { setInforme(id); setResultado(null); setTarjetas([]); }}
+                >
+                  {etiqueta}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="informesPrincipal">
+          <div className="cabeceraInformeO2">
+            <h2>{TITULOS[informe]}</h2>
+            <button className="botonFlecha" title={AYUDA[informe]} disabled>?</button>
+          </div>
+          {ocupado ? <span className="cargando">Trabajando…</span> : null}
+          {error ? <span className="error" role="alert">{error}</span> : null}
+          <div className="controlesInforme">
+            {cambiaMes}
+            {informe === "comparar" ? (
+              <>
+                <span className="etiquetaMini">Centro:</span>
+                <select className="celda" value={centroInforme} onChange={(e) => setCentroInforme(e.target.value)}>
+                  {NOMBRES_CENTRO.map((c) => <option key={c}>{c}</option>)}
+                </select>
+                <span className="etiquetaMini">Grupo 1:</span>
+                <select className="celda" value={grupo1} onChange={(e) => setGrupo1(e.target.value)}>
+                  <option value=""></option>
+                  {grupos.map((g) => (
+                    <option key={g} value={g}>{g.slice(8, 10)}-{g.slice(5, 7)}-{g.slice(0, 4)}</option>
+                  ))}
+                </select>
+                <span className="etiquetaMini">Grupo 2:</span>
+                <select className="celda" value={grupo2} onChange={(e) => setGrupo2(e.target.value)}>
+                  <option value=""></option>
+                  {grupos.map((g) => (
+                    <option key={g} value={g}>{g.slice(8, 10)}-{g.slice(5, 7)}-{g.slice(0, 4)}</option>
+                  ))}
+                </select>
+              </>
+            ) : null}
+            {informe === "estadisticasCal" ? (
+              <>
+                <span className="etiquetaMini">Tipo de estadística</span>
+                <select className="celda" value={tipoEstad} onChange={(e) => setTipoEstad(e.target.value)}>
+                  <option>Mensual</option>
+                  <option>Anual</option>
+                </select>
+              </>
+            ) : null}
+          </div>
+          <div className="controlesInforme">
+            <button className="boton" onClick={() => void generar()} disabled={ocupado}>⇄ Generar informe</button>
+            <button className="boton" onClick={() => void crearPdf()} disabled={ocupado || resultado === null}>📄 Crear PDF</button>
+            {informe === "asignacion" ? (
+              <button className={`botonLote${lunVie ? " pulsado" : ""}`} onClick={() => setLunVie(!lunVie)}>Lun-Vie</button>
+            ) : null}
+          </div>
+          {resultado !== null ? (
+            <div className="tablaInforme marcoRejilla">
+              <table className="rejilla">
+                <thead>
+                  <tr>{resultado.cabeceras.map((c) => <th key={c}>{c}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {resultado.filas.map((f, i) => (
+                    <tr key={i}>{f.map((v, j) => <td key={j}>{v}</td>)}</tr>
+                  ))}
+                  {resultado.filas.length === 0 ? (
+                    <tr><td colSpan={resultado.cabeceras.length} className="vacio">Sin datos para el período.</td></tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+          {tarjetas.length > 0 ? (
+            <div className="tarjetasTotales">
+              {tarjetas.map(([t, v], i) => (
+                <div key={t} className={`tarjetaTotal tarjeta${i}`.trim()}>
+                  <span className="tituloTarjeta">{t}</span>
+                  <span className="valorTarjeta">{v}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
-      {resultado !== null ? (
-        <>
-          <div className="cabeceraInforme">
-            <h3>{resultado.titulo}</h3>
-            <p>{resultado.descripcion}</p>
-          </div>
-          <div className="tablaInforme">
-            <table className="rejilla">
-              <thead>
-                <tr>{resultado.cabeceras.map((c) => <th key={c}>{c}</th>)}</tr>
-              </thead>
-              <tbody>
-                {resultado.filas.map((f, i) => (
-                  <tr key={i}>{f.map((v, j) => <td key={j}>{v}</td>)}</tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      ) : null}
     </div>
   );
 }
