@@ -1085,3 +1085,93 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .botonFicha.ancho { flex: 1; color: #777; }
 .totalItinerarios { color: #333; font-size: 13px; }
 /* ===== fin Gráficos Orión 2 ===== */
+
+/* --- Pantalla Calendarios Orión 2 --- */
+.paginaCalendariosO2 { display: flex; flex-direction: column; }
+.marcoCalendarios {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  margin: 0 10px;
+}
+/* Vistas Anual/Virtual de la barra superior (Trabajados = ninguna pulsada). */
+.botonVista {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 6px 18px;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 3px;
+}
+.botonVista.pulsado, .botonLote.pulsado {
+  background: #d3f0d3;
+  border-color: #6abf6a;
+  color: #1a6a1a;
+  font-weight: 600;
+}
+.botonVista:hover, .botonLote:hover { border-color: var(--primario); }
+.botonLote {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 5px 12px;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 3px;
+}
+/* Fila del mes: flechas, título grande y «Por trabajador/a». */
+.barraMes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+}
+.tituloMes { color: #16365c; font-size: 24px; margin: 0; min-width: 280px; text-align: center; }
+.botonFlecha {
+  border: 1px solid #b8b8b8;
+  background: #f4f4f4;
+  padding: 6px 12px;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 3px;
+}
+.botonFlecha:hover { border-color: var(--primario); color: var(--primario); }
+.botonFlecha:disabled { cursor: default; }
+.barraOpsCalendarios { border-bottom: 1px solid var(--borde); }
+/* Colores de situación del original. */
+.sitVerde { color: #1a7a1a; font-weight: 600; }
+.sitRojo { color: #c62828; font-weight: 600; }
+.sitAzul { color: #0b5bd3; font-weight: 600; }
+.sitNegro { color: #111; font-weight: 600; }
+
+/* --- Ventana «Añadir calendarios anuales» --- */
+.ventanaAñadir {
+  width: min(1360px, 96vw);
+  height: min(820px, 94vh);
+}
+.marcoPegado {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+}
+.marcoPegado .rejillaDias { flex: none; }
+.filaPegada td { height: 26px; padding: 0; }
+.areaPegadoModal {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  border: none;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  padding: 4px 6px;
+  resize: none;
+  outline: none;
+  background: #fdfdfd;
+}
+.areaPegadoModal::placeholder { color: #b3b3b3; }
+.errorVentana { margin: 6px 10px; }
+/* ===== fin Calendarios Orión 2 ===== */

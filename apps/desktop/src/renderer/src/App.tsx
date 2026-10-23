@@ -50,6 +50,8 @@ export function App(): ReactNode {
   const [pantalla, setPantalla] = useState<NombrePantalla>("menu");
   const [conductorContexto, setConductorContexto] = useState<ConductorContexto | null>(null);
   const [idCalendarioDetalle, setIdCalendarioDetalle] = useState<number | null>(null);
+  /** Pantalla desde la que se abrió el detalle (para volver a la correcta). */
+  const [origenDetalle, setOrigenDetalle] = useState<NombrePantalla>("calendariosConductor");
 
   // Al abrir: si hay token guardado aún válido se recupera la sesión.
   useEffect(() => {
@@ -152,7 +154,17 @@ export function App(): ReactNode {
             token={config.Token}
             centro={centro}
             mes={mes}
+            onCambiarMes={setMes}
             onVolver={() => setPantalla("menu")}
+            onPorTrabajador={(c) => {
+              setConductorContexto(c);
+              setPantalla("calendariosConductor");
+            }}
+            onDetalle={(id) => {
+              setIdCalendarioDetalle(id);
+              setOrigenDetalle("calendarios");
+              setPantalla("detalleCalendario");
+            }}
           />
         ) : pantalla === "calendariosConductor" && conductorContexto !== null ? (
           <PantallaCalendariosConductor
@@ -162,6 +174,7 @@ export function App(): ReactNode {
             onVolver={() => setPantalla("conductores")}
             onDetalle={(id) => {
               setIdCalendarioDetalle(id);
+              setOrigenDetalle("calendariosConductor");
               setPantalla("detalleCalendario");
             }}
           />
@@ -170,7 +183,7 @@ export function App(): ReactNode {
             servidor={config.Servidor}
             token={config.Token}
             idCalendario={idCalendarioDetalle}
-            onVolver={() => setPantalla("calendariosConductor")}
+            onVolver={() => setPantalla(origenDetalle)}
           />
         ) : pantalla === "reclamaciones" ? (
           <PantallaReclamaciones
