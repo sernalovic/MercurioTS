@@ -10,6 +10,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { duracion, minutosDeHora, parseHora } from "../lib/horas";
 import { SeparadorV, SeparadorH } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { nuevaLinea, nuevoItinerario, nuevaParada,
   type Linea, type Itinerario, type Parada,
 } from "@mercurio/domain";
@@ -24,8 +25,8 @@ export function PantallaLineas({ servidor, token, onVolver }: {
   const [bajaItinerarios, setBajaItinerarios] = useState<number[]>([]);
   const [bajaParadas, setBajaParadas] = useState<number[]>([]);
   const [indiceLinea, setIndiceLinea] = useState(-1);
-  const [anchoLineas, setAnchoLineas] = useState(() => Math.round(window.innerWidth * 0.45));
-  const [altoIti, setAltoIti] = useState(() => Math.round(window.innerHeight * 0.36));
+  const [anchoLineas, setAnchoLineas] = useMedida("Lineas", Math.round(window.innerWidth * 0.45));
+  const [altoIti, setAltoIti] = useMedida("Lineas.Itinerarios", Math.round(window.innerHeight * 0.36));
   const [indiceItinerario, setIndiceItinerario] = useState(-1);
   const [indiceParada, setIndiceParada] = useState(-1);
   const [ocupado, setOcupado] = useState(false);

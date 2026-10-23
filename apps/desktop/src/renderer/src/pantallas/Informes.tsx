@@ -22,6 +22,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pdfInforme } from "../lib/pdf";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { duracion } from "../lib/horas";
 import {
   CentroTrabajo, CategoriaTrabajador, SituacionTrabajador, TipoReclamacion, TiposDieta, nombreEnum,
@@ -171,7 +172,7 @@ export function PantallaInformes({ servidor, token, centro, mes, onVolver }: {
   onVolver: () => void;
 }): ReactNode {
   const [informe, setInforme] = useState("comparar");
-  const [anchoInf, setAnchoInf] = useState(230);
+  const [anchoInf, setAnchoInf] = useMedida("Informes", 230);
   const [resultado, setResultado] = useState<TablaInforme | null>(null);
   const [tarjetas, setTarjetas] = useState<Array<[string, string]>>([]);
   const [ocupado, setOcupado] = useState(false);

@@ -16,6 +16,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { TipoNomina, nombreEnum, recalcularNomina,
   type Convenio, type Nomina, type TablaSalarial,
 } from "@mercurio/domain";
@@ -226,7 +227,7 @@ export function PantallaNominas({ servidor, token, centro, mes, onVolver }: {
 }): ReactNode {
   const [conductores, setConductores] = useState<ConductorCombo[]>([]);
   const [idConductor, setIdConductor] = useState<number | null>(null);
-  const [anchoCond, setAnchoCond] = useState(300);
+  const [anchoCond, setAnchoCond] = useMedida("Nominas.Conductores", 300);
   const [nominas, setNominas] = useState<Nomina[]>([]);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const [convenios, setConvenios] = useState<Convenio[]>([]);

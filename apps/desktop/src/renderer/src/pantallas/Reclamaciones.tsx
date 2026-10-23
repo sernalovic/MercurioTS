@@ -18,6 +18,7 @@ import { pedirTexto } from "../lib/dialogos";
 import { duracion, importe, minutosDeHora, parseHora } from "../lib/horas";
 import { pdfReclamacion } from "../lib/pdf";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import {
   TipoReclamacion, esResuelta, notas as notasDe, nuevoConceptoReclamado,
   nombreEnum, TiposDieta,
@@ -305,7 +306,7 @@ export function PantallaReclamaciones({ servidor, token, centro, mes, onVolver }
 }): ReactNode {
   const [conductores, setConductores] = useState<ConductorCombo[]>([]);
   const [idConductor, setIdConductor] = useState<number | null>(null);
-  const [anchoCond, setAnchoCond] = useState(300);
+  const [anchoCond, setAnchoCond] = useMedida("Reclamaciones.Conductores", 300);
   const [reclamaciones, setReclamaciones] = useState<Reclamacion[]>([]);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const [borrados, setBorrados] = useState<ConceptoReclamado[]>([]);

@@ -18,6 +18,7 @@ import {
 } from "@mercurio/domain";
 import type { ConductorContexto } from "./CalendariosConductor";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 
 // ---- formas de datos ----
 
@@ -528,7 +529,7 @@ export function PantallaTrabajadores({ servidor, token, centro, onVolver, onVerC
   const [filas, setFilas] = useState<Fila[]>([]);
   const [originales, setOriginales] = useState<Map<number, Fila>>(new Map());
   const [borradas, setBorradas] = useState<Fila[]>([]);
-  const [anchoTrab, setAnchoTrab] = useState(() => Math.max(620, Math.round(window.innerWidth * 0.62)));
+  const [anchoTrab, setAnchoTrab] = useMedida("Trabajadores", Math.max(620, Math.round(window.innerWidth * 0.62)));
   const [regs, setRegs] = useState<RegFila[]>([]);
   const [regsOriginales, setRegsOriginales] = useState<Map<number, RegFila>>(new Map());
   const [borradasReg, setBorradasReg] = useState<RegFila[]>([]);

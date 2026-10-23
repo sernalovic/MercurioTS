@@ -16,6 +16,8 @@ export interface Configuracion {
   UltimoCentro: string;
   Token: string;
   Expira: number; // instante de expiración del token (ms Unix); 0 si no hay
+  /** Tamaños arrastrados de los separadores de paneles, por pantalla. */
+  Medidas?: Record<string, number>;
 }
 
 export const SERVIDOR_DEFECTO = "https://mercurio-ts.vercel.app";

@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { duracionC, duracion as duracionTotal, centimosDe, hora, importe, parseHora, unidades } from "../lib/horas";
 import {
   CalculosHorario, CodigoIncidencia, Incidencia, Turno, ajustarJDs, recalcularResumen,
@@ -54,7 +55,7 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
   const [dias, setDias] = useState<DiaCalendario[]>([]);
   const [resumen, setResumen] = useState<ResumenCalendario | null>(null);
   const [seleccion, setSeleccion] = useState<number | null>(null);
-  const [anchoLat, setAnchoLat] = useState(340);
+  const [anchoLat, setAnchoLat] = useMedida("DetalleCalendario.Lateral", 340);
   const [saldos, setSaldos] = useState("");
   const [hayCambios, setHayCambios] = useState(false);
   const [ocupado, setOcupado] = useState(false);

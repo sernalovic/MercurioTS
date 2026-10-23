@@ -17,6 +17,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { centimosDe, duracion, importe, minutosDeHora, parseHora } from "../lib/horas";
 import { nombreEnum, nuevoConvenio, nuevaTablaSalarial, incrementarImportes,
   CentroTrabajo, CategoriaTrabajador,
@@ -327,7 +328,7 @@ export function PantallaConvenios({ servidor, token, onVolver }: {
   onVolver: () => void;
 }): ReactNode {
   const [convenios, setConvenios] = useState<Convenio[]>([]);
-  const [anchoConv, setAnchoConv] = useState(190);
+  const [anchoConv, setAnchoConv] = useMedida("Convenios", 190);
   const [bajaConvenios, setBajaConvenios] = useState<number[]>([]);
   const [bajaFestivos, setBajaFestivos] = useState<Array<{ id: number; fecha: string }>>([]);
   const [seleccionado, setSeleccionado] = useState(-1);

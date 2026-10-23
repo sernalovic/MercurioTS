@@ -13,6 +13,8 @@ export interface Configuracion {
   UltimoCentro: string;
   Token: string;
   Expira: number;
+  /** Tamaños arrastrados de los separadores de paneles, por pantalla. */
+  Medidas?: Record<string, number>;
 }
 
 export function configuracionPorDefecto(): Configuracion {

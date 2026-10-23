@@ -13,6 +13,7 @@ import { useEffect, useState, type ChangeEvent, type ReactNode } from "react";
 import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
 import { SeparadorV } from "../componentes/Separador";
+import { useMedida } from "../lib/medidas";
 import { duracion, hora, minutosDeHora } from "../lib/horas";
 import {
   CalculosHorario, TipoDia, Turno, CategoriaGrafico, CentroTrabajo, nombreEnum, Duracion,
@@ -277,7 +278,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
 }): ReactNode {
   const [grupos, setGrupos] = useState<string[]>([]);
   const [grupo, setGrupo] = useState<string | null>(null);
-  const [anchoGrupos, setAnchoGrupos] = useState(170);
+  const [anchoGrupos, setAnchoGrupos] = useMedida("Graficos.Grupos", 170);
   const [filas, setFilas] = useState<Grafico[]>([]);
   const [seleccion, setSeleccion] = useState<number | null>(null);
   const [borradas, setBorradas] = useState<Grafico[]>([]);
