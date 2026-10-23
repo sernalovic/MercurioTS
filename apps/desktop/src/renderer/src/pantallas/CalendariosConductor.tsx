@@ -1,8 +1,9 @@
 /**
- * Calendarios de un conductor a lo largo de un año — port de
- * `CalendariosConductorViewModel`, la pantalla abierta por «Ver
- * calendarios» desde Conductores. El detalle de cada mes entra con la
- * fase de Detalle.
+ * Calendarios de un conductor a lo largo de un año — aspecto de Orión 2
+ * (`CalendariosConductorViewModel`): barra superior con «Volver» y
+ * «Descartar Cambios», banda «CALENDARIOS DE matrícula», fila del año
+ * (← 2026 →) con el botón «Detalle» y rejilla de los 12 meses (una fila
+ * por calendario del año, 31 columnas). Doble clic abre el detalle.
  */
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -43,32 +44,43 @@ export function PantallaCalendariosConductor({ servidor, token, conductor, onVol
 
   useEffect(cargar, [servidor, token, conductor.id, año]);
 
-  const titulo = `Calendarios de ${conductor.matricula} - ${conductor.nombre} ${conductor.apellidos}`;
-
   return (
-    <div className="pagina">
-      <div className="cabeceraPagina">
-        <h2 className="tituloPagina">{titulo}</h2>
+    <div className="pagina paginaCalendariosO2">
+      <div className="opcionesPagina">
+        <button className="boton" onClick={onVolver}>← Volver</button>
         {ocupado ? <span className="cargando">Cargando…</span> : null}
         {error ? <span className="error" role="alert">{error}</span> : null}
         <span className="hueco" />
-        <button className="boton" onClick={() => setAño((a) => a + 1)} disabled={ocupado}>Año siguiente ▶</button>
-        <button className="boton" onClick={() => setAño((a) => a - 1)} disabled={ocupado}>◀ Año anterior</button>
+        <button className="boton" onClick={cargar} disabled={ocupado}>↺ Descartar Cambios</button>
       </div>
-      <div className="opcionesPagina">
-        <span className="hueco" />
-        <button className="boton" onClick={onVolver}>Volver</button>
-        <button className="boton" onClick={() => cargar()} disabled={ocupado}>Recargar</button>
-        <button
-          className="boton"
-          onClick={() => seleccion !== null && onDetalle(seleccion)}
-          disabled={seleccion === null}
-        >
-          Detalle
-        </button>
+      <div className="marcoCalendarios">
+        <div className="bandaTitulo">
+          CALENDARIOS DE {conductor.matricula} - {conductor.nombre} {conductor.apellidos}
+        </div>
+        <div className="barraMes">
+          <button className="botonFlecha" onClick={() => setAño((a) => a - 1)} disabled={ocupado} aria-label="Año anterior">←</button>
+          <h2 className="tituloMes">{año}</h2>
+          <button className="botonFlecha" onClick={() => setAño((a) => a + 1)} disabled={ocupado} aria-label="Año siguiente">→</button>
+          <button
+            className="boton"
+            onClick={() => seleccion !== null && onDetalle(seleccion)}
+            disabled={seleccion === null || ocupado}
+          >
+            📋 Detalle
+          </button>
+        </div>
+        <RejillaCalendarios
+          filas={filas}
+          seleccion={seleccion}
+          onSeleccion={setSeleccion}
+          onDetalle={onDetalle}
+        />
       </div>
-      <RejillaCalendarios filas={filas} seleccion={seleccion} onSeleccion={setSeleccion} />
-      <p className="pendiente">El detalle de cada calendario entra con la fase de Detalle.</p>
+      <p className="barraEstado">
+        Calendarios: {filas.length}
+        {seleccion !== null ? ` · Mes de ${filas.find((f) => f.id === seleccion)?.fecha.slice(5, 7)}/${año} seleccionado` : ""}
+        {" · Doble clic en un calendario para su detalle."}
+      </p>
     </div>
   );
 }

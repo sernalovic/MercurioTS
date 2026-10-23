@@ -1175,3 +1175,10 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 .areaPegadoModal::placeholder { color: #b3b3b3; }
 .errorVentana { margin: 6px 10px; }
 /* ===== fin Calendarios Orión 2 ===== */
+
+/* --- Detalle de calendario Orión 2 --- */
+.paginaDetalleO2 { display: flex; flex-direction: column; }
+.marcoDetalle { margin: 0 10px; }
+.tituloDetalle { font-size: 22px; min-width: 0; text-align: left; }
+.paginaDetalleO2 .detalleCuerpo { padding: 10px; }
+/* ===== fin Detalle de calendario Orión 2 ===== */

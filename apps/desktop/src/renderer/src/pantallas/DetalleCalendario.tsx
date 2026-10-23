@@ -447,30 +447,34 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
   }
 
   return (
-    <div className="pagina paginaDetalle">
-      <div className="cabeceraPagina">
-        <h2 className="tituloPagina">{titulo}</h2>
+    <div className="pagina paginaDetalleO2">
+      <div className="opcionesPagina">
+        <button className="boton" onClick={salir} disabled={ocupado}>← Salir</button>
         {hayCambios ? <span className="etiquetaMini" style={{ color: "var(--primario)" }}>· cambios sin guardar</span> : null}
         {ocupado ? <span className="cargando">Trabajando…</span> : null}
         {error ? <span className="error" role="alert">{error}</span> : null}
-      </div>
-      <div className="opcionesPagina">
-        <button className="boton" onClick={salir} disabled={ocupado}>Salir</button>
-        <button className="boton" onClick={cargar} disabled={ocupado}>Recargar</button>
-        <button className="boton" onClick={regenerarDiaCommand} disabled={ocupado || seleccion === null}>Regenerar día</button>
-        <button className="boton" onClick={regenerarCalendarioCommand} disabled={ocupado}>Regenerar calendario</button>
-        <button className="boton" onClick={() => setResumen(recalcularResumenLocal(dias))} disabled={ocupado}>Recalcular resumen</button>
-        <button className="boton" onClick={ajustarJDsCommand} disabled={ocupado}>Ajustar JDs</button>
-        <button className="boton" onClick={marcarFestivos} disabled={ocupado}>Marcar festivos</button>
-        <button className="boton" onClick={restablecerImportes} disabled={ocupado} title="Copia los importes calculados a lo cobrado en nómina">
-          Cobrado = calculado
-        </button>
-        <button className="boton" onClick={() => void reclamar()} disabled={ocupado}>Generar reclamación</button>
-        <button className="boton" onClick={() => void generarNomina()} disabled={ocupado}>Generar nómina</button>
         <span className="hueco" />
-        <button className="botonPrincipal" onClick={guardar} disabled={ocupado}>Guardar</button>
       </div>
-      <p className="saldosLinea">{saldos}</p>
+      <div className="marcoCalendarios marcoDetalle">
+        <div className="bandaTitulo">DETALLE DE CALENDARIO</div>
+        <div className="barraMes">
+          <h2 className="tituloMes tituloDetalle">{titulo}</h2>
+        </div>
+        <div className="barraPanel barraOpsCalendarios">
+          <button className="boton" onClick={cargar} disabled={ocupado}>↺ Recargar</button>
+          <button className="boton" onClick={regenerarDiaCommand} disabled={ocupado || seleccion === null}>↻ Regenerar día</button>
+          <button className="boton" onClick={regenerarCalendarioCommand} disabled={ocupado}>↻ Regenerar calendario</button>
+          <button className="boton" onClick={() => setResumen(recalcularResumenLocal(dias))} disabled={ocupado}>Σ Recalcular resumen</button>
+          <button className="boton" onClick={ajustarJDsCommand} disabled={ocupado}>☰ Ajustar JDs</button>
+          <button className="boton" onClick={marcarFestivos} disabled={ocupado}>📅 Marcar festivos</button>
+          <button className="boton" onClick={restablecerImportes} disabled={ocupado} title="Copia los importes calculados a lo cobrado en nómina">
+            € Cobrado = calculado
+          </button>
+          <button className="boton" onClick={() => void reclamar()} disabled={ocupado}>📄 Generar reclamación</button>
+          <button className="boton" onClick={() => void generarNomina()} disabled={ocupado}>📄 Generar nómina</button>
+          <span className="hueco" />
+          <button className="botonPrincipal" onClick={guardar} disabled={ocupado}>💾 Guardar</button>
+        </div>
       <div className="detalleCuerpo">
         <div className="marcoRejilla detalleRejilla">
           <table className="rejilla rejillaDetalle">
@@ -502,6 +506,8 @@ export function PantallaDetalleCalendario({ servidor, token, idCalendario, onVol
           {resumen === null ? null : <PanelResumen r={resumen} />}
         </div>
       </div>
+      </div>
+      <p className="barraEstado">{saldos}</p>
     </div>
   );
 }
