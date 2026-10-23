@@ -1,19 +1,28 @@
+# Configuración de empaquetado (electron-builder). Única fuente de verdad:
+# no se duplica en package.json para evitar que ambas versiones diverjan.
 appId: com.mercurio.desktop
 productName: Mercurio
 directories:
   output: release
+# Solo la salida compilada de electron-vite: main, preload y renderer viven
+# en `out/`, y pdf-lib/exceljs ya van embebidos en el bundle del renderer.
 files:
-  - "src/**/*"
-  - "package.json"
+  - out/**/*
+  - package.json
+npmRebuild: false
 win:
-  # Instalador NSIS estándar (siguiente-siguiente), 64 bits
+  # Instalador NSIS estándar (siguiente-siguiente), 64 bits, con el icono
+  # de la app (mismo mercurio.ico del repositorio).
+  icon: build/icon.ico
   target:
     - target: nsis
       arch:
         - x64
 nsis:
   oneClick: false
+  perMachine: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   shortcutName: Mercurio
-  artifactName: ${productName}-Setup-${version}.${ext}
+  uninstallDisplayName: Mercurio
+  artifactName: Mercurio ${version} Setup.${ext}

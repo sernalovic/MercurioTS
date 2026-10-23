@@ -5,6 +5,8 @@ node_modules/
 # Builds
 dist/
 build/
+# …salvo el icono del empaquetado de la app de escritorio (electron-builder).
+!apps/desktop/build/
 .next/
 out/
 target/

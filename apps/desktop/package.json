@@ -8,28 +8,7 @@
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "empaquetar": "electron-vite build && electron-builder"
-  },
-  "build": {
-    "appId": "org.mercurio.desktop",
-    "productName": "Mercurio",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "out/**"
-    ],
-    "win": {
-      "target": ["nsis"],
-      "icon": "build/icon.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "artifactName": "Mercurio ${version} Setup.exe",
-      "uninstallDisplayName": "Mercurio ${version}"
-    }
+    "empaquetar": "electron-vite build && electron-builder --win"
   },
   "devDependencies": {
     "@mercurio/domain": "workspace:*",
