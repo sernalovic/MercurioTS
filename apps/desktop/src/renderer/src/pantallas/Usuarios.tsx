@@ -5,8 +5,8 @@
  * (clic sobre la celda = alternar, se guarda al instante por usuario vía
  * `cuenta/usuarios/{id}/permisos`), agrupación opcional y la ventana
  * «Enviar email» como modal con las dos listas y los botones de
- * añadir/quitar del original. El envío queda preparado (validación y
- * destinatarios) pero todavía no conectado.
+ * añadir/quitar del original. El envío va a `cuenta/enviarEmail`
+ * (nodemailer en el servidor; sin SMTP responde el mensaje del original).
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { api } from "../lib/api";
@@ -178,20 +178,36 @@ export function PantallaUsuarios({ servidor, token, onVolver }: {
   }
 
   /**
-   * Envío pendiente de conectar: de momento solo se valida y se avisa
-   * con los destinatarios que se usarían (el SMTP del servidor aún no
-   * está en uso).
+   * Envío real: POST a `cuenta/enviarEmail` (nodemailer en el servidor,
+   * port de `AccountController.SendMail`). Sin SMTP configurado el
+   * servidor responde el mismo mensaje que el original.
    */
-  function enviar(): void {
-    const conEmail = elegidos
+  async function enviar(): Promise<void> {
+    const destinos = elegidos
       .map(porId)
       .filter((u): u is FilaUsuario => u !== undefined && (u.email ?? "").trim() !== "")
-      .map((u) => u.email as string);
-    if (conEmail.length === 0) {
+      .map((u) => ({
+        nombre: `${u.nombre} ${u.apellidos}`.trim(),
+        email: (u.email as string).trim(),
+      }));
+    if (destinos.length === 0) {
       window.alert("Ningún destinatario seleccionado tiene email.");
       return;
     }
-    window.alert(`Preparado el envío de «${asunto}» a ${conEmail.length} destinatarios.\nEl envío de correos todavía no está conectado.`);
+    setOcupado(true);
+    setError(null);
+    try {
+      await api(servidor, token, "cuenta/enviarEmail", {
+        metodo: "POST",
+        cuerpo: { asunto, cuerpo, direcciones: destinos },
+      });
+      window.alert("Se ha enviado el email correctamente");
+      setMostrarEmail(false);
+    } catch (e) {
+      window.alert((e as Error).message);
+    } finally {
+      setOcupado(false);
+    }
   }
 
   const etiqueta = (u: FilaUsuario): string => `${u.matricula} ${u.apellidos}`;
