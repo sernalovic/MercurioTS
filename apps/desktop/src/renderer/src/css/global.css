@@ -819,3 +819,231 @@ body {
   margin: 0 auto 6px;
   display: block;
 }
+
+/* ===== Aspecto Orión 2 (menú, Trabajadores y Detalle) ===== */
+:root {
+  --orion-cab: #2e7cd6;
+  --orion-banda: #a8d9f5;
+}
+/* --- Menú principal --- */
+.menuO2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.cabeceraMenu {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px 4px;
+}
+.logoMenu {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 26px;
+  color: var(--orion-cab);
+  font-weight: 600;
+}
+.logoMenu img { width: 34px; height: 34px; align-self: center; }
+.logoMenu small { font-size: 12px; color: #666; font-weight: 400; }
+.centroMenu {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--orion-cab);
+}
+.mosaico {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 38px;
+  justify-content: center;
+  align-content: flex-start;
+  padding: 18px 40px;
+  flex: 1;
+  overflow: auto;
+}
+.tarjetaTile {
+  width: 200px;
+  border: 1px solid #c9c9c9;
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.tarjetaTile:hover { border-color: var(--orion-cab); box-shadow: 0 2px 8px rgba(46, 124, 214, 0.25); }
+.iconoTile {
+  display: block;
+  font-size: 84px;
+  line-height: 1;
+  padding: 34px 0 28px;
+  background: linear-gradient(160deg, #f6f9fc, #e8eff7);
+}
+.rotuloTile {
+  display: block;
+  border-top: 1px solid #d9d9d9;
+  padding: 9px 4px;
+  font-size: 16px;
+  color: #444;
+  letter-spacing: 0.5px;
+}
+.pieMenu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+}
+.urlServidor { color: #888; font-size: 12px; }
+.botonUsuarios {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #c9c9c9;
+  background: #fff;
+  padding: 10px 26px;
+  font-size: 16px;
+  cursor: pointer;
+  font: inherit;
+}
+.botonUsuarios:hover { border-color: var(--orion-cab); }
+
+/* --- Pantalla Trabajadores --- */
+.paginaTrabajadores { display: flex; flex-direction: column; }
+.bandaTitulo {
+  background: var(--orion-banda);
+  color: #1a4d80;
+  font-weight: 700;
+  text-align: center;
+  padding: 3px 6px;
+  font-size: 13px;
+}
+.barraPanel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  flex-wrap: wrap;
+}
+.barraPanel .boton { padding: 5px 10px; }
+.trabajadoresCuerpo {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  padding: 0 10px 10px;
+}
+.panelTrabajadores { flex: 2; min-width: 0; display: flex; flex-direction: column; }
+.panelRegulaciones { flex: 1; min-width: 320px; display: flex; flex-direction: column; }
+.marcoRejilla { flex: 1; min-height: 0; overflow: auto; position: relative; }
+.marcoRejilla.alta { max-height: 100%; }
+.rejilla .celda.corto { width: 34px; padding: 2px; text-align: center; }
+.filaGrupo td {
+  background: var(--orion-banda);
+  color: #1a4d80;
+  font-weight: 600;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+.pistaDoble { margin: 4px 2px; color: #999; font-size: 11px; }
+
+/* --- Ventana Detalle de trabajador --- */
+.veloDetalle {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.ventanaDetalle {
+  background: #fdfdfd;
+  border: 1px solid #9c9c9c;
+  width: min(1500px, 94vw);
+  height: min(940px, 92vh);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.cabeceraVentana {
+  background: var(--orion-cab);
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+  padding: 6px 10px;
+  position: relative;
+}
+.cerrarVentana {
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+.detalleCuerpo {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  padding: 14px 16px;
+}
+.formTrabajador {
+  flex: 0 0 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+}
+.formTrio { display: flex; gap: 14px; }
+.formDuo { display: flex; gap: 14px; align-items: flex-end; }
+.formTrio .campoTrabajador { flex: 1; }
+.formDuo .campoTrabajador { flex: 1; }
+.campoTrabajador { display: flex; flex-direction: column; gap: 3px; }
+.campoTrabajador.alto { flex: 1; min-height: 200px; }
+.etiquetaCampo { color: var(--orion-cab); font-size: 13px; }
+.campoEntrada {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 5px 8px;
+  font: inherit;
+  color: #1a4d80;
+  font-weight: 600;
+  border-radius: 3px;
+  min-width: 0;
+}
+textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
+.botonFicha {
+  border: 1px solid #b8b8b8;
+  background: #fff;
+  padding: 6px 14px;
+  color: #555;
+  cursor: pointer;
+  font: inherit;
+  border-radius: 3px;
+}
+.botonFicha.pulsado, .barraPanel .boton.pulsado {
+  background: var(--orion-banda);
+  border-color: var(--orion-cab);
+  color: #1a4d80;
+  font-weight: 600;
+}
+.panelReclamaciones {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pieVentana {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 16px;
+}
+/* ===== fin aspecto Orión 2 ===== */

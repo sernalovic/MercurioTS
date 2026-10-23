@@ -8,7 +8,7 @@ import { leerConfig, guardarConfig, type Configuracion } from "./lib/configuraci
 import { entrar, verificar, type SesionInfo } from "./lib/api";
 import { PantallaAcceso } from "./pantallas/Acceso";
 import { PantallaMenu } from "./pantallas/Menu";
-import { PantallaConductores } from "./pantallas/Conductores";
+import { PantallaTrabajadores } from "./pantallas/Trabajadores";
 import { PantallaCalendarios } from "./pantallas/Calendarios";
 import { PantallaCalendariosConductor, type ConductorContexto } from "./pantallas/CalendariosConductor";
 import { PantallaDetalleCalendario } from "./pantallas/DetalleCalendario";
@@ -121,9 +121,15 @@ export function App(): ReactNode {
       />
       <main className="cuerpo">
         {pantalla === "menu" ? (
-          <PantallaMenu sesion={sesion} irA={setPantalla} />
+          <PantallaMenu
+            sesion={sesion}
+            servidor={config.Servidor}
+            centro={centro}
+            onCentro={setCentro}
+            irA={setPantalla}
+          />
         ) : pantalla === "conductores" ? (
-          <PantallaConductores
+          <PantallaTrabajadores
             servidor={config.Servidor}
             token={config.Token}
             centro={centro}
