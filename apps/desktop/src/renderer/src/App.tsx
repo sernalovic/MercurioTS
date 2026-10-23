@@ -198,6 +198,7 @@ export function App(): ReactNode {
             servidor={config.Servidor}
             token={config.Token}
             centro={centro}
+            mes={mes}
             onVolver={() => setPantalla("menu")}
           />
         ) : pantalla === "convenios" ? (

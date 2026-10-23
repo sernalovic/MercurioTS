@@ -1246,3 +1246,66 @@ textarea.campoEntrada { flex: 1; resize: none; min-height: 160px; }
 }
 .pieReclamacion { justify-content: space-between; }
 /* ===== fin Reclamaciones Orión 2 ===== */
+
+/* --- Ventana «Nómina de …» Orión 2 --- */
+.ventanaNomina { width: min(1300px, 92vw); height: min(920px, 92vh); }
+.nominaCuerpo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 14px;
+  overflow: auto;
+}
+.cajaNomina {
+  border-collapse: collapse;
+  width: 100%;
+}
+.cajaNomina td {
+  border: 1px solid #b8b8b8;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+.cajaNomina .titular {
+  color: #16365c;
+  font-weight: 700;
+  font-size: 16px;
+}
+.cajaNomina .etiquetaCaja { color: #16365c; font-weight: 600; }
+.cajaNomina .grande { font-size: 18px; font-weight: 700; }
+.marcoNomina {
+  flex: none;
+  max-height: 46%;
+  border: 1px solid #b8b8b8;
+}
+.rejillaConceptosNomina td { padding: 4px 10px; }
+.nominaPie {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.nominaIzquierda {
+  flex: 1 1 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contingencias td { padding: 6px 12px; }
+.nominaDerecha {
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.totalesCaja td {
+  background: #f6f8fb;
+  color: #16365c;
+  font-weight: 700;
+  text-align: center;
+  font-size: 13px;
+}
+.liquidoCaja td { background: #eef2f7; }
+.nominaDerecha .pieVentana { justify-content: flex-end; }
+/* ===== fin Nómina Orión 2 ===== */
