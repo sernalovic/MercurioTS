@@ -4,7 +4,7 @@ Port de `Mercurio.Domain` (C#) a TypeScript puro: entidades y reglas de cálculo
 (horas, dietas, pluses, resúmenes, nóminas y reclamaciones), compartidos por la
 web y el escritorio.
 
-La fuente de verdad es [`docs/analisis-sistema-anterior/REGLAS-CALCULO.md`](../../docs/analisis-sistema-anterior/REGLAS-CALCULO.md).
+La fuente de verdad es [`docs/especificacion/REGLAS-CALCULO.md`](../../docs/especificacion/REGLAS-CALCULO.md).
 Los tests derivan de ese documento, igual que los tests xUnit del proyecto original.
 
 ## Convenciones del port

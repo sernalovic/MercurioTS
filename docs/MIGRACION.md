@@ -58,7 +58,7 @@ La contraseña se pide sin mostrarla y debe tener al menos 8 caracteres.
   - 31 calendarios de dos conductores que ya no existen en el sistema anterior (ids 7 y 1847);
   - 25 calendarios duplicados del mismo conductor y mes, de los que se conserva el primero.
 - Verificado comparando totales de la exportación y de la base de datos (recuentos, horas acumuladas, cenas, números de gráfico, importes de resúmenes y horas de gráficos): coinciden exactamente.
-- El análisis de diferencias de cálculo está en [analisis-sistema-anterior/COMPARACION-DATOS-REALES.md](analisis-sistema-anterior/COMPARACION-DATOS-REALES.md).
+- El análisis de diferencias de cálculo está en [especificacion/COMPARACION-DATOS-REALES.md](especificacion/COMPARACION-DATOS-REALES.md).
 
 ## Comprobado
 - La exportación, la comparación y la importación se han probado usando un servidor Mercurio local como origen: misma API y mismas rutas. Los datos importados coinciden byte a byte con el origen (huella MD5 por tabla).

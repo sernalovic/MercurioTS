@@ -24,10 +24,10 @@ El portal vive en producción en <https://mercurio-ts.vercel.app>. El despliegue
 
 | Documento | Contenido |
 |---|---|
-| [ESPECIFICACION.md](docs/analisis-sistema-anterior/ESPECIFICACION.md) | Arquitectura, dominio, pantallas y API |
-| [REGLAS-CALCULO.md](docs/analisis-sistema-anterior/REGLAS-CALCULO.md) | Fórmulas y reglas de negocio en lenguaje natural; es la referencia de todas las reglas de cálculo, con las dudas marcadas con **[?]** |
-| [catalogo-api.md](docs/analisis-sistema-anterior/catalogo-api.md) | Endpoints de la API (las rutas de `api/v1`) |
-| [pantallas-y-acciones.md](docs/analisis-sistema-anterior/pantallas-y-acciones.md) | Acciones y textos de cada pantalla |
+| [ESPECIFICACION.md](docs/especificacion/ESPECIFICACION.md) | Arquitectura, dominio, pantallas y API |
+| [REGLAS-CALCULO.md](docs/especificacion/REGLAS-CALCULO.md) | Fórmulas y reglas de negocio en lenguaje natural; es la referencia de todas las reglas de cálculo, con las dudas marcadas con **[?]** |
+| [catalogo-api.md](docs/especificacion/catalogo-api.md) | Endpoints de la API (las rutas de `api/v1`) |
+| [pantallas-y-acciones.md](docs/especificacion/pantallas-y-acciones.md) | Acciones y textos de cada pantalla |
 | [MIGRACION.md](docs/MIGRACION.md) | Cómo se cargaron los datos iniciales (usuarios, convenios, centros, líneas, calendarios…) |
 | [DESPLIEGUE.md](docs/DESPLIEGUE.md) | Despliegue en producción: Vercel + Neon, datos y releases del escritorio |
 | [ESCRITORIO.md](docs/ESCRITORIO.md) | Fases del escritorio (M1–M10, todas hechas) y su arquitectura |

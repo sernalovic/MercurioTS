@@ -54,6 +54,6 @@ configuración en `localStorage`.
 ## Referencias del original
 
 - `C:\Users\Jorge\Desktop\PROYECTOS\Mercurio\src\Mercurio.Desktop` — fuente WPF.
-- `docs/analisis-sistema-anterior/pantallas-y-acciones.md` — catálogo de pantallas.
-- `docs/analisis-sistema-anterior/REGLAS-CALCULO.md` — reglas del dominio.
-- `docs/analisis-sistema-anterior/catalogo-api.md` — endpoints que consumía.
+- `docs/especificacion/pantallas-y-acciones.md` — catálogo de pantallas.
+- `docs/especificacion/REGLAS-CALCULO.md` — reglas del dominio.
+- `docs/especificacion/catalogo-api.md` — endpoints que consumía.

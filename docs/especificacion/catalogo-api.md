@@ -1,4 +1,4 @@
-﻿# Catálogo de la API del sistema anterior (extraído de ApiService con REA)
+﻿# Mercurio: catálogo de la API (extraído de ApiService con REA)
 
 ## Orion2.Desktop.Services.ApiService
 fields: configService: class:448; jsonOptions: class:501; ApiClient: class:665

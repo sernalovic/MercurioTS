@@ -6,7 +6,7 @@ import {
 import { nuevoConvenio, nuevoGrafico, nuevoOpcionesCentro, nuevoServicio } from "../src/Entidades";
 
 // Espejo de CalculosHorarioTests.cs: expectativas derivadas a mano de
-// docs/analisis-sistema-anterior/REGLAS-CALCULO.md (convenio con valores por defecto).
+// docs/especificacion/REGLAS-CALCULO.md (convenio con valores por defecto).
 describe("CalculosHorario", () => {
   const calc = new CalculosHorario(nuevoConvenio());
 

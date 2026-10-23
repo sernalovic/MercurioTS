@@ -1,9 +1,9 @@
-# El sistema anterior: especificación funcional para su reconstrucción
+# Mercurio: especificación funcional
 
-> Documento elaborado a partir de un análisis estático de los ensamblados instalados del sistema anterior (v0.2.0, AnderSoft)
-> hecho con REA, sin ejecutar el programa, y de una inspección pasiva de la parte pública de
-> https://orion2.azurewebsites.net/. Describe **qué hace** el sistema para poder reimplementarlo desde cero.
-> No contiene código del original.
+> **Procedencia.** Describe el comportamiento que Mercurio debe tener, elaborado a partir de un
+> análisis estático del sistema sobre el que se trabajó (v0.2.0, AnderSoft), hecho con REA sin
+> ejecutar el programa, más una inspección pasiva de la parte pública de
+> https://orion2.azurewebsites.net/. No contiene código. Se conserva como referencia de qué observar.
 >
 > Leyenda: **[O]** observado en el binario o en la web · **[I]** inferido · **[?]** desconocido, pendiente de confirmar.
 

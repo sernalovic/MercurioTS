@@ -1,8 +1,10 @@
-# El sistema anterior: reglas de cálculo
+# Mercurio: reglas de cálculo
 
-> Reglas sacadas del IL de `Orion2.Shared.dll` y `Nelya.Core.dll` con un desensamblador propio que lee los cuerpos de método a partir de los offsets que da REA.
-> Están redactadas en lenguaje natural para reimplementarlas sin copiar código.
-> Convención: una hora "vacía" (sin valor) se representa en el original con `TimeSpan.MaxValue`. En la reimplementación será `null`.
+> **Procedencia.** Reglas extraídas del IL de `Orion2.Shared.dll` y `Nelya.Core.dll` (el sistema
+> sobre el que se trabajó) con un desensamblador propio que lee los cuerpos de método a partir de
+> los offsets que da REA. Se reescriben en lenguaje natural para reimplementarlas sin copiar código.
+> Convención: una hora "vacía" (sin valor) se representa en el original con `TimeSpan.MaxValue`. En
+> Mercurio será `null`.
 > `Horas(t)` = t en horas decimales, redondeadas a 6 decimales.
 
 ## 0. Utilidades
