@@ -31,12 +31,13 @@ export async function GET(request: Request): Promise<Response> {
     .from(graficos)
     .where(
       and(
-        eq(graficos.centro, centro),
+        centro === 0 ? undefined : eq(graficos.centro, centro),
         gte(graficos.fecha, `${desde} 00:00:00`),
         lte(graficos.fecha, `${hasta} 00:00:00`),
       ),
     )
-    .orderBy(asc(graficos.numero));
+    // Con Todos se mezclan centros: se agrupa visualmente por centro y nº.
+    .orderBy(asc(graficos.centro), asc(graficos.numero));
   const ids = filas.map((f) => f.id);
   const filasItinerarios = ids.length > 0
     ? await db.select().from(itinerariosGraficos).where(inArray(itinerariosGraficos.graficoId, ids))

@@ -1,7 +1,9 @@
 /**
  * `GET /api/v1/graficos/grupos?centro=N` — fechas de validez de los
  * grupos de gráficos del centro, de más reciente a más antiguo (igual
- * que `<GraficosController..grupos>`; centro 0 = Todos suele devolver vacío).
+ * que `<GraficosController.Grupos>`; centro 0 = Todos, MEJORA sobre el
+ * original: unión de fechas de todos los centros para poder navegar
+ * por todos los grupos desde la pantalla de Gráficos).
  */
 import { desc, eq } from "drizzle-orm";
 import { graficos } from "@mercurio/db";
@@ -17,11 +19,11 @@ export async function GET(request: Request): Promise<Response> {
   if (!Number.isInteger(centro) || centro < 0 || centro > 5) {
     return Response.json({ error: "Centro no válido." }, { status: 400 });
   }
-  const fechas = centro === 0 ? [] : await getDb()
+  const consulta = getDb()
     .selectDistinct({ fecha: graficos.fecha })
     .from(graficos)
-    .where(eq(graficos.centro, centro))
     .orderBy(desc(graficos.fecha));
+  const fechas = centro === 0 ? await consulta : await consulta.where(eq(graficos.centro, centro));
   return Response.json({ grupos: fechas.map((f) => f.fecha.slice(0, 10)) });
 }
 

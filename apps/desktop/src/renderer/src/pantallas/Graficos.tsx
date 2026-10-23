@@ -12,8 +12,8 @@ import { api } from "../lib/api";
 import { pedirTexto } from "../lib/dialogos";
 import { duracion, hora, minutosDeHora, euros } from "../lib/horas";
 import {
-  CalculosHorario, TipoDia, Turno, CategoriaGrafico, nombreEnum, Duracion,
-  type Convenio, type Grafico, type ItinerarioGrafico, type CentroTrabajo,
+  CalculosHorario, TipoDia, Turno, CategoriaGrafico, CentroTrabajo, nombreEnum, Duracion,
+  type Convenio, type Grafico, type ItinerarioGrafico,
 } from "@mercurio/domain";
 
 const CENTROS = ["Todos", "Donosti", "Bilbao", "Arrasate", "Vitoria", "Pruebas"];
@@ -45,6 +45,8 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
   const [ocupado, setOcupado] = useState(false);
 
   const numeroCentro: CentroTrabajo = centro === "Todos" ? 0 : (CENTROS.indexOf(centro) as CentroTrabajo);
+  /** Modo «Todos»: unión de grupos de todos los centros (mejora sobre el original). */
+  const todos = centro === "Todos";
 
   function cargarGrupos(): void {
     setOcupado(true);
@@ -214,10 +216,11 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
     }));
   }
 
-  /** Deduce el tipo de día de cada gráfico a partir de los rangos de números del centro. */
+  /** Deduce el tipo de día de cada gráfico a partir de los rangos de números del centro
+   * (el del propio gráfico: con «Todos» cada fila sabe su centro). */
   function deducirDia(): void {
     const calc = new CalculosHorario(convenio);
-    setFilas(filas.map((g) => ({ ...g, tipoDia: calc.tipoDiaGrafico(g.numero, numeroCentro) })));
+    setFilas(filas.map((g) => ({ ...g, tipoDia: calc.tipoDiaGrafico(g.numero, g.centro) })));
   }
 
   function deducirTurno(): void {
@@ -416,10 +419,10 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
       <div className="opcionesPagina">
         <button className="boton" onClick={onVolver}>Volver</button>
         <button className="boton" onClick={cargarGrupos} disabled={ocupado}>Recargar</button>
-        <button className="boton" onClick={nuevoGrupo} disabled={ocupado}>Nuevo grupo</button>
-        <button className="boton" onClick={borrarGrupo} disabled={ocupado || grupo === null}>Borrar grupo</button>
+        <button className="boton" onClick={nuevoGrupo} disabled={ocupado || centro === "Todos"}>Nuevo grupo</button>
+        <button className="boton" onClick={borrarGrupo} disabled={ocupado || grupo === null || centro === "Todos"}>Borrar grupo</button>
         <span className="hueco" />
-        <button className="boton" onClick={añadirGrafico} disabled={ocupado || grupo === null}>Añadir gráfico</button>
+        <button className="boton" onClick={añadirGrafico} disabled={ocupado || grupo === null || centro === "Todos"}>Añadir gráfico</button>
         <button className="boton" onClick={borrarGrafico} disabled={ocupado || seleccion === null}>Borrar gráfico</button>
         <button className="boton" onClick={deshacerBorrado} disabled={ocupado || borradas.length === 0}>Deshacer borrado</button>
         <button className="boton" onClick={recalcular} disabled={ocupado || grupo === null}>Recalcular</button>
@@ -442,6 +445,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
             <table className="rejilla rejillaGraficos">
               <thead>
                 <tr>
+                  {todos ? <th>Centro</th> : null}
                   <th>Nº</th><th>Categoría</th><th>Tipo día</th><th>Turno</th>
                   <th>Inicio</th><th>Final</th><th>Ini. partido</th><th>Fin partido</th>
                   <th>Valoración</th><th>T. total</th><th>T. partido</th>
@@ -457,6 +461,7 @@ export function PantallaGraficos({ servidor, token, centro, onVolver }: {
                     className={seleccion === i ? "sel" : undefined}
                     onClick={() => setSeleccion(i)}
                   >
+                    {todos ? <td className="centradoMic">{nombreEnum(CentroTrabajo, g.centro)}</td> : null}
                     <td className="num">{g.numero}</td>
                     <td>
                       <select className="celda" value={String(g.categoria)} onChange={(e) => actualizar(g, { categoria: Number(e.target.value) })}>
